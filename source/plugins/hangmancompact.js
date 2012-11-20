@@ -137,10 +137,10 @@ var game = {
 			return part > that.guessNum ? ' ' : that.parts[ part ];
 		});
 		var guessess;
-		if(this.guesses.count > 0)
+		if(this.guesses.length > 0)
 		guessess = this.guesses.sort().join(', ');
 		else
-		guessess = "None"
+		guessess = "None";
 
 		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + " Revealed: "+ this.revealed;
 
