@@ -5319,7 +5319,7 @@ var game = {
 			return part > that.guessNum ? ' ' : that.parts[ part ];
 		});
 
-		var belowDude = "Tries: " + guessNum + "Guesses: " + this.guesses.sort().join( ', ' ) + this.revealed;
+		var belowDude = "Tries: " + that.guessNum + "Guesses: " + this.guesses.sort().join( ', ' ) + this.revealed;
 
 		var hangy = this.msg.codify( dude + '\n' + belowDude );
 		bot.log( hangy, this.msg );
