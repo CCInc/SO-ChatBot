@@ -5318,8 +5318,13 @@ var game = {
 		var dude = this.dude.replace( /\d/g, function ( part ) {
 			return part > that.guessNum ? ' ' : that.parts[ part ];
 		});
+		var guesses;
+		if(this.guesses.count > 0)
+		guesses = this.guesses.sort().join(', ');
+		else
+		guesses = "[]"
 
-		var belowDude = "Tries: " + that.guessNum + "Guesses: " + this.guesses.sort().join( ', ' ) + this.revealed;
+		var belowDude = "Tries: " + that.guessNum + " Guesses: " + this.guesses.sort().join( ', ' ) + this.revealed;
 
 		var hangy = this.msg.codify( dude + '\n' + belowDude );
 		bot.log( hangy, this.msg );
