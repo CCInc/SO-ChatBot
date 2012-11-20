@@ -133,9 +133,9 @@ var game = {
 		var that = this;
 
 		//replace the placeholders in the dude with body parts
-		var dude = this.dude.replace( /\d/g, function ( part ) {
-			return part > that.guessNum ? ' ' : that.parts[ part ];
-		});
+		// var dude = this.dude.replace( /\d/g, function ( part ) {
+			// return part > that.guessNum ? ' ' : that.parts[ part ];
+		// });
 		var guessess;
 		if(this.guesses.length > 0)
 		guessess = this.guesses.sort().join(', ');
@@ -144,7 +144,7 @@ var game = {
 
 		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + " Revealed: "+ this.revealed;
 
-		var hangy = this.msg.codify( dude + '\n' + belowDude );
+		var hangy = this.msg.codify( belowDude );
 		bot.log( hangy, this.msg );
 		this.msg.respond( hangy );
 	},
