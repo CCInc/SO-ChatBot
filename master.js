@@ -416,7 +416,7 @@ invocationPattern2 : '!!',
 		var msg = msgObj.content.trim();
 
 		//all we really care about
-		return msg.startsWith( this.invocationPattern ) || msg.startsWith(this.invocationPattern2);
+		return msg.startsWith( this.invocationPattern );
 	},
 
 	//gee, I wonder what this will return?
