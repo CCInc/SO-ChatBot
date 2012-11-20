@@ -5322,10 +5322,10 @@ var game = {
 		if(this.guesses.count > 0)
 		guesses = this.guesses.sort().join(', ');
 		else
-		guesses = "[]"
+		guesses = "None"
 
-		var belowDude = "Tries: " + that.guessNum + " Guesses: " + this.guesses.sort().join( ', ' ) + this.revealed;
-
+		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guesses + this.revealed;
+T
 		var hangy = this.msg.codify( dude + '\n' + belowDude );
 		bot.log( hangy, this.msg );
 		this.msg.respond( hangy );
