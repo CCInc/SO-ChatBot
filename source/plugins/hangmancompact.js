@@ -136,13 +136,13 @@ var game = {
 		var dude = this.dude.replace( /\d/g, function ( part ) {
 			return part > that.guessNum ? ' ' : that.parts[ part ];
 		});
-		var guesses;
+		var guessess;
 		if(this.guesses.count > 0)
-		guesses = this.guesses.sort().join(', ');
+		guessess = this.guesses.sort().join(', ');
 		else
-		guesses = "None"
+		guessess = "None"
 
-		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guesses + this.revealed;
+		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + this.revealed;
 T
 		var hangy = this.msg.codify( dude + '\n' + belowDude );
 		bot.log( hangy, this.msg );
