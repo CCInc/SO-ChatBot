@@ -4985,7 +4985,7 @@ bot.addCommand({
 }());
 
 ;
-(function () {
+﻿(function () {
 "use strict";
 
 var randomWord = function ( cb ) {
@@ -5172,7 +5172,7 @@ var game = {
 	}
 };
 bot.addCommand({
-	name : 'hang',
+	name : 'hangfull',
 	fun : game.receiveMessage,
 	thisArg : game
 });
@@ -5372,7 +5372,7 @@ var game = {
 	}
 };
 bot.addCommand({
-	name : 'hangcomp',
+	name : 'hang',
 	fun : game.receiveMessage,
 	thisArg : game
 });

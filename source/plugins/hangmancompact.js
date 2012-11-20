@@ -190,7 +190,7 @@ var game = {
 	}
 };
 bot.addCommand({
-	name : 'hangcomp',
+	name : 'hang',
 	fun : game.receiveMessage,
 	thisArg : game
 });
