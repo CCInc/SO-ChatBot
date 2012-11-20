@@ -142,7 +142,7 @@ var game = {
 		else
 		guessess = "None"
 
-		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + this.revealed;
+		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + " Revealed: "+ this.revealed;
 
 		var hangy = this.msg.codify( dude + '\n' + belowDude );
 		bot.log( hangy, this.msg );
