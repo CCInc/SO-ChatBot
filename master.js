@@ -311,10 +311,10 @@ var bot = window.bot = {
 	listeners : [],
 
 	parseMessage : function ( msgObj ) {
-//		if ( !this.validateMessage(msgObj) ) {
-//			bot.log( msgObj, 'parseMessage invalid' );
-//			return;
-////		}
+		if ( !this.validateMessage(msgObj) ) {
+			bot.log( msgObj, 'parseMessage invalid' );
+			return;
+		}
 
 		var msg = this.prepareMessage( msgObj );
 		bot.log( msg, 'parseMessage valid' );
