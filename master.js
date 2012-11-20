@@ -5325,7 +5325,7 @@ var game = {
 		guessess = "None"
 
 		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + this.revealed;
-T
+
 		var hangy = this.msg.codify( dude + '\n' + belowDude );
 		bot.log( hangy, this.msg );
 		this.msg.respond( hangy );
