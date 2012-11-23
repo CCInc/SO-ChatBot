@@ -415,7 +415,7 @@ var bot = window.bot = {
 		var msg = msgObj.content.trim();
 
 		//all we really care about
-		return msg.startsWith( this.invocationPattern );
+		return msg.startsWith( this.invocationPattern.toLowerCase() );
 	},
 
 	//gee, I wonder what this will return?
