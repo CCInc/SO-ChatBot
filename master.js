@@ -304,7 +304,6 @@ IO.jsonp.google = function ( query, cb ) {
 
 var bot = window.bot = {
 	invocationPattern : 'cc',
-invocationPattern2 : '!!',
 	commandRegex : /^\/\s?([\w\-]+)(?:\s(.+))?$/,
 	commands : {}, //will be filled as needed
 	commandDictionary : null, //it's null at this point, won't be for long
@@ -416,7 +415,7 @@ invocationPattern2 : '!!',
 		var msg = msgObj.content.trim();
 
 		//all we really care about
-		return msg.startsWith( this.invocationPattern ) || msg.startsWith(this.invocationPattern2);
+		return msg.startsWith( this.invocationPattern.toLowerCase() );
 	},
 
 	addCommand : function ( cmd ) {
