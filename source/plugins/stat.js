@@ -12,7 +12,7 @@ var extended_template = 'avg. rep/post: {avg_rep_post}, ' +
 		'{silver} silver badges and ' +
 		'{bronze} bronze badges. ';
 
-var site = /chat\.(\w+)/.exec( location )[ 1 ];
+var site = ( /chat\.(\w+)/.exec(location) || [,'stackoverflow'] )[ 1 ];
 
 function stat ( msg, cb ) {
 	var args = msg.parse(),
@@ -23,6 +23,10 @@ function stat ( msg, cb ) {
 	}
 	else if ( !/^\d+$/.test(id) ) {
 		id = msg.findUserid( id );
+	}
+
+	if ( id < 0 ) {
+		return 'Unobtanium could not be obtained';
 	}
 
 	//~10% chance
@@ -100,7 +104,8 @@ function normalize_stats ( stats ) {
 		stats.ratio = 'http://www.imgzzz.com/i/image_1294737413.png';
 	}
 	else {
-		stats.ratio = Math.ratio( stats.question_count, stats.answer_count );
+		stats.ratio =
+			Math.ratio( stats.question_count, stats.answer_count );
 	}
 
 	console.log( stats, '/stat normalized' );
@@ -110,9 +115,10 @@ function normalize_stats ( stats ) {
 function calc_extended_stats ( stats ) {
 	stats = Object.merge( stats.badge_counts, stats );
 
-	stats.avg_rep_post = stats.reputation
-		/
-		( stats.question_count + stats.answer_count );
+	stats.avg_rep_post =
+		( stats.reputation /
+		  ( stats.question_count + stats.answer_count )
+		).maxDecimal( 2 );
 
 	//1 / 0 === Infinity
 	if ( stats.avg_rep_post === Infinity ) {

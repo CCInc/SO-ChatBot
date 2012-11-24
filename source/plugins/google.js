@@ -1,7 +1,7 @@
 (function () {
 //TODO: maybe move this somewhere else?
 function google ( args, cb ) {
-	IO.jsonp.google( args.toString(), finishCall );
+	IO.jsonp.google( args.toString() + ' -site:w3schools.com', finishCall );
 
 	function finishCall ( resp ) {
 		bot.log( resp, '/google response' );
@@ -23,7 +23,7 @@ function google ( args, cb ) {
 			results.map( format ).join( ' ; ' ) );
 
 		function format ( result ) {
-			var title = decodeURIComponent( result.titleNoFormatting )
+			var title = IO.decodehtmlEntities( result.titleNoFormatting );
 			return args.link( title, result.url );
 		}
 	}

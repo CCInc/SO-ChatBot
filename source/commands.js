@@ -3,7 +3,7 @@
 
 var commands = {
 	help : function ( args ) {
-		if ( args.length ) {
+		if ( args && args.length ) {
 
 			var cmd = bot.getCommand( args );
 			if ( cmd.error ) {
@@ -25,6 +25,10 @@ var commands = {
 		return bot.callListeners( msg );
 	},
 
+	eval : function ( msg ) {
+		return bot.eval( msg );
+	},
+
 	live : function () {
 		if ( !bot.stopped ) {
 			return 'I\'m not dead! Honest!';
@@ -40,6 +44,10 @@ var commands = {
 		bot.stop();
 		return 'You killed me!';
 	},
+
+	refresh : function() {
+		window.location.reload();
+    },
 
 	forget : function ( args ) {
 		var name = args.toLowerCase(),
@@ -58,26 +66,29 @@ var commands = {
 	},
 
 	ban : function ( args ) {
-		var msg = '';
-		args.parse().map(function ( usrid ) {
-			var id = Number( usrid );
+		var msg = [];
+		args.parse().map( getID ).forEach( ban );
+
+		return msg.join( ' ' );
+
+		function getID ( usrid ) {
 			//name provided instead of id
-			if ( /^\d+$/.test(usrid) ) {
-				id = args.findUserid( usrid );
+			if ( /\D/.test(usrid) ) {
+				usrid = args.findUserid( usrid.replace(/^@/, '') );
 			}
 
-			if ( !id ) {
-				msg += 'Cannot find user ' + usrid + '. ';
+			var id = Number( usrid );
+			if ( id < 0 ) {
+				msg.push( 'Cannot find user ' + usrid + '.' );
+				id = -1;
 			}
 			else if ( bot.isOwner(id) ) {
-				msg += 'Cannot mindjail owner ' + usrid + '. ';
+				msg.push( 'Cannot mindjail owner ' + usrid + '.' );
 				id = -1;
 			}
 
 			return id;
-		}).forEach( ban );
-
-		return msg;
+		}
 
 		function ban ( id ) {
 			if ( id < 0 ) {
@@ -85,40 +96,47 @@ var commands = {
 			}
 
 			if ( bot.banlist.contains(id) ) {
-				msg += 'User ' + id + ' already in mindjail. ';
+				msg.push( 'User ' + id + ' already in mindjail.' );
 			}
 			else {
 				bot.banlist.add( id );
-				msg += 'User ' + id + ' added to mindjail. ';
+				msg.push( 'User ' + id + ' added to mindjail.');
 			}
 		}
 	},
 
 	unban : function ( args ) {
-		var msg = '';
-		args.parse().map(function ( usrid ) {
-			var id = Number( usrid );
+		var msg = [];
+		args.parse().map( getID ).forEach( unban );
+
+		return msg.join( ' ' );
+
+		function getID ( usrid ) {
 			//name provided instead of id
-			if ( /^\d+$/.test(usrid) ) {
-				id = args.findUserid( usrid );
+			if ( /\D/.test(usrid) ) {
+				usrid = args.findUserid( usrid.replace(/^@/, '') );
 			}
 
-			if ( !id ) {
-				msg += 'Cannot find user ' + usrid + '. ';
+			var id = Number( usrid );
+			if ( id < 0 ) {
+				msg.push( 'Cannot find user ' + usrid + '.' );
+				id = -1;
+			}
+			else if ( bot.isOwner(id) ) {
+				msg.push( 'Cannot mindjail owner ' + usrid + '.' );
+				id = -1;
 			}
 
-			return Number( id );
-		}).forEach( unban );
-
-		return msg;
+			return id;
+		}
 
 		function unban ( id ) {
 			if ( !bot.banlist.contains(id) ) {
-				msg += 'User ' + id + ' isn\'t in mindjail. ';
+				msg.push( 'User ' + id + ' isn\'t in mindjail.' );
 			}
 			else {
 				bot.banlist.remove( id );
-				msg += 'User ' + id + ' freed from mindjail. ';
+				msg.push( 'User ' + id + ' freed from mindjail.' );
 			}
 		}
 	},
@@ -247,7 +265,7 @@ var commands = {
 		if ( !(/^\d+$/.test(usrid)) ) {
 			id = args.findUserid( usrid );
 
-			if ( !id ) {
+			if ( id < 0 ) {
 				return 'Can\'t find user ' + usrid + ' in this chatroom.';
 			}
 		}
@@ -258,6 +276,22 @@ var commands = {
 	listcommands : function () {
 		return 'Available commands: ' +
 			Object.keys( bot.commands ).join( ', ' );
+	},
+
+	purgecommands : function ( args ) {
+		var id = args.get( 'user_id' );
+		Object.keys( bot.commands ).map( mapper ).forEach( del );
+
+		return 'The deed has been done.';
+
+		function mapper ( cmdName ) {
+			return bot.commands[ cmdName ];
+		}
+		function del ( cmd ) {
+			if ( cmd.learned && cmd.canDel(id) ) {
+				cmd.del();
+			}
+		}
 	}
 };
 
@@ -273,7 +307,7 @@ return function ( args, cb ) {
 		return finish( cache[args] );
 	}
 
-	IO.jsonp.define( args.toString(), finishCall );
+	IO.jsonp.ddg( 'define ' + args.toString(), finishCall );
 
 	//the duck talked back! either the xhr is complete, or the hallucinations
 	// are back
@@ -595,8 +629,6 @@ return function ( args ) {
 }());
 
 commands.mdn = function ( args, cb ) {
-	var template = '[{titleNoFormatting}]({url})';
-
 	IO.jsonp.google(
 		args.toString() + ' site:developer.mozilla.org', finishCall );
 
@@ -608,7 +640,7 @@ commands.mdn = function ( args, cb ) {
 
 		var result = resp.responseData.results[ 0 ];
 		bot.log( result, '/mdn result' );
-		finish( template.supplant(result) );
+		finish( result.url );
 	}
 
 	function finish ( res ) {
@@ -622,125 +654,6 @@ commands.mdn = function ( args, cb ) {
 };
 commands.mdn.async = true;
 
-commands.get = (function () {
-var types = {
-	answer : true,
-	question : true
-};
-var ranges = {
-	//the result array is in descending order, so it's "reversed"
-	first : function ( arr ) {
-		return arr[ arr.length - 1 ];
-	},
-
-	last : function ( arr ) {
-		return arr[ 0 ];
-	},
-
-	between : function ( arr ) {
-		//SO api takes care of this for us
-		return arr;
-	}
-};
-
-return function ( args, cb ) {
-	var parts = args.parse(),
-		type = parts[ 0 ] || 'answer',
-		plural = type + 's',
-
-		range = parts[ 1 ] || 'last',
-
-		usrid = parts[ 2 ];
-
-	//if "between" is given, fetch the correct usrid
-	// /get type between start end usrid
-	if ( range === 'between' ) {
-		usrid = parts[ 4 ];
-	}
-
-	//range is a number and no usrid, assume the range is the usrid, and
-	// default range to last
-	// /get type usrid
-	if ( !usrid && !isNaN(range) ) {
-		usrid = range;
-		range = 'last';
-	}
-
-	//if after all this usrid is falsy, assume the user's id
-	if ( !usrid ) {
-		usrid = args.get( 'user_id' );
-	}
-
-	bot.log( parts, 'get input' );
-
-	if ( !types.hasOwnProperty(type) ) {
-		return 'Invalid "getter" name ' + type;
-	}
-	if ( !ranges.hasOwnProperty(range) ) {
-		return 'Invalid range specifier ' + range;
-	}
-
-	var url = 'http://api.stackoverflow.com/1.1/users/' + usrid + '/' + plural,
-		params = {
-			sort : 'creation'
-		};
-
-	bot.log( url, params, '/get building url' );
-
-	if ( range === 'between' ) {
-		params.fromdate = Date.parse( parts[2] );
-		params.todate = Date.parse( parts[3] );
-
-		bot.log( url, params, '/get building url between' );
-	}
-
-	IO.jsonp({
-		url : url,
-		data : params,
-		fun : parseResponse
-	});
-
-	function parseResponse ( respObj ) {
-		//Une erreru! L'horreur!
-		if ( respObj.error ) {
-			args.reply( respObj.error.message );
-			return;
-		}
-
-		//get only the part we care about in the result, based on which one
-		// the user asked for (first, last, between)
-		//respObj will have an answers or questions property, based on what we
-		// queried for, in array form
-		var relativeParts = [].concat( ranges[range](respObj[plural]) ),
-			base = "http://stackoverflow.com/q/",
-			res;
-
-		bot.log( relativeParts.slice(), '/get parseResponse parsing' );
-
-		if ( relativeParts[0] ) {
-			//get the id(s) of the answer(s)/question(s)
-			res = relativeParts.map(function ( obj ) {
-				return base + ( obj[type + '_id'] || '' );
-			}).join( ' ' );
-		}
-		else {
-			res = 'User did not submit any ' + plural;
-		}
-		bot.log( res, '/get parseResponse parsed');
-
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.directreply( res );
-		}
-	}
-};
-}());
-commands.get.async = true;
-
-
-
 var descriptions = {
 	help : 'Fetches documentation for given command, or general help article.' +
 		' `/help [cmdName]`',
@@ -748,9 +661,13 @@ var descriptions = {
 	listen : 'Forwards the message to the listen API (as if called without' +
 		'the /)',
 
+	eval : 'Forwards message to code-eval (as if the command / was a >)',
+
 	live : 'Resurrects the bot if it\'s down',
 
 	die  : 'Kills the bot',
+
+	refresh : 'Reloads the browser window for the bot',
 
 	forget : 'Forgets a given command. `/forget cmdName`',
 
@@ -768,6 +685,8 @@ var descriptions = {
 
 	listcommands : 'This seems pretty obvious',
 
+	purgecommands : 'Deletes all user-taught commands.',
+
 	define : 'Fetches definition for a given word. `/define something`',
 
 	norris : 'Random chuck norris joke!',
@@ -780,12 +699,14 @@ var descriptions = {
 	tell : 'Redirect command result to user/message.' +
 		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
 
-	mdn : 'Fetches mdn documentation. `/mdn what`',
+	mdn : 'Fetches mdn documentation. `/mdn what`'
+};
 
-	get : '', //I can't intelligibly explain this in a sentence
-
-	learn : 'Teach the bot a command.' +
-		' '
+//only allow owners to use certain commands
+var privilegedCommands = {
+	die : true, live : true,
+	ban : true, unban : true,
+	refresh : true, purgecommands : true
 };
 
 Object.keys( commands ).forEach(function ( cmdName ) {
@@ -793,16 +714,12 @@ Object.keys( commands ).forEach(function ( cmdName ) {
 		name : cmdName,
 		fun  : commands[ cmdName ],
 		permissions : {
-			del : 'NONE'
+			del : 'NONE',
+			use : privilegedCommands[ cmdName ] ? bot.owners : 'ALL'
 		},
 		description : descriptions[ cmdName ],
 		async : commands[ cmdName ].async
 	});
-});
-
-//only allow specific users to use certain commands
-[ 'die', 'live', 'ban', 'unban' ].forEach(function ( cmdName ) {
-	bot.commands[ cmdName ].permissions.use = bot.owners;
 });
 
 }());

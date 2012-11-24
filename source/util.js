@@ -63,6 +63,15 @@ Object.defineProperty( Array.prototype, 'first', {
 	writable : true
 });
 
+Object.defineProperty( Array.prototype, 'random', {
+	value : function () {
+		return this[ Math.floor(Math.random() * this.length) ];
+	},
+
+	configurable : true,
+	writable : true
+});
+
 Function.prototype.memoize = function () {
 	var cache = Object.create( null ), fun = this;
 
@@ -107,8 +116,10 @@ Function.prototype.memoizeAsync = function ( hasher ) {
 //returns the number with at most `places` digits after the dot
 //examples:
 // 1.337.maxDecimal(1) === 1.3
-// floor(1.337 * 10e1) / 10e1 = 13
-// 13 / 10e1 = 1.3
+//
+//steps:
+// floor(1.337 * 10e0) = 13
+// 13 / 10e0 = 1.3
 Number.prototype.maxDecimal = function ( places ) {
 	var exponent = Math.pow( 10, places );
 
