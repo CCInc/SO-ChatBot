@@ -43,12 +43,14 @@ var undo = {
 			}
 			else if ( /it is too late/i.test(resp) ) {
 				msg = 'TimeError: Could not reach 88mph';
+				cb( msg );
 			}
 			else {
 				msg = 'I have no idea what happened: ' + resp;
+				cb( msg );
 			}
 
-			cb( msg );
+			
 		}
 	},
 
