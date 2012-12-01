@@ -1,7 +1,7 @@
 var nudgeend = false;
 
 (function () {
-
+var msg = null;
 //collection of nudges; msgObj, time left and the message itself
 var nudges = [],
 	interval = 100 * 60;
@@ -30,7 +30,7 @@ function sendNudge ( nudge ) {
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	if(!nudgeend)
-	nudge.msg.respond( nudge.message );
+	msg.respond( nudge.message );
 }
 setTimeout( update, interval );
 
@@ -38,7 +38,7 @@ setTimeout( update, interval );
 function addNudge ( delay, message, msgObj ) {
 	var inMS;
 	console.log( delay, message, '/nudge input' );
-
+msg = this.msgObj;
 	//interval will be one of these (where n is a number):
 	// nm  =>  n minutes
 	// n   =>  n minutes
