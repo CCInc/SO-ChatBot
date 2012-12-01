@@ -6352,8 +6352,7 @@ function update () {
 		nudge.time -= interval;
 
 		if ( nudge.time <= 0 ) {
-			sendNudge( nudge );
-			
+			sendNudge( nudge );			
 		}
 			if(nudgeend)
 				return false;
@@ -6363,7 +6362,7 @@ function update () {
 	setTimeout( update, interval );
 }
 function sendNudge ( nudge ) {
-	console.log( nudge, 'nudge fire' );
+//	console.log( nudge, 'nudge fire' );
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	nudge.msg.reply( nudge.message );
