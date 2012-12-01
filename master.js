@@ -6380,6 +6380,7 @@ function addNudge ( delay, message, msgObj ) {
 	var inMS;
 	console.log( delay, message, '/nudge input' );
 msg = this.msgObj;
+console.log( msg, 'nudge msag' );
 	//interval will be one of these (where n is a number):
 	// nm  =>  n minutes
 	// n   =>  n minutes
