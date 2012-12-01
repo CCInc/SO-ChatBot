@@ -588,6 +588,11 @@ return function ( args ) {
 		return 'You do not have permission to use command ' + cmdName;
 	}
 
+	//check if the user's being a fag
+	if ( /^@/.test(replyTo) ) {
+		return 'Don\'t be annoying, drop the @, nobody likes a double-ping.';
+	}
+
 	//check if the user wants to reply to a message
 	var direct = false, msgObj = args.get();
 	if ( /^:?\d+$/.test(replyTo) ) {
@@ -595,7 +600,7 @@ return function ( args ) {
 		direct = true;
 	}
 	else {
-		msgObj.user_name = replyTo.replace( /^@/, '' );
+		msgObj.user_name = replyTo;
 	}
 
 	var cmdArgs = bot.Message(
@@ -659,7 +664,7 @@ var descriptions = {
 		' `/help [cmdName]`',
 
 	listen : 'Forwards the message to the listen API (as if called without' +
-		'the /)',
+		' the /)',
 
 	eval : 'Forwards message to code-eval (as if the command / was a >)',
 

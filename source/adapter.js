@@ -2,7 +2,23 @@
 var linkTemplate = '[{text}]({url})';
 
 bot.adapter = {
-	roomid : ( /\d+/.exec(location) || [0] )[ 0 ],
+	roomid : null, fkey : null, site : null,
+
+	//not a necessary function, used in here to set some variables
+	init : function () {
+		var fkey = document.getElementById( 'fkey' );
+		if ( !fkey ) {
+			console.error( 'bot.adapter could not find fkey; aborting' );
+			return;
+		}
+		this.fkey = fkey.value;
+		this.roomid = /\d+/.exec(location)[ 0 ];
+		this.site = /chat\.(\w+)/.exec( location )[ 1 ];
+
+		this.in.init();
+		this.out.init();
+	},
+
 	//a pretty crucial function. accepts the msgObj we know nothing about,
 	// and returns an object with these properties:
 	//  user_name, user_id, room_id, content
@@ -19,16 +35,15 @@ bot.adapter = {
 		return msg.replace( /([`\*_\(\)\[\]])/g, '\\$1' );
 	},
 
-	//receives a msg and the msgObj, and returns a message which will be
-	// recognized as a reply to a user
-	reply : function ( msg, msgObj ) {
-		var usr = msgObj.user_name.replace( /\s/g, '' );
-		return '@' + usr + ' ' + msg;
+	//receives a username, and returns a string recognized as a reply to the
+	// user
+	reply : function ( usrname ) {
+		return '@' + usrname.replace( /\s/g, '' );
 	},
-	//again, receives msg and msgObj, returns a message which is a reply to
-	// another message
-	directreply : function ( msg, msgObj ) {
-		return ':' + msgObj.message_id + ' ' + msg;
+	//receives a msgid, returns a string recognized as a reply to the specific
+	// message
+	directreply : function ( msgid ) {
+		return ':' + msgid;
 	},
 
 	//receives text and turns it into a codified version
@@ -73,11 +88,9 @@ var polling = bot.adapter.in = {
 			roomid = bot.adapter.roomid;
 
 		IO.xhr({
-			url : '/chats/' + roomid + '/events/',
+			url : '/ws-auth',
 			data : fkey({
-				since : 0,
-				mode : 'Messages',
-				msgCount : 0
+				roomid : roomid
 			}),
 			method : 'POST',
 			complete : finish
@@ -87,22 +100,21 @@ var polling = bot.adapter.in = {
 			resp = JSON.parse( resp );
 			bot.log( resp );
 
-			that.times[ 'r' + roomid ] = resp.time;
-
-			that.loopage();
+			that.openSocket( resp.url );
 		}
 	},
 
-	poll : function () {
-		var that = this;
+	openSocket : function ( url ) {
+		//chat sends an l query string parameter. seems to be the same as the
+		// since xhr parameter, but I didn't know what that was either so...
+		//putting in 0 got the last shitload of messages, so what does a high
+		// number do? (spoiler: it "works")
+		var socket = this.socket = new WebSocket( url + '?l=99999999999' );
+		socket.onmessage = this.ondata.bind( this );
+	},
 
-		IO.xhr({
-			url : '/events',
-			data : fkey( that.times ),
-			method : 'POST',
-			complete : that.pollComplete,
-			thisArg : that
-		});
+	ondata : function ( messageEvent ) {
+		this.pollComplete( messageEvent.data );
 	},
 
 	pollComplete : function ( resp ) {
@@ -111,21 +123,20 @@ var polling = bot.adapter.in = {
 		}
 		resp = JSON.parse( resp );
 
-		var that = this;
 		//each key will be in the form of rROOMID
 		Object.keys( resp ).forEach(function ( key ) {
 			var msgObj = resp[ key ];
 
 			//t is a...something important
 			if ( msgObj.t ) {
-				that.times[ key ] = msgObj.t;
+				this.times[ key ] = msgObj.t;
 			}
 
 			//e is an array of events, what is referred to in the bot as msgObj
 			if ( msgObj.e ) {
-				msgObj.e.forEach( that.handleMessageObject, that );
+				msgObj.e.forEach( this.handleMessageObject, this );
 			}
-		});
+		}, this);
 
 		//handle all the input
 		IO.in.flush();
@@ -162,15 +173,6 @@ var polling = bot.adapter.in = {
 				Object.merge( msg, { content : line.trim() })
 			);
 		}, this );
-	},
-
-	loopage : function () {
-		var that = this;
-
-		setTimeout(function () {
-			that.poll();
-			that.loopage();
-		}, this.interval );
 	}
 };
 
@@ -178,8 +180,11 @@ var polling = bot.adapter.in = {
 // and the room_id. everything else is up to the implementation.
 var output = bot.adapter.out = {
 	interval : polling.interval + 500,
-
 	messages : {},
+
+	init : function () {
+		this.loopage();
+	},
 
 	//add a message to the output queue
 	add : function ( msg, roomid ) {
@@ -267,6 +272,5 @@ IO.register( 'output', output.build, output );
 IO.register( 'afteroutput', output.send, output );
 
 //two guys walk into a bar. the bartender asks them "is this some kind of joke?"
-polling.init();
-output.loopage();
+bot.adapter.init();
 }());

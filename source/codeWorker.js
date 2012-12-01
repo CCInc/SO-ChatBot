@@ -54,7 +54,6 @@ var whitey = {
 	}); /*end while*/
 });
 
-
 Object.defineProperty( Array.prototype, 'join', {
 	writable: false,
 	configurable: false,
@@ -69,9 +68,7 @@ Object.defineProperty( Array.prototype, 'join', {
 			return old.apply( this, arguments );
 		};
 	}( Array.prototype.join ))
-
 });
-
 
 (function(){
 	"use strict";
@@ -82,11 +79,12 @@ Object.defineProperty( Array.prototype, 'join', {
 			console._items.push.apply( console._items, arguments );
 		}
 	};
+	var p = console.log.bind( console );
 
 	function exec ( code ) {
 		var result;
 		try {
-			result = eval( '"use strict";\n' + code );
+			result = eval( '"use strict";undefined;\n' + code );
 		}
 		catch ( e ) {
 			result = e.toString();
@@ -98,40 +96,26 @@ Object.defineProperty( Array.prototype, 'join', {
 	self.onmessage = function ( event ) {
 		var jsonStringify = JSON.stringify, /*backup*/
 			result = exec( event.data.code );
-			
+
 		/*JSON.stringify does not like functions, errors or undefined*/
-		var stringify = function ( input ) {
-			var type = ( {} ).toString.call( input ).slice( 8, -1 ),
+		var strung = { Function : true, Error : true, Undefined : true };
+		var reviver = function ( key, value ) {
+			var type = ( {} ).toString.call( value ).slice( 8, -1 ),
 				output;
 
-			if ( type === 'Function' || type === 'Error' ) {
-				output = input.toString();
-			}
-			else if ( type === 'Array' ) {
-				output = [];
-				input.forEach(function ( item, idx ) {
-					output[ idx ] = stringify( item );
-				});
-			}
-			else if ( type === 'Object' ) {
-				output = {};
-				Object.keys( input ).forEach(function ( key ) {
-					output[ key ] = stringify( input[key] );
-				});
-			}
-			else if ( input === undefined ) {
-				output = 'undefined';
+			if ( type in strung ) {
+				output = '' + value;
 			}
 			else {
-				output = input;
+				output = value;
 			}
 
-			return jsonStringify( output );
+			return output;
 		};
 
 		postMessage({
-			answer : stringify( result ),
-			log    : stringify( console._items ),
+			answer : jsonStringify( result, reviver ),
+			log    : jsonStringify( console._items, reviver ).slice(1, -1)
 		});
 	};
 

@@ -8,6 +8,7 @@ var bot = window.bot = {
 	commandDictionary : null, //it's null at this point, won't be for long
 	listeners : [],
 
+
 	parseMessage : function ( msgObj ) {
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
@@ -36,8 +37,11 @@ var bot = window.bot = {
 			}
 
 			//see if some hobo listener wants this
-			else {
-				this.callListeners( msg );
+			else if ( !this.callListeners(msg) ) {
+				//no listener fancied the message. this is the last frontier,
+				// so just give up in a fancy, dignified way
+				msg.reply(
+					'Y U NO MAEK SENSE!? Could not understand `' + msg + '`' );
 			}
 		}
 		catch ( e ) {
@@ -61,11 +65,9 @@ var bot = window.bot = {
 		msgObj = this.adapter.transform( msgObj );
 
 		var msg = IO.decodehtmlEntities( msgObj.content );
-
 		return this.Message(
 			msg.slice( this.invocationPattern.length ).trim(),
-			msgObj
-		);
+			msgObj );
 	},
 
 	parseCommand : function ( msg ) {
@@ -76,11 +78,9 @@ var bot = window.bot = {
 			msg.reply( 'Invalid command ' + msg );
 			return;
 		}
-
-		var commandName = commandParts[ 1 ].toLowerCase();
-
 		bot.log( commandParts, 'parseCommand matched' );
 
+		var commandName = commandParts[ 1 ].toLowerCase();
 		//see if there was some error fetching the command
 		var cmdObj = this.getCommand( commandName );
 		if ( cmdObj.error ) {
@@ -91,9 +91,16 @@ var bot = window.bot = {
 		if ( !cmdObj.canUse(msg.get('user_id')) ) {
 			msg.reply([
 				'You do not have permission to use the command ' + commandName,
-				'I\'m afraid I can\'t let you do that, ' + msg.get('user_name')
+				"I'm afraid I can't do that, " + msg.get('user_name')
 			].random());
 			return;
+		}
+
+		if ( this.personality.check(commandName) ) {
+			this.personality.command();
+			if ( this.personality.isABitch() ) {
+				msg.send( this.personality.bitch() );
+			}
 		}
 
 		bot.log( cmdObj, 'parseCommand calling' );
@@ -101,10 +108,9 @@ var bot = window.bot = {
 		var args = this.Message(
 			//+ 1 is for the / in the message
 			msg.slice( commandName.length + 1 ).trim(),
-			msg.get()
-		);
-		var res = cmdObj.exec( args );
+			msg.get() );
 
+		var res = cmdObj.exec( args );
 		if ( res ) {
 			msg.reply( res );
 		}
@@ -112,7 +118,6 @@ var bot = window.bot = {
 
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
-
 		//all we really care about
 		return msg.startsWith( this.invocationPattern.toLowerCase() );
 	},
@@ -150,9 +155,7 @@ var bot = window.bot = {
 			msg += ' Did you mean: ' + guesses.join( ', ' );
 		}
 
-		return {
-			error : msg
-		};
+		return { error : msg };
 	},
 
 	//the function women think is lacking in men
@@ -185,31 +188,11 @@ var bot = window.bot = {
 					msg.reply( resp );
 				}
 
-				if ( resp !== false ) {
-					fired = true;
-				}
+				fired = resp !== false;
 			}
 		});
 
-		//no listener fancied the message. this is the last frontier, so just
-		// give up in a fancy, dignified way
-		if ( !fired ) {
-			msg.reply(
-				'Y U NO MAEK SENSE!? Could not understand `' + msg + '`'
-			);
-		}
-	},
-
-	//the next two functions shouldn't be here, but as of yet no real adapter
-	// mechanism, so you could fit this bot into other chats, has been planned
-	reply : function ( msg, msgObj ) {
-		var reply = this.adapter.reply( msg, msgObj );
-		this.adapter.out.add( reply, msgObj.room_id );
-	},
-
-	directreply : function ( msg, msgObj ) {
-		var reply = this.adapter.directreply( msg, msgObj );
-		this.adapter.out.add( reply, msgObj.room_id );
+		return fired;
 	},
 
 	stoplog : false,
@@ -229,21 +212,27 @@ var bot = window.bot = {
 
 //#build eval.js
 
-bot.banlist = [];
+bot.banlist = JSON.parse( localStorage.bot_ban || '[]' );
 bot.banlist.contains = function ( item ) {
 	return this.indexOf( item ) >= 0;
 };
 bot.banlist.add = function ( item ) {
-	return this.push( item );
+	this.push( item );
+	this.save();
 };
 bot.banlist.remove = function ( item ) {
-	var idx = this.indexOf( item );
+	var idx = this.indexOf( item ),
+		ret = null;
+
 	if ( idx >= 0 ) {
-		return this.splice( idx, 1 );
+		ret = this.splice( idx, 1 );
 	}
-	else {
-		return null;
-	}
+
+	this.save();
+	return ret;
+};
+bot.banlist.save = function () {
+	localStorage.bot_ban = JSON.stringify( this );
 };
 
 //some sort of pseudo constructor
@@ -285,22 +274,17 @@ bot.Message = function ( text, msgObj ) {
 	ret.content = text;
 
 	var deliciousObject = {
-		respond : function ( resp ) {
+		send : function ( resp ) {
 			bot.adapter.out.add( resp, msgObj.room_id );
 		},
 
-		reply : function ( resp, usrname ) {
-			usrname = usrname || msgObj.user_name;
-
-			bot.reply( resp, Object.merge(msgObj, {user_name : usrname}) );
+		reply : function ( resp ) {
+			var prefix = bot.adapter.reply( msgObj.user_name );
+			this.send( prefix + ' ' + resp );
 		},
-		directreply : function ( resp, msgid ) {
-			msgid = msgid || msgObj.message_id;
-
-			bot.directreply(
-				resp,
-				Object.merge( msgObj, { message_id : msgid } )
-			);
+		directreply : function ( resp ) {
+			var prefix = bot.adapter.directreply( msgObj.message_id );
+			this.send( prefix + ' ' + resp );
 		},
 
 		//parse() parses the original message

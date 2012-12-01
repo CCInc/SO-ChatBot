@@ -2,7 +2,6 @@
 "use strict";
 var parse = bot.getCommand( 'parse' );
 var storage = JSON.parse( localStorage.bot_learn || '{}' );
-loadCommands();
 
 function learn ( args ) {
 	bot.log( args, '/learn input' );
@@ -13,6 +12,11 @@ function learn ( args ) {
 		output : commandParts[ 1 ],
 		input  : commandParts[ 2 ] || '.*'
 	};
+	command.description = [
+		'User-taught command:',
+		commandParts[3] || '',
+		args.codify( command.output )
+	].join( ' ' );
 
 	//a truthy value, unintuitively, means it isn't valid, because it returns
 	// an error message
@@ -33,7 +37,7 @@ function learn ( args ) {
 function addCustomCommand ( command ) {
 	var cmd = bot.Command({
 		name : command.name,
-		description : 'User-taught command: ' + command.output,
+		description : command.description,
 
 		fun : makeCustomCommand( command ),
 		permissions : {
@@ -74,11 +78,9 @@ function checkCommand ( cmd ) {
 	if ( somethingUndefined ) {
 		error = 'Illegal /learn object; see `/help learn`';
 	}
-
 	else if ( !/^[\w\-]+$/.test(cmd.name) ) {
 		error = 'Invalid command name';
 	}
-
 	else if ( bot.commandExists(cmd.name.toLowerCase()) ) {
 		error = 'Command ' + cmd.name + ' already exists';
 	}
@@ -101,7 +103,8 @@ function saveCommand ( command ) {
 	storage[ command.name ] = JSON.stringify({
 		name   : command.name,
 		input  : command.input.source,
-		output : command.output
+		output : command.output,
+		description : command.description
 	});
 	localStorage.bot_learn = JSON.stringify( storage );
 }
@@ -117,7 +120,9 @@ bot.addCommand({
 		del : 'NONE'
 	},
 
-	description : 'Teaches the bot a command. ' +
-		'`/learn cmdName cmdOutputMacro [cmdInputRegex]`'
+	description : 'Teaches me a command. ' +
+		'`/learn cmdName outputPattern [inputRegex [description]]`'
 });
+
+loadCommands();
 }());
