@@ -2409,12 +2409,13 @@ var output = bot.adapter.out = {
 		if ( !bot.stopped ) {
 			Object.keys( this.messages ).forEach(function ( room ) {
 				var message = this.messages[ room ];
-
+				message.forEach(function ( msg ) {
 				if ( !message ) {
 					return;
 				}
 
 				this.sendToRoom( message, room );
+				}, this);
 			}, this );
 		}
 
@@ -6352,7 +6353,10 @@ function update () {
 		nudge.time -= interval;
 
 		if ( nudge.time <= 0 ) {
-			sendNudge( nudge );			
+		if(!nudgeend)
+			sendNudge( nudge );		
+		else
+			return false;			
 		}
 			if(nudgeend)
 				return false;
