@@ -214,13 +214,13 @@ var output = bot.adapter.out = {
 		if ( !bot.stopped ) {
 			Object.keys( this.messages ).forEach(function ( room ) {
 				var message = this.messages[ room ];
-				message.forEach(function ( msg ) {
+				//message.forEach(function ( msg ) {
 				if ( !message ) {
 					return;
 				}
 
 				this.sendToRoom( message, room );
-				}, this);
+			//	}, this);
 			}, this );
 		}
 
