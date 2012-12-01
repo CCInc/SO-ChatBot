@@ -6405,7 +6405,7 @@ function addNudge ( delay, message, msgObj ) {
 }
 
 bot.addCommand({
-	name : 'spam',
+	name : 's',
 	fun  : nudgeCommand,
 	permissions : {
 		del : 'NONE',
@@ -6417,7 +6417,7 @@ bot.addCommand({
 		'`nudge|remind|poke me? in? intervalInMinutes message`'
 });
 
-bot.listen(/s\s?(.*)$/,
+bot.listen(/s?(\s?(.*))$/,
 	nudgeListener
 );
 
