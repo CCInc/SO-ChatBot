@@ -29,7 +29,7 @@ function sendNudge ( nudge ) {
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	if(!nudgeend)
-	respond( nudge.message );
+	nudge.respond( nudge.message );
 }
 setTimeout( update, interval );
 
