@@ -6365,6 +6365,7 @@ function sendNudge ( nudge ) {
 //	console.log( nudge, 'nudge fire' );
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
+	if(!nudgeend)
 	nudge.msg.reply( nudge.message );
 }
 setTimeout( update, interval );
