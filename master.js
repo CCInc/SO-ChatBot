@@ -6366,11 +6366,12 @@ function update () {
 	setTimeout( update, interval );
 }
 function sendNudge ( nudge ) {
-//	console.log( nudge, 'nudge fire' );
+	console.log( nudge, 'nudge fire' );
+		console.log( nudge.msg, 'nudge fire msg' );
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	if(!nudgeend)
-	nudge.respond( nudge.message );
+	nudge.msg.respond( nudge.message );
 }
 setTimeout( update, interval );
 
