@@ -6404,14 +6404,15 @@ var global;
 			' be one of them.';
 	}
 	    var req;
-console.log('yes');
+
     var rand;
 
 
         function getRandomQuestion(){
-		
+		console.log(items.length);
 	if(items.length<1)
 	{
+	console.log('yes');
     var item;
   req = new XMLHttpRequest();
             req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
