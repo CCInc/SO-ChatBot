@@ -6341,6 +6341,7 @@ bot.listen( regex, findRulz );
 ;
 var nudgeend = false;
     var items = [];
+	var time;
 	
 (function () {
 var msg = null;
@@ -6355,9 +6356,12 @@ function update () {
 
 		if ( nudge.time <= 0 ) {
 		if(!nudgeend)
+		{
 			sendNudge(nudge );		
-		else
-			return false;			
+			nudge.time = time;
+			}
+	//	else
+		//	return false;			
 		}
 			if(nudgeend)
 				return false;
@@ -6432,7 +6436,7 @@ console.log( msg, 'nudge msag' );
 			' be one of them.';
 	}
 	
-
+	time = inMS;
 
 
 
