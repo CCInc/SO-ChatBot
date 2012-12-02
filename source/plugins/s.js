@@ -62,7 +62,7 @@ var global;
 		return 'Many things can be labeled Not a Number; a delay should not' +
 			' be one of them.';
 	}
-	if(items.length<1)
+	if(items.length>=1)
 	{
 	    var req;
 console.log('yes');
