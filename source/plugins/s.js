@@ -1,5 +1,4 @@
 var nudgeend = false;
-    var items = [];
 
 (function () {
 var msg = null;
@@ -8,33 +7,27 @@ var nudges = [],
 	interval = 100 * 60;
 
 function update () {
-	setTimeout( update, interval );
-	
-		var now = Date.now();
+	var now = Date.now();
 	nudges = nudges.filter(function ( nudge ) {
 		nudge.time -= interval;
 
 		if ( nudge.time <= 0 ) {
 		if(!nudgeend)
-		{
-		
-			sendNudge( nudge );
-			return false;
-			}
+			sendNudge( addNudge(nudge. );		
+		else
+			return false;			
 		}
+			if(nudgeend)
+				return false;
 		return true;
 	});
 
 	setTimeout( update, interval );
 }
-
 function sendNudge ( nudge ) {
 	
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
-	addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject )
-	console.log(nudges);
-	console.log(items);
 	if(!nudgeend)
 		nudge.msg.send( nudge.message );
 }
@@ -57,21 +50,18 @@ console.log( msg, 'nudge msag' );
 	//TODO: allow more than just minutes
 	//TODO: upper cap
 	inMS = delay * 60000;
-var global;
+
 	if ( isNaN(inMS) ) {
 		return 'Many things can be labeled Not a Number; a delay should not' +
 			' be one of them.';
 	}
+	
 	    var req;
-
+    var items = [];
     var rand;
 
 
         function getRandomQuestion(){
-		console.log(items.length);
-	if(items.length<1)
-	{
-	console.log('yes');
     var item;
   req = new XMLHttpRequest();
             req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
@@ -84,31 +74,25 @@ var global;
         {
             items.push(res.items[i].title);
         }
-           global = items[Math.floor(Math.random() * items.length)];     
-			console.log(items);
+           global = items[Math.floor(Math.random() * items.length)];               
         }
                  
         };
             req.send();    
             console.log(global);
             return global;
-			}
-else
-{
-	console.log('no');global = items[Math.floor(Math.random() * items.length)]; return global;}
             //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
         }
     //let's put an arbitrary comment here
 
-	
     var nudge = {
         msg     : msgObj,
         message : getRandomQuestion(),
         register: Date.now(),
         time    : inMS,
 		delay : delay,
-		sourcemessage: message,
-		msgObject : msgObj
+		sourcemessage: message;
+		msgObject : msgObject
     };
 	nudges.push( nudge );
 	//console.log( nudge, nudges, '/nudge register' );
