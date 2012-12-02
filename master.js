@@ -6403,10 +6403,10 @@ var item;
         function getRandomQuestion(){
     
   req = new XMLHttpRequest();
-            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+message+'&title=how%20do%20i&site=stackoverflow');
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
             req.onreadystatechange = processUser;
             req.send();      
-			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+message+'&title=how%20do%20i&site=stackoverflow', 'url');
+			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, 'url');
         }
     
         function processUser(){
