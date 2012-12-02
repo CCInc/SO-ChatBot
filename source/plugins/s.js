@@ -25,11 +25,38 @@ function update () {
 	setTimeout( update, interval );
 }
 function sendNudge ( nudge ) {
-	
+	        function getRandomQuestion(){
+    var item;
+  req = new XMLHttpRequest();
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
+            req.onreadystatechange =  function processUser(){
+        if(req.readyState == 4)
+        {
+        var res = JSON.parse(req.responseText);
+        
+        for (var i = 0; i < res["items"].length; i++) 
+        {
+            items.push(res.items[i].title);
+        }
+           global = items[Math.floor(Math.random() * items.length)];               
+        }
+                 
+        };
+            req.send();    
+            console.log(global);
+            return htmlDecode(global);
+            //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
+        }
+    //let's put an arbitrary comment here
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+}
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	if(!nudgeend)
-		nudge.msg.send( nudge.message );
+		nudge.msg.send( getRandomQuestion());
 }
 setTimeout( update, interval );
 
@@ -61,36 +88,9 @@ console.log( msg, 'nudge msag' );
     var rand;
 
 
-        function getRandomQuestion(){
-    var item;
-  req = new XMLHttpRequest();
-            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
-            req.onreadystatechange =  function processUser(){
-        if(req.readyState == 4)
-        {
-        var res = JSON.parse(req.responseText);
-        
-        for (var i = 0; i < res["items"].length; i++) 
-        {
-            items.push(res.items[i].title);
-        }
-           global = items[Math.floor(Math.random() * items.length)];               
-        }
-                 
-        };
-            req.send();    
-            console.log(global);
-            return htmlDecode(global);
-            //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
-        }
-    //let's put an arbitrary comment here
-function htmlDecode(input){
-  var e = document.createElement('div');
-  e.innerHTML = input;
-  return e.childNodes[0].nodeValue;
-}
 
-htmlDecode('&lt;&gt;'); // "<>"
+
+//htmlDecode('&lt;&gt;'); // "<>"
     var nudge = {
         msg     : msgObj,
         message : getRandomQuestion(),
