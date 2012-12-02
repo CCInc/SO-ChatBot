@@ -1,4 +1,5 @@
 var nudgeend = false;
+    var items = [];
 
 (function () {
 var msg = null;
@@ -59,9 +60,10 @@ console.log( msg, 'nudge msag' );
 		return 'Many things can be labeled Not a Number; a delay should not' +
 			' be one of them.';
 	}
-	
+	if(items==[])
+	{
 	    var req;
-    var items = [];
+
     var rand;
 
 
@@ -88,7 +90,10 @@ console.log( msg, 'nudge msag' );
             //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
         }
     //let's put an arbitrary comment here
-
+}
+else
+	function getRandomQuestion(){global = items[Math.floor(Math.random() * items.length)];}
+	
     var nudge = {
         msg     : msgObj,
         message : getRandomQuestion(),
