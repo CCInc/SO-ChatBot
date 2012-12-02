@@ -6421,11 +6421,17 @@ console.log( msg, 'nudge msag' );
         };
             req.send();    
             console.log(global);
-            return global;
+            return htmlDecode(global);
             //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
         }
     //let's put an arbitrary comment here
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+}
 
+htmlDecode('&lt;&gt;'); // "<>"
     var nudge = {
         msg     : msgObj,
         message : getRandomQuestion(),
