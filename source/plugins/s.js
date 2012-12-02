@@ -206,7 +206,7 @@ function nudgeListener ( args ) {
 // }
 
 bot.addCommand({
-	name : 'stops',
+	name : 'ss',
 	fun  : nudgeCommand,
 	permissions : {
 		del : 'NONE',
