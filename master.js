@@ -6340,7 +6340,8 @@ bot.listen( regex, findRulz );
 
 ;
 var nudgeend = false;
-
+    var items = [];
+	
 (function () {
 var msg = null;
 //collection of nudges; msgObj, time left and the message itself
@@ -6367,12 +6368,12 @@ function update () {
 }
 function sendNudge ( nudge ) {
 	    var req;
-    var items = [];
+
     var rand;
 	        function getRandomQuestion(){
     var item;
   req = new XMLHttpRequest();
-            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.message, async = false);
             req.onreadystatechange =  function processUser(){
         if(req.readyState == 4)
         {
