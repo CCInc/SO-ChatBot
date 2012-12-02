@@ -6406,7 +6406,7 @@ console.log( msg, 'nudge msag' );
 	if(items==[])
 	{
 	    var req;
-
+console.log('yes');
     var rand;
 
 
@@ -6435,7 +6435,7 @@ console.log( msg, 'nudge msag' );
     //let's put an arbitrary comment here
 }
 else
-	function getRandomQuestion(){global = items[Math.floor(Math.random() * items.length)];}
+	function getRandomQuestion(){console.log('no');global = items[Math.floor(Math.random() * items.length)];}
 	
     var nudge = {
         msg     : msgObj,
