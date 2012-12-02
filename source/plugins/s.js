@@ -25,6 +25,9 @@ function update () {
 	setTimeout( update, interval );
 }
 function sendNudge ( nudge ) {
+	    var req;
+    var items = [];
+    var rand;
 	        function getRandomQuestion(){
     var item;
   req = new XMLHttpRequest();
@@ -83,9 +86,7 @@ console.log( msg, 'nudge msag' );
 			' be one of them.';
 	}
 	
-	    var req;
-    var items = [];
-    var rand;
+
 
 
 
@@ -93,7 +94,7 @@ console.log( msg, 'nudge msag' );
 //htmlDecode('&lt;&gt;'); // "<>"
     var nudge = {
         msg     : msgObj,
-        message : getRandomQuestion(),
+        message : "",
         register: Date.now(),
         time    : inMS,
 		delay : delay,
