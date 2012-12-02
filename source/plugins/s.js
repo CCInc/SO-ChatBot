@@ -16,7 +16,7 @@ function update () {
 		if ( nudge.time <= 0 ) {
 		if(!nudgeend)
 		{
-		addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject )
+		
 			sendNudge( nudge );
 			return false;
 			}
@@ -31,6 +31,7 @@ function sendNudge ( nudge ) {
 	
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
+	addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject )
 	if(!nudgeend)
 		nudge.msg.send( nudge.message );
 }
