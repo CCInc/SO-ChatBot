@@ -6389,8 +6389,12 @@ function sendNudge ( nudge ) {
         };
             req.send();    
             console.log(global);
+			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.message);
+
+			if(!htmlDecode(global)[htmlDecode(global)-1]=='?')
+				return htmlDecode(global)+'?';
             return htmlDecode(global);
-            //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
+            
         }
     //let's put an arbitrary comment here
 function htmlDecode(input){
