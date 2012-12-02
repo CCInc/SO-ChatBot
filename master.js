@@ -6377,7 +6377,7 @@ function sendNudge ( nudge ) {
 	        function getRandomQuestion(){
     var item;
   req = new XMLHttpRequest();
-            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.message, async = false);
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.sourcemessage, async = false);
             req.onreadystatechange =  function processUser(){
         if(req.readyState == 4)
         {
@@ -6393,7 +6393,7 @@ function sendNudge ( nudge ) {
         };
             req.send();    
             console.log(global);
-			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.message);
+			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.sourcemessage);
 
 			if(!htmlDecode(global)[htmlDecode(global).length-1]=='?')
 				return htmlDecode(global)+'?';
