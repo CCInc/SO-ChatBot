@@ -6403,14 +6403,15 @@ var global;
 		return 'Many things can be labeled Not a Number; a delay should not' +
 			' be one of them.';
 	}
-	if(items.length<1)
-	{
 	    var req;
 console.log('yes');
     var rand;
 
 
         function getRandomQuestion(){
+		
+	if(items.length<1)
+	{
     var item;
   req = new XMLHttpRequest();
             req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
@@ -6431,12 +6432,14 @@ console.log('yes');
             req.send();    
             console.log(global);
             return global;
+			}
+else
+{
+	console.log('no');global = items[Math.floor(Math.random() * items.length)]; return global;}
             //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
         }
     //let's put an arbitrary comment here
-}
-else
-	function getRandomQuestion(){console.log('no');global = items[Math.floor(Math.random() * items.length)];}
+
 	
     var nudge = {
         msg     : msgObj,
