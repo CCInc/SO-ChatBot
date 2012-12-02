@@ -122,7 +122,7 @@ bot.addCommand({
 	fun  : nudgeCommand,
 	permissions : {
 		del : 'NONE',
-		use : bot.owners
+		//use : bot.owners
 	},
 
 	description : 'Register a nudge after an interval. ' +
@@ -210,7 +210,7 @@ bot.addCommand({
 	fun  : nudgeCommand,
 	permissions : {
 		del : 'NONE',
-		use : bot.owners
+		//use : bot.owners
 	},
 
 	description : 'Register a nudge after an interval. ' +
