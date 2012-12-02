@@ -62,10 +62,10 @@ var item;
         function getRandomQuestion(){
     
   req = new XMLHttpRequest();
-            req.open('GET', '/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+message+'&title=how%20do%20i&site=stackoverflow');
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+message+'&title=how%20do%20i&site=stackoverflow');
             req.onreadystatechange = processUser;
             req.send();      
-			console.log('/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+message+'&title=how%20do%20i&site=stackoverflow', 'url');
+			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+message+'&title=how%20do%20i&site=stackoverflow', 'url');
         }
     
         function processUser(){
