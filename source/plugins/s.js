@@ -54,7 +54,7 @@ function sendNudge ( nudge ) {
             console.log(global);
 			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+nudge.sourcemessage);
 
-			if(!htmlDecode(global)[htmlDecode(global).length-1]=='?')
+			if(htmlDecode(global)[htmlDecode(global).length-1]!='?')
 				return htmlDecode(global)+'?';
             return htmlDecode(global);
             
