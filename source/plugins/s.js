@@ -57,12 +57,12 @@ console.log( msg, 'nudge msag' );
 	//TODO: allow more than just minutes
 	//TODO: upper cap
 	inMS = delay * 60000;
-
+var global;
 	if ( isNaN(inMS) ) {
 		return 'Many things can be labeled Not a Number; a delay should not' +
 			' be one of them.';
 	}
-	if(items==[])
+	if(items.length<1)
 	{
 	    var req;
 console.log('yes');
