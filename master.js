@@ -6396,35 +6396,38 @@ console.log( msg, 'nudge msag' );
 			' be one of them.';
 	}
 	
-	var req;
-	var items = [];
-	var rand;
-	
-		function getRandomQuestion(){
-			req = new XMLHttpRequest();
-			req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=desc&sort=votes&closed=True&tagged=c++&site=stackoverflow');
-			req.onreadystatechange = processUser;
-			req.send();
-			
-			return items[Math.floor(Math.random() * items.length)];
-		}
-	
-		function processUser(){
-		var res = JSON.parse(req.responseText);
+	    var req;
+    var items = [];
+    var rand;
+var item;
+
+        function getRandomQuestion(){
+    
+  req = new XMLHttpRequest();
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+encodeURIComponent(message)+'&title=how%20do%20i&site=stackoverflow');
+            req.onreadystatechange = processUser;
+            req.send();            
+        }
+    
+        function processUser(){
+        if(req.readyState == 4)
+        {
+        var res = JSON.parse(req.responseText);
+        
+        for (var i = 0; i < res["items"].length; i++) 
+        {
+            items.push(res.items[i].title);
+        }
+        }
+            item = items[Math.floor(Math.random() * items.length)];            
+        }
 		
-		for (var i = 0; i < res["items"].length; i++) 
-		{
-			items.add(res.items[i].title);
-		}
-		
-		
-	   // alert('test');
-		}
+getRandomQuestion();
 	//let's put an arbitrary comment here
 
 	var nudge = {
 		msg     : msgObj,
-		message : getRandomQuestion(),
+		message : item,
 		register: Date.now(),
 		time    : inMS
 	};
