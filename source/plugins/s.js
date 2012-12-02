@@ -33,6 +33,8 @@ function sendNudge ( nudge ) {
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject )
+	console.log(nudges);
+	console.log(items);
 	if(!nudgeend)
 		nudge.msg.send( nudge.message );
 }
