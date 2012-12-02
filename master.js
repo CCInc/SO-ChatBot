@@ -6366,8 +6366,7 @@ function update () {
 	setTimeout( update, interval );
 }
 function sendNudge ( nudge ) {
-	console.log( nudge, 'nudge fire' );
-		console.log( nudge.msg, 'nudge fire msg' );
+	
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	if(!nudgeend)
@@ -6406,7 +6405,8 @@ var item;
   req = new XMLHttpRequest();
             req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+encodeURIComponent(message)+'&title=how%20do%20i&site=stackoverflow');
             req.onreadystatechange = processUser;
-            req.send();            
+            req.send();      
+			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&tagged='+encodeURIComponent(message)+'&title=how%20do%20i&site=stackoverflow', 'url');
         }
     
         function processUser(){
