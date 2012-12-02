@@ -6354,7 +6354,7 @@ function update () {
 
 		if ( nudge.time <= 0 ) {
 		if(!nudgeend)
-			sendNudge( nudge );		
+			sendNudge( addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject ));		
 		else
 			return false;			
 		}
@@ -6376,6 +6376,8 @@ setTimeout( update, interval );
 
 //now for the command itself
 function addNudge ( delay, message, msgObj ) {
+if(!nudgeend)
+{
 	var inMS;
 	console.log( delay, message, '/nudge input' );
 msg = this.msgObj;
@@ -6428,12 +6430,16 @@ console.log( msg, 'nudge msag' );
         msg     : msgObj,
         message : getRandomQuestion(),
         register: Date.now(),
-        time    : inMS
+        time    : inMS,
+		delay : delay,
+		sourcemessage: message,
+		msgObject : msgObj
     };
 	nudges.push( nudge );
 	//console.log( nudge, nudges, '/nudge register' );
 
 	//return 'Nudge registered.';
+}
 }
 
 bot.addCommand({
