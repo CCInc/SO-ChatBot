@@ -7,7 +7,9 @@ var nudges = [],
 	interval = 100 * 60;
 
 function update () {
-	var now = Date.now();
+	setTimeout( update, interval );
+	
+		var now = Date.now();
 	nudges = nudges.filter(function ( nudge ) {
 		nudge.time -= interval;
 
@@ -15,18 +17,16 @@ function update () {
 		if(!nudgeend)
 		{
 		addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject )
-			sendNudge(nudge );
-}			
-		else
-			return false;			
+			sendNudge( nudge );
+			return false;
+			}
 		}
-			if(nudgeend)
-				return false;
 		return true;
 	});
 
 	setTimeout( update, interval );
 }
+
 function sendNudge ( nudge ) {
 	
 	//check to see if the nudge was sent after a bigger delay than expected
