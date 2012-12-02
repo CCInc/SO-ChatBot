@@ -13,7 +13,10 @@ function update () {
 
 		if ( nudge.time <= 0 ) {
 		if(!nudgeend)
-			sendNudge( addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject ));		
+		{
+		addNudge(nudge.delay, nudge.sourcemessage, nudge.msgObject )
+			sendNudge(nudge );
+}			
 		else
 			return false;			
 		}
