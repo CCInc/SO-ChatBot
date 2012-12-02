@@ -6371,7 +6371,7 @@ function sendNudge ( nudge ) {
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	if(!nudgeend)
-	nudge.msg.send( nudge.message );
+		nudge.msg.send( nudge.message );
 }
 setTimeout( update, interval );
 
@@ -6395,12 +6395,36 @@ console.log( msg, 'nudge msag' );
 		return 'Many things can be labeled Not a Number; a delay should not' +
 			' be one of them.';
 	}
-
+	
+	var req;
+	var items = [];
+	var rand;
+	
+		function getRandomQuestion(){
+			req = new XMLHttpRequest();
+			req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=desc&sort=votes&closed=True&tagged=c++&site=stackoverflow');
+			req.onreadystatechange = processUser;
+			req.send();
+			
+			return items[Math.floor(Math.random() * items.length)];
+		}
+	
+		function processUser(){
+		var res = JSON.parse(req.responseText);
+		
+		for (var i = 0; i < res["items"].length; i++) 
+		{
+			items.add(res.items[i].title);
+		}
+		
+		
+	   // alert('test');
+		}
 	//let's put an arbitrary comment here
 
 	var nudge = {
 		msg     : msgObj,
-		message : '*nudge* ' + message,
+		message : getRandomQuestion(),
 		register: Date.now(),
 		time    : inMS
 	};
