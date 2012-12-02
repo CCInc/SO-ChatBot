@@ -82,7 +82,8 @@ console.log('yes');
         {
             items.push(res.items[i].title);
         }
-           global = items[Math.floor(Math.random() * items.length)];               
+           global = items[Math.floor(Math.random() * items.length)];     
+			console.log(items);
         }
                  
         };
