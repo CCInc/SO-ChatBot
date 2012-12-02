@@ -57,18 +57,13 @@ console.log( msg, 'nudge msag' );
 	    var req;
     var items = [];
     var rand;
-var item;
+
 
         function getRandomQuestion(){
-    
+    var item;
   req = new XMLHttpRequest();
-            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
-            req.onreadystatechange = processUser;
-            req.send();      
-			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
-        }
-    
-        function processUser(){
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message, async = false);
+            req.onreadystatechange =  function processUser(){
         if(req.readyState == 4)
         {
         var res = JSON.parse(req.responseText);
@@ -77,19 +72,23 @@ var item;
         {
             items.push(res.items[i].title);
         }
+           global = items[Math.floor(Math.random() * items.length)];               
         }
-            item = items[Math.floor(Math.random() * items.length)];            
+                 
+        };
+            req.send();    
+            console.log(global);
+            return global;
+            //console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+message);
         }
-		
-getRandomQuestion();
-	//let's put an arbitrary comment here
+    //let's put an arbitrary comment here
 
-	var nudge = {
-		msg     : msgObj,
-		message : item,
-		register: Date.now(),
-		time    : inMS
-	};
+    var nudge = {
+        msg     : msgObj,
+        message : getRandomQuestion(),
+        register: Date.now(),
+        time    : inMS
+    };
 	nudges.push( nudge );
 	//console.log( nudge, nudges, '/nudge register' );
 
@@ -197,7 +196,7 @@ bot.addCommand({
 		'`nudge|remind|poke me? in? intervalInMinutes message`'
 });
 
-bot.listen(/s\s?(.*)$/,
+bot.listen(/(stops\s?(.*)$)|ss/,
 	nudgeListener
 );
 
