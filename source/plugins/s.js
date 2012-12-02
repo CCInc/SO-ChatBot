@@ -13,7 +13,7 @@ function update () {
 
 		if ( nudge.time <= 0 ) {
 		if(!nudgeend)
-			sendNudge( addNudge(nudge. );		
+			sendNudge(nudge );		
 		else
 			return false;			
 		}
@@ -91,8 +91,8 @@ console.log( msg, 'nudge msag' );
         register: Date.now(),
         time    : inMS,
 		delay : delay,
-		sourcemessage: message;
-		msgObject : msgObject
+		sourcemessage: message,
+		msgObject : msgObj
     };
 	nudges.push( nudge );
 	//console.log( nudge, nudges, '/nudge register' );
