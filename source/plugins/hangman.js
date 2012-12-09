@@ -191,7 +191,7 @@ var game = {
 	}
 };
 bot.addCommand({
-	name : 'hangfull',
+	name : 'hang',
 	fun : game.receiveMessage,
 	thisArg : game
 });
