@@ -14,11 +14,11 @@ function google ( args, cb ) {
 					resp.responseStatus );
 			return;
 		}
-console.log(resp.responseData.results);
+
 		//TODO: change hard limit to argument
 		var results = resp.responseData.results(0);
 		bot.log( results, '/image results' );
-
+console.log(results);
 		if ( !results.length ) {
 			finish( nulls.random() );
 			return;
