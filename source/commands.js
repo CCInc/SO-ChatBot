@@ -560,7 +560,7 @@ return function parse ( args, extraVars ) {
 
 commands.tell = (function () {
 
-var invalidCommands = { tell : true, forget : true, ring : true };
+var invalidCommands = { tell : true, forget : true };
 
 return function ( args ) {
 	var props = args.parse();
@@ -589,9 +589,9 @@ return function ( args ) {
 	}
 
 	//check if the user's being a fag
-	if ( /^@/.test(replyTo) ) {
-		return 'Don\'t be annoying, drop the @, nobody likes a double-ping.';
-	}
+	// if ( /^@/.test(replyTo) ) {
+		// return 'Don\'t be annoying, drop the @, nobody likes a double-ping.';
+	// }
 
 	//check if the user wants to reply to a message
 	var direct = false, msgObj = args.get();
