@@ -5613,7 +5613,7 @@ function google ( args, cb ) {
 		var results = resp.responseData.results[0];
 		bot.log( results, '/image results' );
 		finish(
-			results.map( format ).join( ' ; ' ) );
+			results);
 
 		function format ( result ) {
 			var title = IO.decodehtmlEntities( result.titleNoFormatting );
