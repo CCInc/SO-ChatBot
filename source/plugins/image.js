@@ -14,7 +14,7 @@ function google ( args, cb ) {
 					resp.responseStatus );
 			return;
 		}
-console.log(resp.responseData.results[0].url);
+console.log(resp.responseData.results);
 		//TODO: change hard limit to argument
 		var results = resp.responseData.results( 0, 1 );
 		bot.log( results, '/image results' );
