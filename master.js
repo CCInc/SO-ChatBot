@@ -300,7 +300,7 @@ IO.jsonp.google = function ( query, cb ) {
 
 IO.jsonp.image = function ( query, cb ) {
 	IO.jsonp({
-		url : 'http://ajax.googleapis.com/ajax/services/search/image',
+		url : 'http://ajax.googleapis.com/ajax/services/search/images',
 		jsonpName : 'callback',
 		data : {
 			v : '1.0',
