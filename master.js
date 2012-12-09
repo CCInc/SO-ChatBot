@@ -5626,23 +5626,20 @@ function google ( args, cb ) {
 		}
 var results;
 		//TODO: change hard limit to argument
+		
 		if(number != 0)
-		results = resp.responseData.results[number];
-		else if(!random)
-		results = resp.responseData.results[0];
-		else
-		results = resp.responseData.results[Math.floor(Math.random()*50)];
+		{console.log('number');
+		results = resp.responseData.results[number];}
+		else if(!random){console.log('not random');
+		results = resp.responseData.results[0];}
+		else{console.log('random');
+		results = resp.responseData.results[Math.floor(Math.random()*50)];}
 		
 		
 		bot.log( results, '/image results' );
 		
 		finish(
 			results.url);
-
-		function format ( result ) {
-			var title = IO.decodehtmlEntities( result.titleNoFormatting );
-			return args.link( title, result.url );
-		}
 	}
 
 	function finish ( res ) {
