@@ -5599,7 +5599,7 @@ var nulls = [
 
 function google ( args, cb ) {
 	console.log(args.toString());
-	IO.jsonp.google( args.toString(), finishCall );
+	IO.jsonp.image( args.toString(), finishCall );
 
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
