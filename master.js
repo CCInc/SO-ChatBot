@@ -5604,11 +5604,13 @@ function google ( args, cb ) {
 	console.log(args.toString());
 	if(args.split(' ')[0].toLowerCase() == 'random')
 	{
+	console.log('true');
 	random = true;
 	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
 	}
 	else if(!isNaN(args.split(' ')[0]))
 	{
+	console.log('nan');
 		number = args.split(' ')[0] - 1;
 	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
 	}
