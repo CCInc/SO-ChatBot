@@ -19,7 +19,7 @@ function google ( args, cb ) {
 		var results = resp.responseData.results[0];
 		bot.log( results, '/image results' );
 		finish(
-			results);
+			results.url);
 
 		function format ( result ) {
 			var title = IO.decodehtmlEntities( result.titleNoFormatting );
