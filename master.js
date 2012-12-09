@@ -5598,7 +5598,8 @@ var nulls = [
 	'There are no search results. Run.' ];
 
 function google ( args, cb ) {
-	IO.jsonp.google( args.toString() + ' -site:w3schools.com', finishCall );
+	console.log(args.toString());
+	IO.jsonp.google( args.toString(), finishCall );
 
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
