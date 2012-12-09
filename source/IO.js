@@ -296,3 +296,16 @@ IO.jsonp.google = function ( query, cb ) {
 		fun : cb
 	});
 };
+
+IO.jsonp.image = function ( query, cb ) {
+	IO.jsonp({
+		url : 'http://ajax.googleapis.com/ajax/services/search/image',
+		jsonpName : 'callback',
+		data : {
+			v : '1.0',
+			q : query
+		},
+		fun : cb
+	});
+};
+
