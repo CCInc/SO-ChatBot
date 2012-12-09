@@ -20,8 +20,9 @@ function google ( args, cb ) {
 		number = args.split(' ')[0] - 1;
 	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
 	}
+	else{ console.log('neither');
 	
-	IO.jsonp.image( args.toString(), finishCall );
+	IO.jsonp.image( args.toString(), finishCall );}
 	
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
