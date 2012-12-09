@@ -5602,17 +5602,19 @@ function google ( args, cb ) {
 	var number = 0;
 
 	console.log(args.toString());
-	if(args.split(' ')[0].toLowerCase == 'random')
+	if(args.split(' ')[0].toLowerCase() == 'random')
 	{
 	random = true;
 	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
 	}
-	if(!isNaN(args.split(' ')[0]))
+	else if(!isNaN(args.split(' ')[0]))
 	{
 		number = args.split(' ')[0] - 1;
 	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
 	}
-
+	
+	IO.jsonp.image( args.toString(), finishCall );
+	
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
 		if ( resp.responseStatus !== 200 ) {
