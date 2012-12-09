@@ -4,8 +4,20 @@ var nulls = [
 	'There are no search results. Run.' ];
 
 function google ( args, cb ) {
+	var random = false;
+	var number = 0;
+
 	console.log(args.toString());
-	IO.jsonp.image( args.toString(), finishCall );
+	if(args.split(' ')[0].toLowerCase == 'random')
+	{
+	random = true;
+	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
+	}
+	if(!isNaN(args.split(' ')[0]))
+	{
+		number = args.split(' ')[0] - 1;
+	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
+	}
 
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
@@ -14,10 +26,18 @@ function google ( args, cb ) {
 					resp.responseStatus );
 			return;
 		}
-
+var results;
 		//TODO: change hard limit to argument
-		var results = resp.responseData.results[0];
+		if(number != 0)
+		results = resp.responseData.results[number];
+		else if(!random)
+		results = resp.responseData.results[0];
+		else
+		results = resp.responseData.results[Math.floor(Math.random()*50)];
+		
+		
 		bot.log( results, '/image results' );
+		
 		finish(
 			results.url);
 
