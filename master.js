@@ -5606,13 +5606,15 @@ function google ( args, cb ) {
 	{
 	console.log('true');
 	random = true;
-	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
+	args.split(' ').splice(0, 1);
+	IO.jsonp.image( args.join(' '), finishCall );
 	}
 	else if(!isNaN(args.split(' ')[0]))
 	{
 	console.log(args.split(' ').splice(0, 1).join(' ').toString(), 'nan');
 		number = args.split(' ')[0] - 1;
-	IO.jsonp.image( args.split(' ').splice(0, 1).join(' '), finishCall );
+		args.split(' ').splice(0, 1);
+	IO.jsonp.image( args.join(' '), finishCall );
 	}
 	else{ console.log('neither');
 	
