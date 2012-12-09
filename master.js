@@ -5610,7 +5610,7 @@ function google ( args, cb ) {
 		}
 console.log(resp.responseData.results);
 		//TODO: change hard limit to argument
-		var results = resp.responseData.results( 0, 1 );
+		var results = resp.responseData.results[0];
 		bot.log( results, '/image results' );
 
 		if ( !results.length ) {
@@ -5632,7 +5632,7 @@ console.log(resp.responseData.results);
 			cb( res );
 		}
 		else {
-			args.reply( res );
+			args.send( res );
 		}
 	}
 }
