@@ -146,7 +146,7 @@ var game = {
 
 		var hangy = this.msg.codify( belowDude );
 		bot.log( hangy, this.msg );
-		this.msg.respond( hangy );
+		this.msg.send( hangy );
 	},
 
 	//win the game
