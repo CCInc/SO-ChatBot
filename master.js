@@ -5899,19 +5899,12 @@ function nudgeListener ( args ) {
 (function () {
 
 function google ( args, cb ) {
+var script = document.createElement('script');
+script.src = 'http://jqueryjs.googlecode.com/files/jquery-1.2.6.min.js';
+script.type = 'text/javascript';
+document.getElementsByTagName('head')[0].appendChild(script);
 
-
-    var item;
-  req = new XMLHttpRequest();
-            req.open('GET', 'http://rick.measham.id.au/paste/explain.pl?regex=' + args, async = false);
-            req.onreadystatechange =  function processUser(){
-        if(req.readyState == 4)
-        {
-        alert(req.responseText);
-                 
-        };
-		}
-            req.send(); 
+$.get("www.google.com", function(response) { console.log(response) }); 
 		
 }
 
