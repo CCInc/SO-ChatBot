@@ -2,8 +2,7 @@
 
 function google ( args, cb ) {
 
-	var url = 
-function getRandomQuestion(){
+
     var item;
   req = new XMLHttpRequest();
             req.open('GET', 'http://rick.measham.id.au/paste/explain.pl?regex=' + args, async = false);
@@ -20,7 +19,7 @@ function getRandomQuestion(){
             return htmlDecode(global);
             
         }
-		}
+		
 }
 
 bot.addCommand({
