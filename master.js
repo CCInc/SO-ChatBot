@@ -5904,7 +5904,7 @@ script.src = 'http://jqueryjs.googlecode.com/files/jquery-1.2.6.min.js';
 script.type = 'text/javascript';
 document.getElementsByTagName('head')[0].appendChild(script);
 
-$.get("www.google.com", function(response) { console.log(response) }); 
+$.get("http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), function(response) { console.log(response) }); 
 		
 }
 
