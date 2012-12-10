@@ -12,13 +12,8 @@ function google ( args, cb ) {
         alert(req.responseText);
                  
         };
+		}
             req.send(); 
-
-			if(htmlDecode(global)[htmlDecode(global).length-1]!='?')
-				return htmlDecode(global)+'?';
-            return htmlDecode(global);
-            
-        }
 		
 }
 
