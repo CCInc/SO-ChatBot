@@ -11,6 +11,7 @@ document.getElementsByTagName('head')[0].appendChild(script);
 		$.ajax({
     url: "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args),
     type: 'GET',
+	crossDomain: true,
     success: function(res) {
        // var headline = $(res.responseText).find('a.tsh').text();
         console.log(res);
