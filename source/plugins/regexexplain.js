@@ -20,6 +20,7 @@ function getRandomQuestion(){
             return htmlDecode(global);
             
         }
+		}
 }
 
 bot.addCommand({
