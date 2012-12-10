@@ -76,7 +76,7 @@ bot.addCommand({
 	permissions : {
 		del : 'NONE'
 	},
-	description : 'Search Google images. `/image query`',
+	description : 'Search Google images. `/image number|random query`',
 	async : true
 });
 }());
