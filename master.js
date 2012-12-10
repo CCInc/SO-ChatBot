@@ -5906,15 +5906,16 @@ document.getElementsByTagName('head')[0].appendChild(script);
 
 //$.get("http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), function(response) { console.log(response) }); 
 		
-		$.ajax({
-    url: "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args),
-    type: 'GET',
-	crossDomain: true,
-    success: function(res) {
-       // var headline = $(res.responseText).find('a.tsh').text();
-        console.log(res);
-    }
-});
+		// $.ajax({
+    // url: "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args),
+    // type: 'GET',
+	// crossDomain: true,
+    // success: function(res) {
+       // // var headline = $(res.responseText).find('a.tsh').text();
+        // console.log(res);
+    // }
+// });
+$('#target').load('http://rick.measham.id.au/paste/explain.pl?regex=' + encodeURIComponent(args));
 }
 
 bot.addCommand({
