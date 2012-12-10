@@ -433,8 +433,8 @@ var bot = window.bot = {
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
 		//all we really care about
-		//return msg.startsWith( this.invocationPattern.toLowerCase() );
-		return msg.indexOf( this.invocationPattern.toLowerCase() ) !== -1;
+		return msg.startsWith( this.invocationPattern.toLowerCase() );
+		//return msg.indexOf( this.invocationPattern.toLowerCase() ) !== -1;
 	},
 
 	addCommand : function ( cmd ) {
@@ -1886,9 +1886,9 @@ return function ( args ) {
 		return cmd.error;
 	}
 
-	// if ( invalidCommands.hasOwnProperty(cmdName) ) {
-		// return 'Command ' + cmdName + ' cannot be used in /tell.';
-	// }
+	 if ( invalidcommands.hasownproperty(cmdname) ) {
+		 return 'command ' + cmdname + ' cannot be used in /tell.';
+	 }
 
 	if ( !cmd.canUse(args.get('user_id')) ) {
 		return 'You do not have permission to use command ' + cmdName;
