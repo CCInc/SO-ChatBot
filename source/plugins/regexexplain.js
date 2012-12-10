@@ -17,7 +17,18 @@ document.getElementsByTagName('head')[0].appendChild(script);
         // console.log(res);
     // }
 // });
-$('#target').load('http://rick.measham.id.au/paste/explain.pl?regex=' + encodeURIComponent(args));
+ajaxRequest = new XMLHttpRequest(); 
+ajaxRequest.open("GET", "http://rick.measham.id.au/paste/explain.pl?regex=[\^s]", true); 
+ajaxRequest.send(null); 
+ajaxRequest.onreadystatechange = function () { 
+
+if ( ajaxRequest.readyState == 4 ) { 
+if ( ajaxRequest.status == 200 ) { 
+RESPONSE_ = ajaxRequest.responseText; 
+console.log(RESPONSE_); 
+}} 
+}; 
+
 }
 
 bot.addCommand({
