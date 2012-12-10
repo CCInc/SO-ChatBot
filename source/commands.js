@@ -580,9 +580,9 @@ return function ( args ) {
 		return cmd.error;
 	}
 
-	if ( invalidCommands.hasOwnProperty(cmdName) ) {
-		return 'Command ' + cmdName + ' cannot be used in /tell.';
-	}
+	// if ( invalidCommands.hasOwnProperty(cmdName) ) {
+		// return 'Command ' + cmdName + ' cannot be used in /tell.';
+	// }
 
 	if ( !cmd.canUse(args.get('user_id')) ) {
 		return 'You do not have permission to use command ' + cmdName;
