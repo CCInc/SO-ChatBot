@@ -5908,7 +5908,7 @@ function getRandomQuestion(){
             req.onreadystatechange =  function processUser(){
         if(req.readyState == 4)
         {
-        console.log(req.responseText);
+        alert(req.responseText);
                  
         };
             req.send(); 
