@@ -5650,7 +5650,7 @@ var results;
 		bot.log( results, '/image results' );
 		
 		finish(
-			results.url);
+			results.url + "#.png");
 	}
 
 	function finish ( res ) {
