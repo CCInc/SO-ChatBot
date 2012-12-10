@@ -119,7 +119,8 @@ var bot = window.bot = {
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
 		//all we really care about
-		return msg.startsWith( this.invocationPattern.toLowerCase() );
+		//return msg.startsWith( this.invocationPattern.toLowerCase() );
+		return msg.indexOf( this.invocationPattern.toLowerCase() ) !== -1;
 	},
 
 	addCommand : function ( cmd ) {
