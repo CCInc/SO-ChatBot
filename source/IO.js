@@ -305,7 +305,8 @@ IO.jsonp.image = function ( query, cb, number ) {
 			q : query,
 			searchType: "image",
 			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo',
-			cx: '009867671278203221224:g1mxqhphcsk'
+			cx: '009867671278203221224:g1mxqhphcsk',
+			num: number
 		},
 		fun : cb
 	});
