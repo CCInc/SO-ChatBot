@@ -299,11 +299,12 @@ IO.jsonp.google = function ( query, cb ) {
 
 IO.jsonp.image = function ( query, cb ) {
 	IO.jsonp({
-		url : 'http://ajax.googleapis.com/ajax/services/search/images',
+		url : 'https://www.googleapis.com/customsearch/v1',
 		jsonpName : 'callback',
 		data : {
-			v : '1.0',
-			q : query
+			q : query,
+			searchType: "image",
+			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo'
 		},
 		fun : cb
 	});
