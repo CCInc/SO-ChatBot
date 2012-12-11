@@ -5633,21 +5633,21 @@ function google ( args, cb ) {
 	
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
-		if ( resp.responseStatus !== 200 ) {
-			finish( 'My Google-Fu is on vacation; status ' +
-					resp.responseStatus );
-			return;
-		}
+		// if ( resp.responseStatus !== 200 ) {
+			// finish( 'My Google-Fu is on vacation; status ' +
+					// resp.responseStatus );
+			// return;
+		// }
 var results;
 		//TODO: change hard limit to argument
 		
 		if(number != 0)
 		{console.log('number');
-		results = resp.responseData.results[number];}
+		results = resp.responseData.items[number];}
 		else if(!random){console.log('not random');
-		results = resp.responseData.results[0];}
+		results = resp.responseData.items[0];}
 		else{console.log('random');
-		results = resp.responseData.results[Math.floor(Math.random()*50)];}
+		results = resp.responseData.items[Math.floor(Math.random()*50)];}
 		
 		
 		bot.log( results, '/image results' );
