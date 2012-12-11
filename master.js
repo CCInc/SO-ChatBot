@@ -5626,7 +5626,7 @@ function google ( args, cb ) {
 		number = args.split(' ')[0] - 1;
 			var argsarray = args.split(' ');
 	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall, number );
+	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
 	}
 	else{ console.log('neither');
 	
