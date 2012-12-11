@@ -46,11 +46,11 @@ var results;
 		
 		if(number != 0)
 		{console.log('number');
-		results = resp.responseData.items[number];}
+		results = resp.items[number];}
 		else if(!random){console.log('not random');
-		results = resp.responseData.items[0];}
+		results = resp.items[0];}
 		else{console.log('random');
-		results = resp.responseData.items[Math.floor(Math.random()*50)];}
+		results = resp.items[Math.floor(Math.random()*50)];}
 		
 		
 		bot.log( results, '/image results' );
