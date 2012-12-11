@@ -55,15 +55,15 @@ var results;
 		
 		bot.log( results, '/image results' );
 		var url;
-		if(results.LastIndexOf('.') != results.length-3)
+		if(results.lastIndexOf('.') != results.length-3)
 		{
 			console.log('DOES NOT CONTAIN EXTENSION');
 			finish(
-			results.url + "#.png");
+			results.link + "#.png");
 		}
 		else
 		finish(
-			results.url );
+			results.link );
 		
 		
 	}
