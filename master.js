@@ -5615,11 +5615,6 @@ function google ( args, cb ) {
 	}
 	else if(!isNaN(args.split(' ')[0]))
 	{
-		if(args.split(' ')[0] > 4)
-		{
-			args.reply('USE NUMBERS LESS THAN 5');
-			return;
-		}
 	
 	console.log(args.split(' ').splice(0, 1).join(' ').toString(), 'nan');
 		number = args.split(' ')[0] - 1;
