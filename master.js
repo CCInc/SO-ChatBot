@@ -5652,7 +5652,7 @@ var results;
 		
 		bot.log( results, '/image results' );
 		var url;
-		if(results.lastIndexOf('.') != results.length-3)
+		if(results.link.lastIndexOf('.') != results.link.length-3)
 		{
 			console.log('DOES NOT CONTAIN EXTENSION');
 			finish(
