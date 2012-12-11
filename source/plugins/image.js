@@ -14,10 +14,15 @@ function google ( args, cb ) {
 	random = true;
 	var argsarray = args.split(' ');
 	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall, 50 );
+	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
 	}
 	else if(!isNaN(args.split(' ')[0]))
 	{
+		if(args.split(' ')[0] > 11)
+		{
+			args.reply('USE NUMBERS LESS THAN 10');
+			return;
+		}
 	
 	console.log(args.split(' ').splice(0, 1).join(' ').toString(), 'nan');
 		number = args.split(' ')[0] - 1;
@@ -27,7 +32,7 @@ function google ( args, cb ) {
 	}
 	else{ console.log('neither');
 	
-	IO.jsonp.image( args.toString(), finishCall, 50 );}
+	IO.jsonp.image( args.toString(), finishCall, 10 );}
 	
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
