@@ -297,7 +297,7 @@ IO.jsonp.google = function ( query, cb ) {
 	});
 };
 
-IO.jsonp.image = function ( query, cb ) {
+IO.jsonp.image = function ( query, cb, number ) {
 	IO.jsonp({
 		url : 'https://www.googleapis.com/customsearch/v1',
 		jsonpName : 'callback',

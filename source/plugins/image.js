@@ -14,7 +14,7 @@ function google ( args, cb ) {
 	random = true;
 	var argsarray = args.split(' ');
 	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall );
+	IO.jsonp.image( argsarray.join(' '), finishCall, 50 );
 	}
 	else if(!isNaN(args.split(' ')[0]))
 	{
@@ -28,11 +28,11 @@ function google ( args, cb ) {
 		number = args.split(' ')[0] - 1;
 			var argsarray = args.split(' ');
 	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall );
+	IO.jsonp.image( argsarray.join(' '), finishCall, number );
 	}
 	else{ console.log('neither');
 	
-	IO.jsonp.image( args.toString(), finishCall );}
+	IO.jsonp.image( args.toString(), finishCall, 50 );}
 	
 	function finishCall ( resp ) {
 		bot.log( resp, '/image response' );
