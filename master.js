@@ -5655,7 +5655,8 @@ var results;
 		var url;
 		if(results.link.lastIndexOf('.') != results.link.length-3)
 		{
-			console.log('DOES NOT CONTAIN EXTENSION');
+			console.log(results.link, 'DOES NOT CONTAIN EXTENSION');
+			console.log(results.link.length-3, 'DOES NOT CONTAIN EXTENSION');
 			finish(
 			results.link + "#.png");
 		}
