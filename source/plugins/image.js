@@ -54,9 +54,18 @@ var results;
 		
 		
 		bot.log( results, '/image results' );
-		
-		finish(
+		var url;
+		if(results.lastIndexOf('.') != results.length-3)
+		{
+			console.log('DOES NOT CONTAIN EXTENSION');
+			finish(
 			results.url + "#.png");
+		}
+		else
+		finish(
+			results.url );
+		
+		
 	}
 
 	function finish ( res ) {

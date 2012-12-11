@@ -305,7 +305,8 @@ IO.jsonp.image = function ( query, cb ) {
 		data : {
 			q : query,
 			searchType: "image",
-			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo'
+			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo',
+			cx: '009867671278203221224:g1mxqhphcsk'
 		},
 		fun : cb
 	});
@@ -5650,9 +5651,18 @@ var results;
 		
 		
 		bot.log( results, '/image results' );
-		
-		finish(
+		var url;
+		if(results.lastIndexOf('.') != results.length-3)
+		{
+			console.log('DOES NOT CONTAIN EXTENSION');
+			finish(
 			results.url + "#.png");
+		}
+		else
+		finish(
+			results.url );
+		
+		
 	}
 
 	function finish ( res ) {
