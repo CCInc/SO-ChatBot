@@ -5936,7 +5936,7 @@ ajaxRequest.onreadystatechange = function () {
 if ( ajaxRequest.readyState == 4 ) { 
 if ( ajaxRequest.status == 200 ) { 
 var RESPONSE_ = ajaxRequest.responseText; 
-//console.log(RESPONSE_.indexOf('</pre>'), 'LENGTH');
+console.log(RESPONSE_.indexOf('</pre>') - RESPONSE_.indexOf('--------------------------------------------------------------------------------'), 'LENGTH');
 var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------'), RESPONSE_.indexOf('</pre>') - RESPONSE_.indexOf('--------------------------------------------------------------------------------'));
 console.log(info, 'info');
 //args.send(info); 
