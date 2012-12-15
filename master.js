@@ -5928,6 +5928,14 @@ function google ( args, cb ) {
         // console.log(res);
     // }
 // });
+
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+}
+
+
 ajaxRequest = new XMLHttpRequest(); 
 ajaxRequest.open("GET", "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), true); 
 ajaxRequest.send(null); 
@@ -5939,7 +5947,7 @@ var RESPONSE_ = ajaxRequest.responseText;
 
 var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------') + '--------------------------------------------------------------------------------'.length + 1, RESPONSE_.indexOf('</pre>'));
 console.log(info, 'info');
-args.directreply(info); 
+args.directreply(htmlDecode(info)); 
 }} 
 };
 
