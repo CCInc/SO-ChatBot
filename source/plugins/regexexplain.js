@@ -25,7 +25,7 @@ ajaxRequest.onreadystatechange = function () {
 if ( ajaxRequest.readyState == 4 ) { 
 if ( ajaxRequest.status == 200 ) { 
 var RESPONSE_ = ajaxRequest.responseText; 
-RESPONSE_.send(RESPONSE_); 
+args.send(RESPONSE_); 
 }} 
 }; 
 
