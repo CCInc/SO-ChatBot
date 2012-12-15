@@ -5937,7 +5937,7 @@ if ( ajaxRequest.readyState == 4 ) {
 if ( ajaxRequest.status == 200 ) { 
 var RESPONSE_ = ajaxRequest.responseText; 
 var info = RESPONSE_.slice(RESPONSE_.indexOf('-------------------------------------------------------------------------------- '), RESPONSE_.indexOf('</pre>') - RESPONSE_.indexOf('-------------------------------------------------------------------------------- '));
-args.send(RESPONSE_); 
+args.send(info); 
 }} 
 }; 
 
