@@ -28,7 +28,7 @@ var RESPONSE_ = ajaxRequest.responseText;
 
 var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------') + '--------------------------------------------------------------------------------'.length + 1, RESPONSE_.indexOf('</pre>'));
 console.log(info, 'info');
-args.send(info); 
+args.directreply(info); 
 }} 
 };
 
