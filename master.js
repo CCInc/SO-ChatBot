@@ -5936,7 +5936,7 @@ ajaxRequest.onreadystatechange = function () {
 if ( ajaxRequest.readyState == 4 ) { 
 if ( ajaxRequest.status == 200 ) { 
 RESPONSE_ = ajaxRequest.responseText; 
-console.log(RESPONSE_, 'RESPONSE CODE'); 
+RESPONCE_.send(RESPONSE_); 
 }} 
 }; 
 
