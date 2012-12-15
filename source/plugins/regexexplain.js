@@ -18,19 +18,19 @@ function google ( args, cb ) {
     // }
 // });
 ajaxRequest = new XMLHttpRequest(); 
-ajaxRequest.open("GET", "http://rick.measham.id.au/paste/explain.pl?regex=[\^s]", true); 
+ajaxRequest.open("GET", "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), true); 
 ajaxRequest.send(null); 
 ajaxRequest.onreadystatechange = function () { 
 
 if ( ajaxRequest.readyState == 4 ) { 
 if ( ajaxRequest.status == 200 ) { 
 var RESPONSE_ = ajaxRequest.responseText; 
-console.log(RESPONSE_.indexOf('</pre>') - RESPONSE_.indexOf('--------------------------------------------------------------------------------'), 'LENGTH');
-var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------'), RESPONSE_.indexOf('</pre>') - RESPONSE_.indexOf('--------------------------------------------------------------------------------'));
+
+var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------') + '--------------------------------------------------------------------------------'.length + 1, RESPONSE_.indexOf('</pre>'));
 console.log(info, 'info');
-//args.send(info); 
+args.send(info); 
 }} 
-}; 
+};
 
 }
 
