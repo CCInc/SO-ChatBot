@@ -1,7 +1,9 @@
-
-
-
-var helper = function(){
+var script = document.createElement('script');
+ script.src = 'http://requirejs.org/docs/release/2.1.2/minified/require.js';
+ script.type = 'text/javascript';
+ document.getElementsByTagName('head')[0].appendChild(script);
+ 
+ 
     var crypto = require(['crypto'])
   , http = require(['http'])
   , Cleverbot = function(){
@@ -79,15 +81,6 @@ Cleverbot.prototype = {
 };
 
 module.exports = Cleverbot;
-}
 
 
 
-var script = document.createElement('script');
- script.src = 'http://requirejs.org/docs/release/2.1.2/minified/require.js';
- script.type = 'text/javascript';
-   script.onreadystatechange= function () {
-      if (this.readyState == 4) console.log('complete');
-   }
-   script.onload= helper;
- document.getElementsByTagName('head')[0].appendChild(script);
