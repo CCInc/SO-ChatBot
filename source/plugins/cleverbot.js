@@ -129,7 +129,7 @@ var helper = function() {
         name = ['Bob Loblaw', 'Stan Sitwell'],
         callback = function callback(resp) {
             CBots[i].write(resp['message'], callback);
-			if(a==1)
+			
             args.directreply(resp['message'])
         };
 
