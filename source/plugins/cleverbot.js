@@ -53,7 +53,7 @@ var helper = function() {
                 u.push(x + "=" + encodeURIComponent(a1[x].join(",")));
             }
             else if (a1[x] instanceof Object) {
-                u.push(params(a1[x]));
+                u.push(this.params(a1[x]));
             }
             else {
                 u.push(x + "=" + encodeURIComponent(a1[x]));
