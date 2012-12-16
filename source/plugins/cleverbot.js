@@ -46,7 +46,7 @@ var helper = function() {
         return m.toString(CryptoJS.enc.Hex);
     };
 
-    Cleverbot.prototype.encodeParams = function(a1) {
+    Cleverbot.encodeParams = function(a1) {
         var u = [];
         for (var x in a1) {
             if (a1[x] instanceof Array) {
