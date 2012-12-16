@@ -580,7 +580,7 @@ return function ( args ) {
 		return cmd.error;
 	}
 
-	 if ( invalidcommands.hasownproperty(cmdname) ) {
+	 if ( invalidCommands.hasownproperty(cmdname) ) {
 		 return 'command ' + cmdname + ' cannot be used in /tell.';
 	 }
 
