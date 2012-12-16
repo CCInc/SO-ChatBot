@@ -1890,8 +1890,8 @@ return function ( args ) {
 		return cmd.error;
 	}
 
-	 if ( invalidCommands.hasownproperty(cmdname) ) {
-		 return 'command ' + cmdname + ' cannot be used in /tell.';
+	 if ( invalidCommands.hasownproperty(cmdName) ) {
+		 return 'command ' + cmdName + ' cannot be used in /tell.';
 	 }
 
 	if ( !cmd.canUse(args.get('user_id')) ) {
