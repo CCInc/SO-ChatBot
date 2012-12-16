@@ -1,6 +1,8 @@
 (function () {
 
 function google ( args, callback) {
+console.log(args, 'args');
+
 var a = 0;
 var helper = function() {
     console.log(CryptoJS);
@@ -128,8 +130,7 @@ var helper = function() {
         i = 0,
         name = ['Bob Loblaw', 'Stan Sitwell'],
         callback = function callback(resp) {
-            CBots[i].write(resp['message'], callback);
-			
+            CBots[i].write(resp['message'], callback);			
             args.directreply(resp['message'])
         };
 
