@@ -164,8 +164,28 @@ Math.gcd = function ( a, b ) {
     return this.gcd( b, a % b );
 };
 
+Math.rand = function ( min, max ) {
+	//rand() === rand( 0, 9 )
+	if ( !min ) {
+		min = 0;
+		max = 9;
+	}
+
+	//rand( max ) === rand( 0, max )
+	else if ( !max ) {
+		max = min;
+		min = 0;
+	}
+
+	return Math.floor( Math.random() * (max - min + 1) ) + min;
+};
+
 //Crockford's supplant
-String.prototype.supplant = function ( obj ) {
+String.prototype.supplant = function ( arg ) {
+	//if it's an object, use that. otherwise, use the arguments list.
+	var obj = (
+		Object(arg) === arg ?
+		arg : arguments );
 	return this.replace( /\{([^\}]+)\}/g, replace );
 
 	function replace ( $0, $1 ) {
@@ -175,6 +195,61 @@ String.prototype.supplant = function ( obj ) {
 	}
 };
 
-String.prototype.add = function ( str, nonewline ) {
-	return this + str + ( nonewline ? '' : '\n' );
+//I got annoyed that RegExps don't automagically turn into correct shit when
+// JSON-ing them. so HERE.
+Object.defineProperty( RegExp.prototype, 'toJSON', {
+	value : function () {
+		return this.toString();
+	},
+	configurable : true,
+	writable : true
+});
+
+//not the most efficient thing, but who cares. formats the difference between
+// two dates
+Date.timeSince = function ( d0, d1 ) {
+	d1 = d1 || (new Date);
+	//our resolution goes starts with seconds, we don't care about ms
+	var seconds = Math.floor( (d1 - d0) / 1000 ),
+		delay, interval;
+
+	var delays = [
+		{
+			delta : 31536000,
+			suffix : 'year'
+		},
+		{
+			delta : 2592000,
+			suffix : 'month'
+		},
+		{
+			delta : 86400,
+			suffix : 'day'
+		},
+		{
+			delta : 3600,
+			suffix : 'hour'
+		},
+		{
+			delta : 60,
+			suffix : 'minute'
+		},
+		//anything else is seconds
+	];
+
+	while ( delay = delays.shift() ) {
+		interval = seconds / delay.delta;
+
+		if ( interval >= 1 ) {
+			return format( interval, delay.suffix );
+		}
+	}
+	return format( seconds, 'second' );
+
+	function format ( interval, suffix ) {
+		interval = Math.floor( interval );
+		suffix += interval === 1 ? '' : 's';
+
+		return interval + ' ' + suffix;
+	}
 };

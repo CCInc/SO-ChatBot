@@ -39,18 +39,21 @@ var undo = {
 			var msg;
 
 			if ( resp === '"ok"' ) {
-				msg = 'Target eliminated';
+				//nothing to see here
+				return;
 			}
 			else if ( /it is too late/i.test(resp) ) {
 				msg = 'TimeError: Could not reach 88mph';
-				cb( msg );
+			}
+			else if ( /only delete your own/i.test(resp) ) {
+				 //...I can't think of anything clever
+				msg = 'I can only delete my own messages';
 			}
 			else {
 				msg = 'I have no idea what happened: ' + resp;
-				cb( msg );
 			}
 
-			
+			cb( msg );
 		}
 	},
 

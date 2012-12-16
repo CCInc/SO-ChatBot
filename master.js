@@ -271,7 +271,7 @@ IO.jsonp = function ( opts ) {
 
 	script.src = opts.url;
 	document.head.appendChild( script );
-}
+};
 
 //generic, pre-made calls to be used inside commands
 IO.jsonp.ddg = function ( query, cb ) {
@@ -321,11 +321,16 @@ IO.jsonp.image = function ( query, cb, number ) {
 
 var bot = window.bot = {
 	invocationPattern : 'cc',
-	commandRegex : /^\/\s?([\w\-]+)(?:\s(.+))?$/,
+	commandRegex : /^\/\s*([\w\-]+)(?:\s(.+))?$/,
 	commands : {}, //will be filled as needed
 	commandDictionary : null, //it's null at this point, won't be for long
 	listeners : [],
-
+	info : {
+		invoked   : 0,
+		learned   : 0,
+		forgotten : 0,
+		start     : new Date,
+	},
 
 	parseMessage : function ( msgObj ) {
 		if ( !this.validateMessage(msgObj) ) {
@@ -333,31 +338,34 @@ var bot = window.bot = {
 			return;
 		}
 
-		var msg = this.prepareMessage( msgObj );
+		var msg = this.prepareMessage( msgObj ),
+			id = msg.get( 'user_id' );
 		bot.log( msg, 'parseMessage valid' );
 
-		if ( this.banlist.contains(msg.get('user_id')) ) {
+		if ( this.banlist.contains(id) ) {
 			bot.log( msgObj, 'parseMessage banned' );
-			//TODO: remove this after testing, and push if block up
-			msg.reply( 'You iz in mindjail' );
+
+			//tell the user he's banned only if he hasn't already been told
+			if ( !this.banlist[id].told ) {
+				msg.reply( 'You iz in mindjail' );
+				this.banlist[ id ].told = true;
+			}
 			return;
 		}
 
 		try {
-			//it's a command
-			if ( msg.startsWith('/') ) {
-				this.parseCommand( msg );
-			}
-
 			//it wants to execute some code
-			else if ( msg.startsWith('>') ) {
+			if ( msg.startsWith('>') ) {
 				this.eval( msg );
 			}
-
+			//it's a command
+			else if ( msg.startsWith('/') ) {
+				this.parseCommand( msg );
+			}
 			//see if some hobo listener wants this
 			else if ( !this.callListeners(msg) ) {
 				//no listener fancied the message. this is the last frontier,
-				// so just give up in a fancy, dignified way
+				// so just give up in a classy, dignified way
 				msg.reply(
 					'Y U NO MAEK SENSE!? Could not understand `' + msg + '`' );
 			}
@@ -374,8 +382,11 @@ var bot = window.bot = {
 			}
 
 			msg.directreply( err );
-			//make sure we have it documented
-			console.error( e, err );
+			//make sure we have it somewhere
+			console.dir( e );
+		}
+		finally {
+			this.info.invoked += 1;
 		}
 	},
 
@@ -398,9 +409,9 @@ var bot = window.bot = {
 		}
 		bot.log( commandParts, 'parseCommand matched' );
 
-		var commandName = commandParts[ 1 ].toLowerCase();
+		var commandName = commandParts[ 1 ].toLowerCase(),
+			cmdObj = this.getCommand( commandName );
 		//see if there was some error fetching the command
-		var cmdObj = this.getCommand( commandName );
 		if ( cmdObj.error ) {
 			msg.reply( cmdObj.error );
 			return;
@@ -409,26 +420,22 @@ var bot = window.bot = {
 		if ( !cmdObj.canUse(msg.get('user_id')) ) {
 			msg.reply([
 				'You do not have permission to use the command ' + commandName,
-				"I'm afraid I can't do that, " + msg.get('user_name')
+				"I'm afraid I can't let you do that, " + msg.get('user_name')
 			].random());
 			return;
-		}
-
-		if ( this.personality.check(commandName) ) {
-			this.personality.command();
-			if ( this.personality.isABitch() ) {
-				msg.send( this.personality.bitch() );
-			}
 		}
 
 		bot.log( cmdObj, 'parseCommand calling' );
 
 		var args = this.Message(
-			//+ 1 is for the / in the message
-			msg.slice( commandName.length + 1 ).trim(),
-			msg.get() );
+				msg.replace(/^\//, '').slice( commandName.length ).trim(),
+				msg.get()
+			),
+			//it always amazed me how, in dynamic systems, the trigger of the
+			// actions is always a small, nearly unidentifiable line
+			//this line right here activates a command
+			res = cmdObj.exec( args );
 
-		var res = cmdObj.exec( args );
 		if ( res ) {
 			msg.reply( res );
 		}
@@ -445,6 +452,10 @@ var bot = window.bot = {
 		if ( !cmd.exec || !cmd.del ) {
 			cmd = this.Command( cmd );
 		}
+		if ( cmd.learned ) {
+			this.info.learned += 1;
+		}
+		cmd.invoked = 0;
 
 		this.commands[ cmd.name ] = cmd;
 		this.commandDictionary.trie.add( cmd.name );
@@ -533,8 +544,8 @@ var bot = window.bot = {
 bot.eval = (function () {
 window.URL = window.URL || window.webkitURL || window.mozURL || null;
 
-// http://tinkerbin.com/84dPpGFr
-var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7Cgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsIC8qbG9vayBtb20sIEknbSBhIHdoaXRlbGlzdCwgY29udGFpbmluZyBpdHNlbGYhKi8KCSdldmFsJyAgICAgICAgICAgICAgIDogMSwKCSdBcnJheScgICAgICAgICAgICAgIDogMSwKCSdCb29sZWFuJyAgICAgICAgICAgIDogMSwKCSdEYXRlJyAgICAgICAgICAgICAgIDogMSwKCSdGdW5jdGlvbicgICAgICAgICAgIDogMSwKCSdOdW1iZXInICAgICAgICAgICAgIDogMSwKCSdPYmplY3QnICAgICAgICAgICAgIDogMSwKCSdSZWdFeHAnICAgICAgICAgICAgIDogMSwKCSdTdHJpbmcnICAgICAgICAgICAgIDogMSwKCSdFcnJvcicgICAgICAgICAgICAgIDogMSwKCSdFdmFsRXJyb3InICAgICAgICAgIDogMSwKCSdSYW5nZUVycm9yJyAgICAgICAgIDogMSwKCSdSZWZlcmVuY2VFcnJvcicgICAgIDogMSwKCSdTeW50YXhFcnJvcicgICAgICAgIDogMSwKCSdUeXBlRXJyb3InICAgICAgICAgIDogMSwKCSdVUklFcnJvcicgICAgICAgICAgIDogMSwKCSdkZWNvZGVVUkknICAgICAgICAgIDogMSwKCSdkZWNvZGVVUklDb21wb25lbnQnIDogMSwKCSdlbmNvZGVVUkknICAgICAgICAgIDogMSwKCSdlbmNvZGVVUklDb21wb25lbnQnIDogMSwKCSdpc0Zpbml0ZScgICAgICAgICAgIDogMSwKCSdpc05hTicgICAgICAgICAgICAgIDogMSwKCSdwYXJzZUZsb2F0JyAgICAgICAgIDogMSwKCSdwYXJzZUludCcgICAgICAgICAgIDogMSwKCSdJbmZpbml0eScgICAgICAgICAgIDogMSwKCSdKU09OJyAgICAgICAgICAgICAgIDogMSwKCSdNYXRoJyAgICAgICAgICAgICAgIDogMSwKCSdOYU4nICAgICAgICAgICAgICAgIDogMSwKCSd1bmRlZmluZWQnICAgICAgICAgIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgoJCWlmKCAhd2hpdGV5Lmhhc093blByb3BlcnR5KCBwcm9wICkgKSB7CgkJCU9iamVjdC5kZWZpbmVQcm9wZXJ0eSggb2JqLCBwcm9wLCB7CgkJCQlnZXQgOiBmdW5jdGlvbigpIHsKCQkJCQl0aHJvdyAnU2VjdXJpdHkgRXhjZXB0aW9uOiBDYW5ub3QgYWNjZXNzICcgKyBwcm9wOwoJCQkJCXJldHVybiAxOwoJCQkJfSwKCgkJCQljb25maWd1cmFibGUgOiBmYWxzZQoJCQl9KTsKCQl9Cgl9KTsgLyplbmQgd2hpbGUqLwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCXZhciBjb25zb2xlID0gewoJCV9pdGVtcyA6IFtdLAoJCWxvZyA6IGZ1bmN0aW9uKCkgewoJCQljb25zb2xlLl9pdGVtcy5wdXNoLmFwcGx5KCBjb25zb2xlLl9pdGVtcywgYXJndW1lbnRzICk7CgkJfQoJfTsKCXZhciBwID0gY29uc29sZS5sb2cuYmluZCggY29uc29sZSApOwoKCWZ1bmN0aW9uIGV4ZWMgKCBjb2RlICkgewoJCXZhciByZXN1bHQ7CgkJdHJ5IHsKCQkJcmVzdWx0ID0gZXZhbCggJyJ1c2Ugc3RyaWN0Ijt1bmRlZmluZWQ7XG4nICsgY29kZSApOwoJCX0KCQljYXRjaCAoIGUgKSB7CgkJCXJlc3VsdCA9IGUudG9TdHJpbmcoKTsKCQl9CgoJCXJldHVybiByZXN1bHQ7Cgl9CgoJc2VsZi5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0ID0gZXhlYyggZXZlbnQuZGF0YS5jb2RlICk7CgoJCS8qSlNPTi5zdHJpbmdpZnkgZG9lcyBub3QgbGlrZSBmdW5jdGlvbnMsIGVycm9ycyBvciB1bmRlZmluZWQqLwoJCXZhciBzdHJ1bmcgPSB7IEZ1bmN0aW9uIDogdHJ1ZSwgRXJyb3IgOiB0cnVlLCBVbmRlZmluZWQgOiB0cnVlIH07CgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciB0eXBlID0gKCB7fSApLnRvU3RyaW5nLmNhbGwoIHZhbHVlICkuc2xpY2UoIDgsIC0xICksCgkJCQlvdXRwdXQ7CgoJCQlpZiAoIHR5cGUgaW4gc3RydW5nICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoMSwgLTEpCgkJfSk7Cgl9OwoKfSkoKTsK' );
+//translation tool: https://tinker.io/b2ff5
+var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyoKCSAgdGhlc2UgcHJvcGVydGllcyBhbGxvdyBGRiB0byBmdW5jdGlvbi4gd2l0aG91dCB0aGVtLCBhIGZ1Y2tmZXN0IG9mCgkgIGluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJICBkb3duLgoJICBmdWNrIGhlbGwgaXQgaXNuJ3QgZnV0dXJlLXByb29mLCBidXQgdGhlIGVycm9ycyB0aHJvd24gYXJlIHVuY2F0Y2hhYmxlCgkgIGFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCXZhciBjb25zb2xlID0gewoJCV9pdGVtcyA6IFtdLAoJCWxvZyA6IGZ1bmN0aW9uKCkgewoJCQljb25zb2xlLl9pdGVtcy5wdXNoLmFwcGx5KCBjb25zb2xlLl9pdGVtcywgYXJndW1lbnRzICk7CgkJfQoJfTsKCXZhciBwID0gY29uc29sZS5sb2cuYmluZCggY29uc29sZSApOwoKCWZ1bmN0aW9uIGV4ZWMgKCBjb2RlICkgewoJCXZhciByZXN1bHQ7CgkJdHJ5IHsKCQkJcmVzdWx0ID0gZXZhbCggJyJ1c2Ugc3RyaWN0Ijt1bmRlZmluZWQ7XG4nICsgY29kZSApOwoJCX0KCQljYXRjaCAoIGUgKSB7CgkJCXJlc3VsdCA9IGUudG9TdHJpbmcoKTsKCQl9CgoJCXJldHVybiByZXN1bHQ7Cgl9CgoJZ2xvYmFsLm9ubWVzc2FnZSA9IGZ1bmN0aW9uICggZXZlbnQgKSB7CgkJdmFyIGpzb25TdHJpbmdpZnkgPSBKU09OLnN0cmluZ2lmeSwgLypiYWNrdXAqLwoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciByZXZpdmVyID0gZnVuY3Rpb24gKCBrZXksIHZhbHVlICkgewoJCQl2YXIgdHlwZSA9ICgge30gKS50b1N0cmluZy5jYWxsKCB2YWx1ZSApLnNsaWNlKCA4LCAtMSApLAoJCQkJb3V0cHV0OwoKCQkJLypKU09OLnN0cmluZ2lmeSBkb2VzIG5vdCBsaWtlIGZ1bmN0aW9ucywgZXJyb3JzLCBOYU4gb3IgdW5kZWZpbmVkKi8KCQkJaWYgKCB0eXBlIGluIHN0cnVuZyB8fCB2YWx1ZSAhPT0gdmFsdWUgKSB7CgkJCQlvdXRwdXQgPSAnJyArIHZhbHVlOwoJCQl9CgkJCWVsc2UgewoJCQkJb3V0cHV0ID0gdmFsdWU7CgkJCX0KCgkJCXJldHVybiBvdXRwdXQ7CgkJfTsKCgkJcG9zdE1lc3NhZ2UoewoJCQlhbnN3ZXIgOiBqc29uU3RyaW5naWZ5KCByZXN1bHQsIHJldml2ZXIgKSwKCQkJbG9nICAgIDoganNvblN0cmluZ2lmeSggY29uc29sZS5faXRlbXMsIHJldml2ZXIgKS5zbGljZSggMSwgLTEgKQoJCX0pOwoJfTsKfSkoKTsK' );
 var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
 	code_url = window.URL.createObjectURL( blob );
 
@@ -550,13 +561,12 @@ return function ( msg ) {
 		finish( error.toString() );
 	};
 
-	worker.postMessage({
-		code : msg.content.replace( /^>/, '' )
-	});
+	//and it all boils down to this...
+	worker.postMessage( msg.content.replace(/^>/, '') );
 
 	timeout = window.setTimeout(function() {
 		finish( 'Maximum execution time exceeded' );
-	}, 50 );
+	}, 100 );
 
 	function finish ( result ) {
 		clearTimeout( timeout );
@@ -594,26 +604,28 @@ function snipAndCodify ( str ) {
 }());
 
 
-bot.banlist = JSON.parse( localStorage.bot_ban || '[]' );
-bot.banlist.contains = function ( item ) {
-	return this.indexOf( item ) >= 0;
+bot.banlist = JSON.parse( localStorage.bot_ban || '{}' );
+if ( Array.isArray(bot.banlist) ) {
+	bot.banlist = bot.banlist.reduce(function ( ret, id ) {
+		ret[ id ] = { told : false };
+		return ret;
+	}, {});
+}
+bot.banlist.contains = function ( id ) {
+	return this.hasOwnProperty( id );
 };
-bot.banlist.add = function ( item ) {
-	this.push( item );
+bot.banlist.add = function ( id ) {
+	this[ id ] = { told : false };
 	this.save();
 };
-bot.banlist.remove = function ( item ) {
-	var idx = this.indexOf( item ),
-		ret = null;
-
-	if ( idx >= 0 ) {
-		ret = this.splice( idx, 1 );
+bot.banlist.remove = function ( id ) {
+	if ( this.contains(id) ) {
+		delete this[ id ];
+		this.save();
 	}
-
-	this.save();
-	return ret;
 };
 bot.banlist.save = function () {
+	//JSON.stringify ignores functions
 	localStorage.bot_ban = JSON.stringify( this );
 };
 
@@ -626,6 +638,8 @@ bot.Command = function ( cmd ) {
 	cmd.permissions.del = cmd.permissions.del || 'NONE';
 
 	cmd.description = cmd.description || '';
+	cmd.creator = cmd.creator || 'God';
+	cmd.invoked = 0;
 
 	//make canUse and canDel
 	[ 'Use', 'Del' ].forEach(function ( perm ) {
@@ -639,14 +653,73 @@ bot.Command = function ( cmd ) {
 	});
 
 	cmd.exec = function () {
+		this.invoked += 1;
 		return this.fun.apply( this.thisArg, arguments );
 	};
 
 	cmd.del = function () {
+		bot.info.forgotten += 1;
 		delete bot.commands[ cmd.name ];
 	};
 
 	return cmd;
+};
+//a normally priviliged command which can be executed if enough people use it
+bot.CommunityCommand = function ( command, req ) {
+	var cmd = this.Command( command ),
+		used = {},
+		old_execute = cmd.exec,
+		old_canUse  = cmd.canUse;
+	req = req || 2;
+
+	cmd.canUse = function () {
+		return true;
+	};
+	cmd.exec = function ( msg ) {
+		var err = register( msg.get('user_id') );
+		if ( err ) {
+			console.log( err );
+			return err;
+		}
+		return old_execute.apply( cmd, arguments );
+	};
+	return cmd;
+
+	//once again, a switched return statement truthy means a message, falsy
+	// means to go on ahead
+	function register ( usrid ) {
+		if ( old_canUse.call(cmd, usrid) ) {
+			return false;
+		}
+
+		clean();
+		var count = Object.keys( used ).length,
+			needed = req - count;
+		console.log( used, count, req );
+
+		if ( usrid in used ) {
+			return 'Already registered; still need {0} more'.supplant( needed );
+		}
+		else if ( needed > 0 ) {
+			used[ usrid ] = new Date;
+			return 'Registered; need {0} more to execute'.supplant( needed-1 );
+		}
+		console.log( 'should execute' );
+		return false; //huzzah!
+	}
+
+	function clean () {
+		var tenMinsAgo = new Date;
+		tenMinsAgo.setMinutes( tenMinsAgo.getMinutes() - 10 );
+
+		Object.keys( used ).reduce( rm, used );
+		function rm ( ret, key ) {
+			if ( ret[key] < tenMinsAgo ) {
+				delete ret[ key ];
+			}
+			return ret;
+		}
+	}
 };
 
 bot.Message = function ( text, msgObj ) {
@@ -926,8 +999,28 @@ Math.gcd = function ( a, b ) {
     return this.gcd( b, a % b );
 };
 
+Math.rand = function ( min, max ) {
+	//rand() === rand( 0, 9 )
+	if ( !min ) {
+		min = 0;
+		max = 9;
+	}
+
+	//rand( max ) === rand( 0, max )
+	else if ( !max ) {
+		max = min;
+		min = 0;
+	}
+
+	return Math.floor( Math.random() * (max - min + 1) ) + min;
+};
+
 //Crockford's supplant
-String.prototype.supplant = function ( obj ) {
+String.prototype.supplant = function ( arg ) {
+	//if it's an object, use that. otherwise, use the arguments list.
+	var obj = (
+		Object(arg) === arg ?
+		arg : arguments );
 	return this.replace( /\{([^\}]+)\}/g, replace );
 
 	function replace ( $0, $1 ) {
@@ -937,8 +1030,63 @@ String.prototype.supplant = function ( obj ) {
 	}
 };
 
-String.prototype.add = function ( str, nonewline ) {
-	return this + str + ( nonewline ? '' : '\n' );
+//I got annoyed that RegExps don't automagically turn into correct shit when
+// JSON-ing them. so HERE.
+Object.defineProperty( RegExp.prototype, 'toJSON', {
+	value : function () {
+		return this.toString();
+	},
+	configurable : true,
+	writable : true
+});
+
+//not the most efficient thing, but who cares. formats the difference between
+// two dates
+Date.timeSince = function ( d0, d1 ) {
+	d1 = d1 || (new Date);
+	//our resolution goes starts with seconds, we don't care about ms
+	var seconds = Math.floor( (d1 - d0) / 1000 ),
+		delay, interval;
+
+	var delays = [
+		{
+			delta : 31536000,
+			suffix : 'year'
+		},
+		{
+			delta : 2592000,
+			suffix : 'month'
+		},
+		{
+			delta : 86400,
+			suffix : 'day'
+		},
+		{
+			delta : 3600,
+			suffix : 'hour'
+		},
+		{
+			delta : 60,
+			suffix : 'minute'
+		},
+		//anything else is seconds
+	];
+
+	while ( delay = delays.shift() ) {
+		interval = seconds / delay.delta;
+
+		if ( interval >= 1 ) {
+			return format( interval, delay.suffix );
+		}
+	}
+	return format( seconds, 'second' );
+
+	function format ( interval, suffix ) {
+		interval = Math.floor( interval );
+		suffix += interval === 1 ? '' : 's';
+
+		return interval + ' ' + suffix;
+	}
 };
 
 (function () {
@@ -1376,101 +1524,130 @@ var commands = {
 	},
 
 	ban : function ( args ) {
-		var msg = [];
-		args.parse().map( getID ).forEach( ban );
-
-		return msg.join( ' ' );
-
-		function getID ( usrid ) {
-			//name provided instead of id
-			if ( /\D/.test(usrid) ) {
-				usrid = args.findUserid( usrid.replace(/^@/, '') );
-			}
-
-			var id = Number( usrid );
-			if ( id < 0 ) {
-				msg.push( 'Cannot find user ' + usrid + '.' );
-				id = -1;
-			}
-			else if ( bot.isOwner(id) ) {
-				msg.push( 'Cannot mindjail owner ' + usrid + '.' );
-				id = -1;
-			}
-
-			return id;
+		var ret = [];
+		if ( args.content ) {
+			args.parse().forEach( ban );
+		}
+		else {
+			ret = Object.keys( bot.banlist ).filter( Number );
 		}
 
-		function ban ( id ) {
-			if ( id < 0 ) {
-				return;
+		return ret.join( ' ' ) || 'Nothing to show/do.';
+
+		function ban ( usrid ) {
+			var id = Number( usrid ),
+				msg;
+			if ( /\D/.test(usrid) ) {
+				id = args.findUserid( id.replace(/^@/, '') );
 			}
 
-			if ( bot.banlist.contains(id) ) {
-				msg.push( 'User ' + id + ' already in mindjail.' );
+			if ( id < 0 ) {
+				msg = 'Cannot find user {0}.';
+			}
+			else if ( bot.isOwner(id) ) {
+				msg = 'Cannot mindjail owner {0}.';
+			}
+			else if ( bot.banlist.contains(id) ) {
+				msg = 'User {0} already in mindjail.';
 			}
 			else {
 				bot.banlist.add( id );
-				msg.push( 'User ' + id + ' added to mindjail.');
+				msg = 'User {0} added to mindjail.';
 			}
+
+			ret.push( msg.supplant(usrid) );
 		}
 	},
 
 	unban : function ( args ) {
-		var msg = [];
-		args.parse().map( getID ).forEach( unban );
+		var ret = [];
+		args.parse().forEach( unban );
 
-		return msg.join( ' ' );
+		return ret.join( ' ' );
 
-		function getID ( usrid ) {
-			//name provided instead of id
+		function unban ( usrid ) {
+			var id = Number( usrid ),
+				msg;
 			if ( /\D/.test(usrid) ) {
-				usrid = args.findUserid( usrid.replace(/^@/, '') );
+				id = args.findUserid( usrid.replace(/^@/, '') );
 			}
 
-			var id = Number( usrid );
 			if ( id < 0 ) {
-				msg.push( 'Cannot find user ' + usrid + '.' );
-				id = -1;
+				msg = 'Cannot find user {0}.'
 			}
-			else if ( bot.isOwner(id) ) {
-				msg.push( 'Cannot mindjail owner ' + usrid + '.' );
-				id = -1;
-			}
-
-			return id;
-		}
-
-		function unban ( id ) {
-			if ( !bot.banlist.contains(id) ) {
-				msg.push( 'User ' + id + ' isn\'t in mindjail.' );
+			else if ( !bot.banlist.contains(id) ) {
+				msg = 'User {0} isn\'t in mindjail.';
 			}
 			else {
 				bot.banlist.remove( id );
-				msg.push( 'User ' + id + ' freed from mindjail.' );
+				msg = 'User {0} freed from mindjail!';
 			}
+
+			ret.push( msg.supplant(usrid) );
 		}
 	},
 
-	regex : function ( args ) {
-		var parts = args.parse(),
-
-			what = parts.shift(),
-			pattern = parts.shift(),
-			flags = parts.shift() || '',
-
-			regex = new RegExp( pattern, flags.toLowerCase() ),
-			matches = regex.exec( what );
-
-		bot.log( what, pattern, flags, regex, 'regex parsed' );
-		bot.log( matches, 'regex matched' );
-
-		if ( !matches ) {
-			return 'No matches.';
+	//a lesson on semi-bad practices and laziness
+	//chapter III
+	info : function ( args ) {
+		if ( args.content ) {
+			return commandFormat( args.content );
 		}
 
-		return matches.map(function ( match ) {
-			return '`' + match + '`';
-		}).join( ', ' );
+		var info = bot.info;
+		return timeFormat() + ', ' + statsFormat();
+
+		function commandFormat ( commandName ) {
+			var cmd = bot.getCommand( commandName );
+
+			if ( cmd.error ) {
+				return cmd.error;
+			}
+			var ret =  'Command {name}, created by {creator}'.supplant( cmd );
+
+			if ( cmd.date ) {
+				ret += ' on ' + cmd.date.toUTCString();
+			}
+
+			if ( cmd.invoked ) {
+				ret += ', invoked ' + cmd.invoked + ' times';
+			}
+			else {
+				ret += ' but hasn\'t been used yet';
+			}
+
+			return ret;
+		}
+
+		function timeFormat () {
+			var format = 'I awoke on {0} (that\'s about {1} ago)',
+
+				awoke = info.start.toUTCString(),
+				ago = Date.timeSince( info.start );
+
+			return format.supplant( awoke, ago );
+		}
+
+		function statsFormat () {
+			var ret = [],
+				but = ''; //you'll see in a few lines
+
+			if ( info.invoked ) {
+				ret.push( 'got invoked ' + info.invoked + ' times' );
+			}
+			if ( info.learned ) {
+				but = 'but ';
+				ret.push( 'learned ' + info.learned + ' commands' );
+			}
+			if ( info.forgotten ) {
+				ret.push( but + 'forgotten ' + info.forgotten + ' commands' );
+			}
+			if ( Math.random() < 0.15 ) {
+				ret.push( 'teleported ' + Math.rand(100) + ' goats' );
+			}
+
+			return ret.join( ', ' ) || 'haven\'t done anything yet!';
+		}
 	},
 
 	jquery : function jquery ( args ) {
@@ -1583,9 +1760,21 @@ var commands = {
 		args.directreply( 'http://stackoverflow.com/users/' + id );
 	},
 
-	listcommands : function () {
-		return 'Available commands: ' +
-			Object.keys( bot.commands ).join( ', ' );
+	listcommands : function ( args ) {
+		var commands = Object.keys( bot.commands ),
+			page = Number( args.content ) || 0,
+			pageSize = 50;
+
+		var start = page * pageSize,
+			end = start + pageSize,
+			left = Math.max( 0, commands.length - end ) / pageSize;
+
+		var ret = commands.slice( start, end ).join( ', ' );
+		if ( left ) {
+			ret += ' ({0} pages left)'.supplant(left);
+		}
+
+		return ret;
 	},
 
 	purgecommands : function ( args ) {
@@ -1740,7 +1929,7 @@ return function ( args, cb ) {
 	}
 
 	function formatTop ( top ) {
-		return args.link( args.toString(), top.permalink ) +
+		return args.link( top.word, top.permalink ) +
 			' ' +
 			top.definition;
 	}
@@ -1785,20 +1974,7 @@ var macros = {
 	rand : function ( min, max ) {
 		min = Number( min );
 		max = Number( max );
-
-		//handle rand() === rand( 0, 9 )
-		if ( !min ) {
-			min = 0;
-			max = 9;
-		}
-
-		//handle rand( max ) === rand( 0, max )
-		else if ( !max ) {
-			max = min;
-			min = 0;
-		}
-
-		return Math.floor( Math.random() * (max - min + 1) ) + min;
+		return Math.rand( min, max );
 	}
 };
 var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
@@ -1970,62 +2146,49 @@ commands.mdn = function ( args, cb ) {
 commands.mdn.async = true;
 
 var descriptions = {
+	ban : 'Bans user(s) from using me. Lacking arguments, prints the banlist.' +
+		' `/ban [usr_id|usr_name, [...]`',
+	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
+	define : 'Fetches definition for a given word. `/define something`',
+	die  : 'Kills me :(',
+	eval : 'Forwards message to javascript code-eval',
+	forget : 'Forgets a given command. `/forget cmdName`',
+	get : 'Grabs a question/answer link (see online for thorough explanation)',
 	help : 'Fetches documentation for given command, or general help article.' +
 		' `/help [cmdName]`',
-
-	listen : 'Forwards the message to the listen API (as if called without' +
-		' the /)',
-
-	eval : 'Forwards message to code-eval (as if the command / was a >)',
-
-	live : 'Resurrects the bot if it\'s down',
-
-	die  : 'Kills the bot',
-
-	refresh : 'Reloads the browser window for the bot',
-
-	forget : 'Forgets a given command. `/forget cmdName`',
-
-	ban : 'Bans a user from using a bot. `/ban usr_id|usr_name`',
-
-	unban : 'Removes a user from bot\'s mindjail. `/unban usr_id|usr_name`',
-
-	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
-
+	info : 'Grabs some stats on my current instance or a command.' +
+		' `/info [cmdName]`',
 	jquery : 'Fetches documentation link from jQuery API. `/jquery what`',
-
-	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
-
-	user : 'Fetches user-link for specified user. `/user usr_id|usr_name`',
-
-	listcommands : 'This seems pretty obvious',
-
-	purgecommands : 'Deletes all user-taught commands.',
-
-	define : 'Fetches definition for a given word. `/define something`',
-
+	listcommands : 'Lists commands. `/listcommands [page=0]`',
+	listen : 'Forwards the message to my ears (as if called without the /)',
+	live : 'Resurrects me (:D) if I\'m down',
+	mdn : 'Fetches mdn documentation. `/mdn what`',
 	norris : 'Random chuck norris joke!',
-
-	urban : 'Fetches UrbanDictionary definition. `/urban something`',
-
-	parse : 'Returns result of "parsing" message according to the bot\'s mini' +
-		'-macro capabilities',
-
+	parse : 'Returns result of "parsing" message according to the my mini' +
+		'-macro capabilities (see online docs)',
+	purgecommands : 'Deletes all user-taught commands.',
+	refresh : 'Reloads the browser window I live in',
+	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
 		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
-
-	mdn : 'Fetches mdn documentation. `/mdn what`'
+	unban : 'Removes a user from my mindjail. `/unban usr_id|usr_name`',
+	urban : 'Fetches UrbanDictionary definition. `/urban something`',
+	user : 'Fetches user-link for specified user. `/user usr_id|usr_name`',
 };
 
 //only allow owners to use certain commands
 var privilegedCommands = {
-	die : true, live : true,
+	die : true, live  : true,
 	ban : true, unban : true,
 	refresh : true, purgecommands : true
 };
+//voting-based commands for unpriviledged users
+var communal = {
+	die : true, ban : true
+};
 
 Object.keys( commands ).forEach(function ( cmdName ) {
-	bot.addCommand({
+	var cmd = {
 		name : cmdName,
 		fun  : commands[ cmdName ],
 		permissions : {
@@ -2034,7 +2197,12 @@ Object.keys( commands ).forEach(function ( cmdName ) {
 		},
 		description : descriptions[ cmdName ],
 		async : commands[ cmdName ].async
-	});
+	};
+
+	if ( communal[cmdName] ) {
+		cmd = bot.CommunityCommand( cmd );
+	}
+	bot.addCommand( cmd );
 });
 
 }());
@@ -2464,7 +2632,10 @@ var output = bot.adapter.out = {
 			}
 			//server error, usually caused by message being too long
 			else if ( xhr.status === 500 ) {
-				output.add( 'Server error (status 500) occured', roomid );
+				output.add(
+					'Server error (status 500) occured ' +
+						' (message probably too long)'
+					, roomid );
 			}
 			else {
 				IO.fire( 'sendoutput', xhr );
@@ -2493,100 +2664,88 @@ bot.adapter.init();
 
 ;
 (function () {
-if ( !localStorage.bot_alias ) {
-	localStorage.bot_alias = JSON.stringify( {} );
-}
-
-var dict = JSON.parse( localStorage.bot_alias );
-
-bot.listen( /\~([\w\-_]+)(?:\s?(=)(=)?\s?(.+))?/, function ( msg ) {
-	var name = msg.matches[ 1 ];
-
-	//check to see if it's an assignment
-	// msg.matches[2] is the optional =
-	if ( msg.matches[2] ) {
-		return save( msg );
-	}
-	else {
-		return dict[ name ] || 'Nothing found for ' + name;
-	}
-});
-
-function save ( msg ) {
-	var name = msg.matches[ 1 ],
-		force  = msg.matches[ 3 ],
-		exists = !!dict[ name ],
-		authorized = false;
-
-	//only owners can force new values
-	if ( exists && force ) {
-		authorized = bot.isOwner( msg.get('user_id') );
-	}
-	else if ( !exists ) {
-		authorized = true;
-	}
-
-	if ( !authorized ) {
-		return 'You are not allowed to do this, young padawan';
-	}
-
-	var value = msg.matches[ 4 ];
-	if ( !value ) {
-		return 'Provide a value for the alias';
-	}
-
-	dict[ name ] = value;
-	localStorage.bot_alias = JSON.stringify( dict );
-	return 'Saved alias ' + name;
-}
-
-}());
-
-;
-(function () {
 var help_message = 'Fetches and beautifies a message containing html, ' +
 		'css or js. `/beautify msgid [lang=js]`';
+var err404 = 'Message {0} not found';
 
-function beautifyMsg ( msg ) {
+var beautifiers = {
+	js   : js_beautify,
+	css  : css_beautify,
+	html : style_html };
+
+function beautify ( msg ) {
 	var args = msg.parse(),
-		id = args.shift(),
-		lang = args.shift() || 'js';
+		possible_id = args.shift(),
+		lang = ( args.shift() || 'js' ).toLowerCase();
 
-	lang = lang.toLowerCase();
-	bot.log( id, lang, '/beautify input' );
+	bot.log( possible_id, lang, '/beautify input' );
 
-	if ( ['html', 'css', 'js'].indexOf(lang) < 0 ) {
-		return help_message;
+	if ( !beautifiers.hasOwnProperty(lang) ) {
+		return 'Unrecognized language {0}. Options: {1}'
+			.supplant( lang, Object.keys(beautifiers).join(', ') );
 	}
 
-	var mormons = {
-		js   : js_beautify,
-		css  : css_beautify,
-		html : style_html };
-
-	var containing_message = fetch_message( id, msg );
-	if ( !containing_message ) {
-		return '404 Message ' + id + ' Not Found';
+	var id = Number( fetch_message_id(possible_id, msg) );
+	if ( id < 0 ) {
+		return err404.supplant( id );
 	}
-	var code = containing_message
-			.getElementsByClassName( 'content' )[ 0 ].textContent;
 
-	bot.log( code, '/beautify beautifying' );
+	fetch_message( id, finish );
 
-	msg.send(
-		msg.codify( mormons[lang](code) ) );
+	function finish ( code ) {
+		if ( !code ) {
+			bot.log( '/beautify not found' );
+			msg.reply( err404.supplant(id) );
+		}
+		else {
+			//so...we meet at last
+			bot.log( code, '/beautify beautifying' );
+			msg.send( msg.codify(beautifiers[lang](code)) );
+		}
+	}
 }
 
-function fetch_message ( id, msg ) {
-	if ( !/^\d+$/.test(id) ) {
-		bot.log( id, '/beautify fetch_message' );
-		return fetch_last_message( msg.findUserid(id) );
-	}
+function fetch_message( id, cb ) {
+	IO.xhr({
+		method : 'GET',
+		url : '/message/' + id,
+		data : {
+			plain : true
+		},
 
-	return document.getElementById( 'message-' + id );
+		complete : complete
+	});
+
+	function complete ( resp ) {
+		//h4x everywhere
+		//the SO error page begins with a \r. that's the only way we can tell
+		// it apart from another, possibly valid message, since messages can't
+		// be whitespace padded
+		if ( resp[0] === '\r' ) {
+			resp = null;
+		}
+		else {
+			resp = IO.decodehtmlEntities( resp );
+		}
+		cb( resp );
+	}
 }
 
-function fetch_last_message ( usrid ) {
+function fetch_message_id ( id, msg ) {
+	if ( /^\d+$/.test(id) ) {
+		return id;
+	}
+
+	bot.log( id, '/beautify fetch_message_id' );
+	var message = fetch_last_message_of( msg.findUserid(id) );
+
+	if ( !message ) {
+		return -1;
+	}
+	return /\d+/.exec( message.id )[ 0 ];
+}
+
+function fetch_last_message_of ( usrid ) {
 	var last_monologue = [].filter.call(
 		document.getElementsByClassName( 'user-' + usrid ),
 		class_test
@@ -2606,7 +2765,7 @@ function fetch_last_message ( usrid ) {
 
 bot.addCommand({
 	name : 'beautify',
-	fun  : beautifyMsg,
+	fun  : beautify,
 	permission : {
 		del : 'NONE'
 	},
@@ -5869,7 +6028,10 @@ function learn ( args ) {
 	var command = {
 		name   : commandParts[ 0 ],
 		output : commandParts[ 1 ],
-		input  : commandParts[ 2 ] || '.*'
+		input  : commandParts[ 2 ] || '.*',
+		//meta info
+		creator: args.get( 'user_name' ),
+		date   : new Date()
 	};
 	command.description = [
 		'User-taught command:',
@@ -5890,13 +6052,18 @@ function learn ( args ) {
 
 	addCustomCommand( command );
 	saveCommand( command );
+
 	return 'Command ' + command.name + ' learned';
 }
 
 function addCustomCommand ( command ) {
 	var cmd = bot.Command({
+		//I hate this duplication
 		name : command.name,
+
 		description : command.description,
+		creator : command.creator,
+		date : command.date,
 
 		fun : makeCustomCommand( command ),
 		permissions : {
@@ -5909,7 +6076,7 @@ function addCustomCommand ( command ) {
 	cmd.del = (function ( old ) {
 		return function () {
 			deleteCommand( command.name );
-			old();
+			old.call( cmd );
 		};
 	}( cmd.del ));
 
@@ -5953,18 +6120,16 @@ function loadCommands () {
 	function teach ( key ) {
 		var cmd = JSON.parse( storage[key] );
 		cmd.input = new RegExp( cmd.input );
+		cmd.date = new Date( Date.parse(cmd.date) );
 
 		bot.log( cmd, '/learn loadCommands' );
 		addCustomCommand( cmd );
 	}
 }
 function saveCommand ( command ) {
-	storage[ command.name ] = JSON.stringify({
-		name   : command.name,
-		input  : command.input.source,
-		output : command.output,
-		description : command.description
-	});
+	//h4x in source/util.js defines RegExp.prototype.toJSON so we don't worry
+	// about the input regexp stringifying
+	storage[ command.name ] = JSON.stringify( command );
 	localStorage.bot_learn = JSON.stringify( storage );
 }
 function deleteCommand ( name ) {
@@ -6129,537 +6294,6 @@ bot.addCommand({
 	description : 'Explains a regex. /regexexplain regex',
 	async : true
 });
-}());
-
-;
-(function () {
-"use strict";
-//var rings = {
-//   roomid : [ members ]
-//}
-var rings = JSON.parse( localStorage.bot_rings || '{}' );
-
-var ring = function ( args ) {
-	var parts = args.parse(),
-		action = parts.shift(),
-		res;
-	bot.log( parts, '/ring input' );
-
-	if ( actions[action] ) {
-		res = actions[action](
-			parts, args.get('user_name'), args.get('room_id') );
-	}
-	else {
-		res = 'Unrecognized action ' + action + '. See `/help ring`';
-	}
-
-	return res;
-};
-
-var actions = {
-	//activate ringName message
-	activate : function ( args, usrname, roomid ) {
-		if ( !rings[roomid] ) {
-			return 'There are no rings in your chat-room';
-		}
-
-		var roomRing = rings[ roomid ],
-			ringName = args.shift();
-		if ( !roomRing[ringName] ) {
-			return 'There exists no ' + ringName + ' ring in your chat-room';
-		}
-
-		var registered = roomRing[ ringName ].map( bot.adapter.reply );
-		return registered + '(ring ' + ringName + ') ' + args.shift();
-	},
-
-	//register ringName
-	register : function ( args, usrname, roomid ) {
-		if ( !rings[roomid] ) {
-			rings[ roomid ] = {};
-		}
-
-		var roomRing = rings[ roomid ],
-			ringName = args.shift();
-		if ( !roomRing[ringName] ) {
-			roomRing[ ringName ] = [];
-		}
-
-		var ring = roomRing[ ringName ];
-		if ( ring.indexOf(usrname) > -1 ) {
-			return 'You are already registered to ring ' + ringName;
-		}
-
-		ring.push( usrname );
-		save();
-		return 'Registered to ring ' + ringName + ' in room #' + roomid;
-	}
-};
-
-bot.addCommand({
-	name : 'ring',
-	fun  : ring,
-	permissions : {
-		del : 'NONE'
-	},
-
-	description : 'Upon activating a ring, all those who registered to it ' +
-		' will be pinged. ' +
-		'`/ring activate ringName message` - activate a ring. ' +
-		'`/ring register ringName` - register to a ring.'
-});
-
-function save () {
-	localStorage.bot_rings = JSON.stringify( rings );
-}
-
-}());
-
-;
-//infix operator-precedence parser
-//also supports a d operator - a dice roll
-var parsePrecedence = (function () {
-
-//we don't care about whitespace. well, most whitespace
-var whitespace = {
-	' ' : true,
-	'\t' : true
-};
-
-//the operators we deal with
-var operators = {
-	'+' : {
-		precedence : 1,
-		exec : function ( a, b ) {
-			return a + b;
-		}
-	},
-
-	'-' : {
-		precedence : 1,
-		exec : function ( a, b ) {
-			return a - b;
-		}
-	},
-
-	'*' : {
-		precedence : 2,
-		exec : function ( a, b ) {
-			return a * b;
-		}
-	},
-
-	'/' : {
-		precedence : 2,
-		exec : function ( a, b ) {
-			if ( b === 0 ) {
-				throw new Error( 'Division by 0' );
-			}
-			return a / b;
-		}
-	},
-
-	'd' : {
-		precedence : 3,
-		exec : function ( rolls, sides, rollsSoFar ) {
-			if ( rolls > 100 ) {
-				throw new Error( 'Maximum roll count is 100' );
-			}
-
-			var ret = 0, roll;
-			while ( rolls-- ) {
-				roll = Math.floor( Math.random() * sides ) + 1;
-
-				ret += roll;
-				rollsSoFar.push( roll );
-			}
-
-			return ret;
-		}
-	}
-};
-
-var parser = {
-	//not exactly stacks, but meh
-	numberStack : null,
-	operatorStack : null,
-	rolls : null,
-
-	//the source string and some metadata
-	source : null,
-	pos : 0,
-	len : 0,
-	lookahead : '',
-
-	parse : function ( source ) {
-		this.source = source;
-		this.pos = 0;
-		this.len = source.length;
-
-		this.numberStack = [];
-		this.operatorStack = [];
-		this.rolls = [];
-
-		this.tokenize();
-		this.execute();
-
-		//garbage collection, important for gianormo strings
-		this.source = source = null;
-
-		return {
-			//the remaining number on the "stack" is the result
-			total : this.numberStack[ 0 ],
-			//we execute right->left, so the rolls array will be "backwards"
-			rolls : this.rolls.reverse()
-		};
-	},
-
-	//take the source string, and break it down into tokens
-	tokenize : function () {
-		var token, last, ch;
-
-		for ( ; this.pos < this.len; this.pos++ ) {
-			ch = this.lookahead = this.source[ this.pos ];
-
-			if ( whitespace.hasOwnProperty(ch) ) {
-				continue;
-			}
-
-			token = this.nextToken();
-
-			if ( token.type === 'number' ) {
-				this.numberStack.push( token.value );
-			}
-
-			else if ( token.type === 'operator' ) {
-				last = this.operatorStack[ this.operatorStack.length - 1 ];
-
-				//check for things like 1d2d3, which aren't valid
-				if ( last && token.value === 'd' && last.value === 'd' ) {
-					var itOnTheGround = new Error(
-						'Unexpected unchainable operator d'
-					);
-					itOnTheGround.column = this.pos;
-
-					throw itOnTheGround; //I'M AN ADULT!
-				}
-
-				this.operatorStack.push( token );
-			}
-		}
-
-	},
-
-	execute : function () {
-		var idx;
-
-		while ( idx = this.operatorStack.length ) {
-			//execute, BACKWARDS! OH THE INSANITY
-			while ( 0 <=-- idx ) {
-				//.call is used so that `this` in execute will still refer to
-				// the parser
-				execute.call( this, this.operatorStack[idx], idx );
-			}
-		}
-
-		function execute ( token, index ) {
-			var last = this.operatorStack[ index + 1 ];
-
-			//last one is more important than we are
-			if ( last && last.precedence > token.precedence ) {
-				//execute it
-				this.operate( index + 1 );
-			}
-			//we're about to finish and the last one isn't as all-mighty as we
-			// thought
-			else if ( !index ) {
-				//execute za operator!
-				this.operate( index );
-			}
-		}
-	},
-
-	//fetch le token!
-	nextToken : function () {
-		var ch  = this.lookahead;
-		var ret = {
-			type : null,
-			value : ch
-		},
-		res;
-
-		//have we overflowed, while looking for something else?
-		if ( this.pos >= this.len ) {
-			throw new Error( 'Unexpected end of input' );
-		}
-
-		//is it a digit?
-		else if ( ch >= 0 && ch < 10 ) {
-			ret.type = 'number';
-			res = this.fetchNumber();
-
-			this.pos += res.length - 1;
-			ret.value = res.value;
-		}
-
-		//is it an operator?
-		else if ( operators.hasOwnProperty(ch) ) {
-			ret.type = 'operator';
-			ret.precedence = operators[ ch ].precedence;
-		}
-
-		//Y U TROLLZ!?!?
-		else {
-			var chuckNorris = new Error( 'Invalid character ' + ch );
-			chuckNorris.column = this.pos;
-
-			throw chuckNorris;
-		}
-
-
-		return ret;
-	},
-
-	operate : function ( index ) {
-		//grab the two numbers we care about
-		//since the source string looks like: 2 + 1
-		// and the index param is actually the index of the operator to use,
-		// we grab the index-th number and the index-th+1 number
-		//in the above example, index = 0, we grab numberStack[0] and
-		// numberStack[1]
-		var couplet = this.numberStack.slice( index, index + 2 );
-		//in addition to the numbers we operate on, there's also a dice-roll
-		// operator, so we take it into consideration
-		couplet.push( this.rolls );
-
-		//arr.splice removes items and returns the removed items as an array
-		//we remove the index-th item from the operatorStack and grab its
-		// "value", which is the operator symbol (+, * etc)
-		//when we have that value, we grab the corresponding operator object
-		var op = operators[ this.operatorStack.splice(index, 1)[0].value ];
-
-		//arr.splice, as well as removing items, can also add items
-		//so, we slice-n-dice at the two numbers, grab the result of executing
-		// the operator, and add that result where we finished slicing
-		//for example:
-		// [0, 1, 2].splice( 0, 2, 42 )
-		//will make the array look like
-		// [42, 2]
-		this.numberStack.splice( index, 2, op.exec.apply(null, couplet) );
-	},
-
-	fetchNumber : function () {
-		var offset = 0, num = '', ch;
-
-		//keep eating digits until we find a non-digit
-		while ( (ch = this.source[this.pos+offset]) >= 0 && ch < 10 ) {
-			num += ch;
-			offset++;
-		}
-
-		if ( num.length === 0 ) {
-			throw new Error(
-				'Incomplete operation: Expected number at ' + this.pos
-			);
-		}
-
-		return {
-			value : Number( num ),
-			length : offset
-		};
-	}
-
-};
-
-//returns an object:
-// total => result of all dice rolls and arithmetic operations
-// rolls => array of results of each individual dice roll
-return function ( source ) {
-	return parser.parse( source );
-};
-}());
-
-//now, to the command itself...
-var roll = function ( args ) {
-	if ( !/^[\d\s\+\-\*\/d]+$/.test(args) ) {
-		return 'Invalid /roll argument; use `/help roll` for help';
-	}
-
-	var res = parsePrecedence( args );
-	return res.rolls + ' => ' + res.total;
-};
-
-bot.addCommand({
-	name : 'roll',
-	fun : roll,
-	permissions : {
-		del : 'NONE'
-	},
-
-	description : [
-		'Roll dice in DnD notation. `MdN` rolls `M` `N`-sided dice',
-		'`MdN+X` rolls as said above, and adds `X` to the result'  ,
-		'You can use any of the four arithmetic operators +-*/,'   ,
-		'`X` can also be a die roll: `MdN*XdY` for example'
-	].join( '. ' )
-});
-
-;
-(function () {
-/*
-     _____ _           ______      _                    __   _   _
-    |_   _| |          | ___ \    | |                  / _| | | | |
-      | | | |__   ___  | |_/ /   _| | ___  ___    ___ | |_  | |_| |__   ___
-      | | |  _ \ / _ \ |    / | | | |/ _ \/ __|  / _ \|  _| | __|  _ \ / _ \
-      | | | | | |  __/ | |\ \ |_| | |  __/\__ \ | (_) | |   | |_| | | |  __/
-      \_/ |_| |_|\___| \_| \_\__,_|_|\___||___/  \___/|_|    \__|_| |_|\___|
-
-
-                     _____      _                       _
-                    |_   _|    | |                     | |
-                      | | _ __ | |_ ___ _ __ _ __   ___| |_
-                      | || '_ \| __/ _ \ '__| '_ \ / _ \ __|
-                     _| || | | | ||  __/ |  | | | |  __/ |_
-                     \___/_| |_|\__\___|_|  |_| |_|\___|\__|
-*/
-var rulz = [
-	'1. Do not talk about /b/',
-	'2. Do NOT talk about /b/',
-	'3. We are Anonymous.',
-	'4. Anonymous is legion.',
-	'5. Anonymous does not forgive, Anonymous does not forget.',
-	'6. Anonymous can be horrible, senseless, uncaring monster.',
-	'7. Anonymous is still able to deliver.',
-	'8. There are no real rules about posting.',
-	'9. There are no real rules about moderation either — enjoy your ban.',
-	'10. If you enjoy any rival sites — DON\'T.',
-	'11. You must have pictures to prove your statement.',
-	'12. Lurk moar — it\'s never enough.',
-	'13. Nothing is Sacred.',
-	'14. Do not argue with a troll — it means that they win.',
-	'15. The more beautiful and pure a thing is, the more satisfying it is to corrupt it.',
-	'16. There are NO girls on the internet.',
-	'17. A cat is fine too.',
-	'18. One cat leads to another.',
-	'19. The more you hate it, the stronger it gets.',
-	'20. It is delicious cake. You must eat it.',
-	'21. It is delicious trap. You must hit it.',
-	'22. /b/ sucks today.',
-	'23. Cock goes in here.',
-	'24. You will never have sex.',
-	'25. ????',
-	'26. PROFIT!',
-	'27. It needs more Desu. No exceptions.',
-	'28. There will always be more fucked up shit than what you just saw.',
-	'29. You can not divide by zero (just because the calculator says so).',
-	'30. No real limits of any kind apply here — not even the sky',
-	'31. CAPSLOCK IS CRUISE CONTROL FOR COOL.',
-	'32. EVEN WITH CRUISE CONTROL YOU STILL HAVE TO STEER.',
-	'33. Desu isn\'t funny. Seriously guys. It\'s worse than Chuck Norris jokes.',
-	'34. There is porn of it. No exceptions.',
-	'35. If no porn is found of it, it will be created.',
-	'36. No matter what it is, it is somebody\'s fetish. No exceptions.',
-	'37. Even one positive comment about Japanese things can make you a weeaboo.',
-	'38. When one sees a lion, one must get into the car',
-	'39. There is furry porn of it. No exceptions.',
-	'40. The pool is always closed due to AIDS (and stingrays, which also have AIDS).',
-	'41. If there isn\'t enough just ask for Moar.',
-	'42. Everything has been cracked and pirated.',
-	'43. DISREGARD THAT I SUCK COCKS',
-	'44. The internet is not your personal army.',
-	'45. Rule 45 is a lie.',
-	'46. The cake is a lie.',
-	'47. If you post it, they will cum.',
-	'48. It will always need moar sauce.',
-	'49. The internet makes you stupid.',
-	'50. Anything can be a meme.',
-	'51. Longcat is looooooooooong.',
-	'52. If something goes wrong, Ebaums did it.',
-	'53. Anonymous is a virgin by default.',
-	'54. Moot has cat ears, even in real life. No exceptions.',
-	'55. CP is awwwright, but DSFARGEG will get you b&.',
-	'56. Don\'t mess with football.',
-	'57. MrSpooky has never seen so many ingrates.',
-	'58. Anonymous does not "buy", he downloads.',
-	'59. The term "sage" does not refer to the spice.',
-	'60. If you say Candlejack, you w',
-	'61. You cannot divide by zero.',
-	'62. The internet is SERIOUS FUCKING BUSINESS.',
-	'63. If you do not believe it, then it must be habeebed for great justice.',
-	'64. Not even Spider-Man knows how to shot web.',
-	'65. Mitchell Henderson was an hero to us all.',
-	'66. This is not lupus, it\'s SPARTAAAAAAAAAA.',
-	'67. One does not simply shoop da whoop into Mordor.',
-	'68. Katy is bi, so deal w/it.',
-	'69. LOL SIXTY NINE AMIRITE?',
-	'70. Also, cocks.',
-	'71. This is a showdown, a throwdown, hell no I can\'t slow down, it\'s gonna go.',
-	'72. Anonymous did NOT, under any circumstances, tk him 2da bar|?',
-	'73. If you express astonishment at someone\'s claim, it is most likely just a clever ruse.',
-	'74. If it hadn\'t been for Cotton Eyed Joe, Anonymous would have been married a long time ago.',
-	'75. Around Snacks, CP is lax.',
-	'76. All numbers are at least 100 but always OVER NINE THOUSAAAAAND.',
-	'77. Hal Turner definitely needs to gb2/hell/.',
-	'78. Mods are fucking fags. No exceptions.',
-	'79. All Caturday threads will be bombarded with Zippocat. No exceptions.',
-	'80. No matter how cute it is, it probably skullfucked your mother last night.',
-	'81. That\'s not mud.',
-	'82. Steve Irwin\'s death is really, really funny.',
-	'83. The Internet is SERIOUS FUCKING BUSINESS.',
-	'84. Rule 87 is true.',
-	'85. Yes, it is some chickens.',
-	'86. Bobba bobba is bobba.',
-	'87. Rule 84 is false. OH SHI-',
-	'88. If your statement is preceded by "HAY GUYZ", then you are not doing it right.',
-	'89. If you cannot understand it, it is machine code.',
-	'90. Anonymous still owes Hal Turner one trillion U.S. dollars.',
-	'91. Spengbab Sqarpaint is luv Padtwick Zhstar iz fwend.',
-	'92. Disregard Bigmike, he sucks cocks.',
-	'93. Secure tripcodes are for jerks.',
-	'94. If someone herd u liek Mudkips, deny it constantly for the lulz.',
-	'95. Combo breakers are inevitable. If the combo is completed successfully, it is gay.',
-	'96. I am a huge faggot. Please rape my face.',
-	'97. Shit sucks and will never be stickied.',
-	'98. Bricks must are required to be shat whenever Anonymous is surprised.',
-	'99. If you have no bricks to shit, you are made of fail and AIDS.',
-	'100. ZOMG NONE',
-	'101. The internet is always right. No exceptions',
-	'102. The internet is really, really great, FOR PORN.'
-];
-
-function findRulz ( msg ) {
-	//matches will look like this:
-	// [ ruleIndex, to/and, ruleIndex ]
-	var start = Math.max( msg.matches[1], 1 ) - 1,
-		end = Math.min( msg.matches[3], rulz.length ),
-		preposition = msg.matches[ 2 ],
-		tmp, res;
-
-	console.log( start, end, preposition, 'rulz' );
-
-	if ( start && !end ) {
-		return rulz[ start ];
-	}
-
-	if ( preposition === 'to' ) {
-		if ( start > end ) {
-			tmp = start;
-			start = end;
-			end = tmp;
-		}
-
-		res = rulz.slice( start, end );
-	}
-	else {
-		res = [ rulz[start], rulz[end] ];
-	}
-
-	return res.join( '\n' );
-}
-
-var regex = /(?:show|tell) (?:me)? rules? (\d+)\s?(?:(,|and|to)\s?(\d+))?/;
-
-bot.listen( regex, findRulz );
 }());
 
 ;
@@ -7109,7 +6743,7 @@ function substitute ( msg ) {
 
 	var message = get_matching_message( re, msg.get('message_id') );
 	if ( !message ) {
-		return 'No matching message (are you sure we\'re in the right room?';
+		return 'No matching message (are you sure we\'re in the right room?)';
 	}
 
 	var link = message.previousElementSibling.href;
@@ -7123,7 +6757,7 @@ function get_matching_message ( re, onlyBefore ) {
 	return messages.first( matches );
 
 	function matches ( el ) {
-		var id = Number( el.parentElement.id.match(/\d+$/)[0] );
+		var id = Number( el.parentElement.id.match(/\d+/)[0] );
 		return id < onlyBefore && re.test( el.textContent );
 	}
 }
@@ -7318,18 +6952,21 @@ var undo = {
 			var msg;
 
 			if ( resp === '"ok"' ) {
-				msg = 'Target eliminated';
+				//nothing to see here
+				return;
 			}
 			else if ( /it is too late/i.test(resp) ) {
 				msg = 'TimeError: Could not reach 88mph';
-				cb( msg );
+			}
+			else if ( /only delete your own/i.test(resp) ) {
+				 //...I can't think of anything clever
+				msg = 'I can only delete my own messages';
 			}
 			else {
 				msg = 'I have no idea what happened: ' + resp;
-				cb( msg );
 			}
 
-			
+			cb( msg );
 		}
 	},
 
@@ -7352,6 +6989,8 @@ bot.addCommand({
 });
 
 }());
+
+;
 
 ;
 (function () {
