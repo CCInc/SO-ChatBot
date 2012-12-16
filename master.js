@@ -4938,7 +4938,8 @@ var helper = function() {
         name = ['Bob Loblaw', 'Stan Sitwell'],
         callback = function callback(resp) {
             CBots[i].write(resp['message'], callback);
-            console.log(resp['message'])
+			if(a==1)
+            args.directreply(resp['message'])
         };
 
     callback({ message:args})
