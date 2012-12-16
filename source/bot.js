@@ -45,6 +45,7 @@ var bot = window.bot = {
 				this.parseCommand( msg );
 			}
 			if ( msg.startsWith('<') ) {
+			console.log(msg, 'MSG');
 				this.ai( msg );
 			}
 			//see if some hobo listener wants this
