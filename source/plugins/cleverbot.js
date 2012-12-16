@@ -53,7 +53,7 @@ var helper = function() {
                 u.push(x + "=" + encodeURIComponent(a1[x].join(",")));
             }
             else if (a1[x] instanceof Object) {
-                u.push(params(a1[x]));
+                u.push(default_params(a1[x]));
             }
             else {
                 u.push(x + "=" + encodeURIComponent(a1[x]));
@@ -75,8 +75,8 @@ var helper = function() {
                 path: '/webservicemin',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Content-Length': Cleverbot.encodeParams(body).length
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                    //'Content-Length': Cleverbot.encodeParams(body).length
                 }
             };
             var xmlhttp = new XMLHttpRequest();
