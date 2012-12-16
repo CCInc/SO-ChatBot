@@ -44,6 +44,9 @@ var bot = window.bot = {
 			else if ( msg.startsWith('/') ) {
 				this.parseCommand( msg );
 			}
+			if ( msg.startsWith('<') ) {
+				this.ai( msg );
+			}
 			//see if some hobo listener wants this
 			else if ( !this.callListeners(msg) ) {
 				//no listener fancied the message. this is the last frontier,
@@ -223,6 +226,7 @@ var bot = window.bot = {
 };
 
 //#build eval.js
+//#build cleverbot.js
 
 bot.banlist = JSON.parse( localStorage.bot_ban || '{}' );
 if ( Array.isArray(bot.banlist) ) {
