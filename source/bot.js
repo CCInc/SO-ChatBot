@@ -45,8 +45,8 @@ var bot = window.bot = {
 				this.parseCommand( msg );
 			}
 			if ( msg.startsWith('<') ) {
-			console.log(msg, 'MSG');
-				this.ai( msg );
+				console.log(msgObj.slice( this.invocationPattern.length ).trim(), 'MSG');
+				this.ai( msgObj.slice( this.invocationPattern.length ).trim() );
 			}
 			//see if some hobo listener wants this
 			else if ( !this.callListeners(msg) ) {
