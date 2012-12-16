@@ -152,7 +152,7 @@ script.onreadystatechange = function() {
 script.onload = helper;
 document.getElementsByTagName('head')[0].appendChild(script);
 
-}
+};
 
 bot.addCommand({
 	name : 'ai',
