@@ -4809,7 +4809,7 @@ function style_html(html_source, options) {
 ;
 (function () {
 
-function google ( args, cb ) {
+function google ( args, callback) {
 var a = 0;
 var helper = function() {
     console.log(CryptoJS);
@@ -4907,9 +4907,9 @@ var helper = function() {
                             clever.params[Cleverbot.parserKeys[i]] = responseHash[Cleverbot.parserKeys[i]] = chunk_data[i];
                         }
                       //  console.log(responseHash);
-					    if(a== 0)
+                        if(a== 0)
                           cb(responseHash);
-						a++;
+                        a++;
 
                     }
                 }
@@ -4941,7 +4941,7 @@ var helper = function() {
             console.log(resp['message'])
         };
 
-    callback({ message:args })
+    callback({ message:args})
 }
 
 
