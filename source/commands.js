@@ -66,130 +66,101 @@ var commands = {
 	},
 
 	ban : function ( args ) {
-		var ret = [];
-		if ( args.content ) {
-			args.parse().forEach( ban );
-		}
-		else {
-			ret = Object.keys( bot.banlist ).filter( Number );
-		}
+		var msg = [];
+		args.parse().map( getID ).forEach( ban );
 
-		return ret.join( ' ' ) || 'Nothing to show/do.';
+		return msg.join( ' ' );
 
-		function ban ( usrid ) {
-			var id = Number( usrid ),
-				msg;
+		function getID ( usrid ) {
+			//name provided instead of id
 			if ( /\D/.test(usrid) ) {
-				id = args.findUserid( id.replace(/^@/, '') );
+				usrid = args.findUserid( usrid.replace(/^@/, '') );
 			}
 
+			var id = Number( usrid );
 			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.';
+				msg.push( 'Cannot find user ' + usrid + '.' );
+				id = -1;
 			}
 			else if ( bot.isOwner(id) ) {
-				msg = 'Cannot mindjail owner {0}.';
+				msg.push( 'Cannot mindjail owner ' + usrid + '.' );
+				id = -1;
 			}
-			else if ( bot.banlist.contains(id) ) {
-				msg = 'User {0} already in mindjail.';
+
+			return id;
+		}
+
+		function ban ( id ) {
+			if ( id < 0 ) {
+				return;
+			}
+
+			if ( bot.banlist.contains(id) ) {
+				msg.push( 'User ' + id + ' already in mindjail.' );
 			}
 			else {
 				bot.banlist.add( id );
-				msg = 'User {0} added to mindjail.';
+				msg.push( 'User ' + id + ' added to mindjail.');
 			}
-
-			ret.push( msg.supplant(usrid) );
 		}
 	},
 
 	unban : function ( args ) {
-		var ret = [];
-		args.parse().forEach( unban );
+		var msg = [];
+		args.parse().map( getID ).forEach( unban );
 
-		return ret.join( ' ' );
+		return msg.join( ' ' );
 
-		function unban ( usrid ) {
-			var id = Number( usrid ),
-				msg;
+		function getID ( usrid ) {
+			//name provided instead of id
 			if ( /\D/.test(usrid) ) {
-				id = args.findUserid( usrid.replace(/^@/, '') );
+				usrid = args.findUserid( usrid.replace(/^@/, '') );
 			}
 
+			var id = Number( usrid );
 			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.'
+				msg.push( 'Cannot find user ' + usrid + '.' );
+				id = -1;
 			}
-			else if ( !bot.banlist.contains(id) ) {
-				msg = 'User {0} isn\'t in mindjail.';
+			else if ( bot.isOwner(id) ) {
+				msg.push( 'Cannot mindjail owner ' + usrid + '.' );
+				id = -1;
+			}
+
+			return id;
+		}
+
+		function unban ( id ) {
+			if ( !bot.banlist.contains(id) ) {
+				msg.push( 'User ' + id + ' isn\'t in mindjail.' );
 			}
 			else {
 				bot.banlist.remove( id );
-				msg = 'User {0} freed from mindjail!';
+				msg.push( 'User ' + id + ' freed from mindjail.' );
 			}
-
-			ret.push( msg.supplant(usrid) );
 		}
 	},
 
-	//a lesson on semi-bad practices and laziness
-	//chapter III
-	info : function ( args ) {
-		if ( args.content ) {
-			return commandFormat( args.content );
+	regex : function ( args ) {
+		var parts = args.parse(),
+
+			what = parts.shift(),
+			pattern = parts.shift(),
+			flags = parts.shift() || '',
+
+			regex = new RegExp( pattern, flags.toLowerCase() ),
+			matches = regex.exec( what );
+
+		bot.log( what, pattern, flags, regex, 'regex parsed' );
+		bot.log( matches, 'regex matched' );
+
+		if ( !matches ) {
+			return 'No matches.';
 		}
 
-		var info = bot.info;
-		return timeFormat() + ', ' + statsFormat();
-
-		function commandFormat ( commandName ) {
-			var cmd = bot.getCommand( commandName );
-
-			if ( cmd.error ) {
-				return cmd.error;
-			}
-			var ret =  'Command {name}, created by {creator}'.supplant( cmd );
-
-			if ( cmd.date ) {
-				ret += ' on ' + cmd.date.toUTCString();
-			}
-
-			if ( cmd.invoked ) {
-				ret += ', invoked ' + cmd.invoked + ' times';
-			}
-			else {
-				ret += ' but hasn\'t been used yet';
-			}
-
-			return ret;
-		}
-
-		function timeFormat () {
-			var format = 'I awoke on {0} (that\'s about {1} ago)',
-
-				awoke = info.start.toUTCString(),
-				ago = Date.timeSince( info.start );
-
-			return format.supplant( awoke, ago );
-		}
-
-		function statsFormat () {
-			var ret = [],
-				but = ''; //you'll see in a few lines
-
-			if ( info.invoked ) {
-				ret.push( 'got invoked ' + info.invoked + ' times' );
-			}
-			if ( info.learned ) {
-				but = 'but ';
-				ret.push( 'learned ' + info.learned + ' commands' );
-			}
-			if ( info.forgotten ) {
-				ret.push( but + 'forgotten ' + info.forgotten + ' commands' );
-			}
-			if ( Math.random() < 0.15 ) {
-				ret.push( 'teleported ' + Math.rand(100) + ' goats' );
-			}
-
-			return ret.join( ', ' ) || 'haven\'t done anything yet!';
-		}
+		return matches.map(function ( match ) {
+			return '`' + match + '`';
+		}).join( ', ' );
 	},
 
 	jquery : function jquery ( args ) {
@@ -302,21 +273,9 @@ var commands = {
 		args.directreply( 'http://stackoverflow.com/users/' + id );
 	},
 
-	listcommands : function ( args ) {
-		var commands = Object.keys( bot.commands ),
-			page = Number( args.content ) || 0,
-			pageSize = 50;
-
-		var start = page * pageSize,
-			end = start + pageSize,
-			left = Math.max( 0, commands.length - end ) / pageSize;
-
-		var ret = commands.slice( start, end ).join( ', ' );
-		if ( left ) {
-			ret += ' ({0} pages left)'.supplant(left);
-		}
-
-		return ret;
+	listcommands : function () {
+		return 'Available commands: ' +
+			Object.keys( bot.commands ).join( ', ' );
 	},
 
 	purgecommands : function ( args ) {
@@ -471,7 +430,7 @@ return function ( args, cb ) {
 	}
 
 	function formatTop ( top ) {
-		return args.link( top.word, top.permalink ) +
+		return args.link( args.toString(), top.permalink ) +
 			' ' +
 			top.definition;
 	}
@@ -516,7 +475,20 @@ var macros = {
 	rand : function ( min, max ) {
 		min = Number( min );
 		max = Number( max );
-		return Math.rand( min, max );
+
+		//handle rand() === rand( 0, 9 )
+		if ( !min ) {
+			min = 0;
+			max = 9;
+		}
+
+		//handle rand( max ) === rand( 0, max )
+		else if ( !max ) {
+			max = min;
+			min = 0;
+		}
+
+		return Math.floor( Math.random() * (max - min + 1) ) + min;
 	}
 };
 var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
@@ -608,7 +580,7 @@ return function ( args ) {
 		return cmd.error;
 	}
 
-	 if ( invalidCommands.hasownproperty(cmdName) ) {
+	 if ( invalidCommands.hasOwnProperty(cmdName) ) {
 		 return 'command ' + cmdName + ' cannot be used in /tell.';
 	 }
 
@@ -688,49 +660,62 @@ commands.mdn = function ( args, cb ) {
 commands.mdn.async = true;
 
 var descriptions = {
-	ban : 'Bans user(s) from using me. Lacking arguments, prints the banlist.' +
-		' `/ban [usr_id|usr_name, [...]`',
-	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
-	define : 'Fetches definition for a given word. `/define something`',
-	die  : 'Kills me :(',
-	eval : 'Forwards message to javascript code-eval',
-	forget : 'Forgets a given command. `/forget cmdName`',
-	get : 'Grabs a question/answer link (see online for thorough explanation)',
 	help : 'Fetches documentation for given command, or general help article.' +
 		' `/help [cmdName]`',
-	info : 'Grabs some stats on my current instance or a command.' +
-		' `/info [cmdName]`',
-	jquery : 'Fetches documentation link from jQuery API. `/jquery what`',
-	listcommands : 'Lists commands. `/listcommands [page=0]`',
-	listen : 'Forwards the message to my ears (as if called without the /)',
-	live : 'Resurrects me (:D) if I\'m down',
-	mdn : 'Fetches mdn documentation. `/mdn what`',
-	norris : 'Random chuck norris joke!',
-	parse : 'Returns result of "parsing" message according to the my mini' +
-		'-macro capabilities (see online docs)',
-	purgecommands : 'Deletes all user-taught commands.',
-	refresh : 'Reloads the browser window I live in',
+
+	listen : 'Forwards the message to the listen API (as if called without' +
+		' the /)',
+
+	eval : 'Forwards message to code-eval (as if the command / was a >)',
+
+	live : 'Resurrects the bot if it\'s down',
+
+	die  : 'Kills the bot',
+
+	refresh : 'Reloads the browser window for the bot',
+
+	forget : 'Forgets a given command. `/forget cmdName`',
+
+	ban : 'Bans a user from using a bot. `/ban usr_id|usr_name`',
+
+	unban : 'Removes a user from bot\'s mindjail. `/unban usr_id|usr_name`',
+
 	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
+
+	jquery : 'Fetches documentation link from jQuery API. `/jquery what`',
+
+	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
+
+	user : 'Fetches user-link for specified user. `/user usr_id|usr_name`',
+
+	listcommands : 'This seems pretty obvious',
+
+	purgecommands : 'Deletes all user-taught commands.',
+
+	define : 'Fetches definition for a given word. `/define something`',
+
+	norris : 'Random chuck norris joke!',
+
+	urban : 'Fetches UrbanDictionary definition. `/urban something`',
+
+	parse : 'Returns result of "parsing" message according to the bot\'s mini' +
+		'-macro capabilities',
+
 	tell : 'Redirect command result to user/message.' +
 		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
-	unban : 'Removes a user from my mindjail. `/unban usr_id|usr_name`',
-	urban : 'Fetches UrbanDictionary definition. `/urban something`',
-	user : 'Fetches user-link for specified user. `/user usr_id|usr_name`',
+
+	mdn : 'Fetches mdn documentation. `/mdn what`'
 };
 
 //only allow owners to use certain commands
 var privilegedCommands = {
-	die : true, live  : true,
+	die : true, live : true,
 	ban : true, unban : true,
 	refresh : true, purgecommands : true
 };
-//voting-based commands for unpriviledged users
-var communal = {
-	die : true, ban : true
-};
 
 Object.keys( commands ).forEach(function ( cmdName ) {
-	var cmd = {
+	bot.addCommand({
 		name : cmdName,
 		fun  : commands[ cmdName ],
 		permissions : {
@@ -739,12 +724,7 @@ Object.keys( commands ).forEach(function ( cmdName ) {
 		},
 		description : descriptions[ cmdName ],
 		async : commands[ cmdName ].async
-	};
-
-	if ( communal[cmdName] ) {
-		cmd = bot.CommunityCommand( cmd );
-	}
-	bot.addCommand( cmd );
+	});
 });
 
 }());
