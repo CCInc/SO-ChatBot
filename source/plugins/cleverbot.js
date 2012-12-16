@@ -1,6 +1,6 @@
 (function () {
 
-function google ( args, callback) {
+function aifunc ( args, callback) {
 console.log(args, 'args');
 
 var a = 0;
@@ -152,11 +152,11 @@ script.onreadystatechange = function() {
 script.onload = helper;
 document.getElementsByTagName('head')[0].appendChild(script);
 
-};
+}
 
 bot.addCommand({
 	name : 'ai',
-	fun  : google,
+	fun  : aifunc,
 	permissions : {
 		del : 'NONE'
 	},
