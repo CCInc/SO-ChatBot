@@ -1,8 +1,9 @@
 bot.ai =  (function () {
 
-return function ( arg) {
+return function ( args) {
 //console.log(args, 'args');
-var args = arg.content.replace(/^>/, '');
+args.content.replace(/^</, '');
+//console.log(args, 'args');
 var a = 0;
 var helper = function() {
     console.log(CryptoJS);
