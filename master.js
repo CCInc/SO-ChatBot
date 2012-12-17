@@ -6487,17 +6487,11 @@ bot.addCommand({
 		'`nudge|remind|poke me? in? intervalInMinutes message`'
 });
 
-bot.listen(/(stops\s?(.*)$)|ss/,
-	nudgeListener
-);
 
 function nudgeCommand ( args ) {
 	// var props = args.parse();
 	// return addNudge( props[0], props.slice(1).join(' '), args );
 	nudgeend = true;
-}
-function nudgeListener ( args ) {
-	//return addNudge( args.matches[1], args.matches[2], args );
 }
 
 }());
