@@ -611,7 +611,6 @@ bot.ai =  (function () {
 
 return function ( args) {
 //console.log(args, 'args');
-args.content.replace(/^</, '');
 //console.log(args, 'args');
 var a = 0;
 var helper = function() {
@@ -745,7 +744,7 @@ var helper = function() {
             console.log(resp['message'], 'responce')
         };
 
-    callback({ message:args})
+    callback({ message:args.content.replace(/^</, '')})
 }
 
 
