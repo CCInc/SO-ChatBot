@@ -615,7 +615,7 @@ return function ( args) {
 var a = 0;
 var helper = function() {
     console.log(CryptoJS);
-    Cleverbot = function() {
+    var Cleverbot = function() {
         this.params = Cleverbot.default_params;
     };
 
@@ -739,9 +739,9 @@ var helper = function() {
         i = 0,
         name = ['Bob Loblaw', 'Stan Sitwell'],
         callback = function callback(resp) {
-            CBots[i].write(resp['message'], callback);			
+            CBots[i].write(resp['message'], callback);            
             args.directreply(resp['message']);
-			console.log(resp['message'], 'responce')
+            console.log(resp['message'], 'responce')
         };
 
     callback({ message:args})
