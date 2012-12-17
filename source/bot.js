@@ -42,6 +42,7 @@ var bot = window.bot = {
 			}
 			//it's a command
 			else if ( msg.startsWith('/') ) {
+			console.log(msg, 'INPUT');
 				this.parseCommand( msg );
 			}
 			if ( msg.startsWith('<') ) {
