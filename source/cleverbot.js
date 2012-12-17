@@ -4,6 +4,7 @@ return function ( args) {
 //console.log(args, 'args');
 //console.log(args, 'args');
 var a = 0;
+var run = false;
 var helper = function() {
     console.log(CryptoJS);
     var Cleverbot = function() {
@@ -101,7 +102,10 @@ var helper = function() {
                         }
                       //  console.log(responseHash);
                         if(a== 0)
+						{
+						run = true;
                           cb(responseHash);
+						  }
                         a++;
 
                     }
@@ -131,7 +135,7 @@ var helper = function() {
         name = ['Bob Loblaw', 'Stan Sitwell'],
         callback = function callback(resp) {
             CBots[i].write(resp['message'], callback);   
-			if(a==1)
+			if(run)
             args.directreply(resp['message']);
             console.log(resp['message'], 'responce')
         };
