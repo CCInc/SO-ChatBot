@@ -77,7 +77,7 @@ function addNudge ( delay, message, msgObj ) {
 if(!nudgeend)
 {
 	var inMS;
-	console.log( delay, message, '/nudge input' );
+	console.log( delay, message, '/SPAM NUDGE input' );
 msg = this.msgObj;
 console.log( msg, 'nudge msag' );
 	//interval will be one of these (where n is a number):
