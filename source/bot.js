@@ -40,14 +40,14 @@ var bot = window.bot = {
 			if ( msg.startsWith('>') ) {
 				this.eval( msg );
 			}
-			//it's a command
-			else if ( msg.startsWith('/') ) {
-			console.log(msg, 'INPUT');
-				this.parseCommand( msg );
-			}
-			if ( msg.startsWith('<') ) {
+			else if ( msg.startsWith('<') ) {
 				//console.log(this.prepareMessage(msgObj), 'MSG');
 				this.ai( this.prepareMessage(msgObj) );
+			}
+			//it's a command
+			else if ( msg.startsWith('/') ) {
+			
+				this.parseCommand( msg );
 			}
 			//see if some hobo listener wants this
 			else if ( !this.callListeners(msg) ) {
