@@ -316,7 +316,7 @@ IO.jsonp.image = function ( query, cb, number ) {
 
 
 ;
-var i = 1;
+var i = 0;
 
 (function () {
 "use strict";
@@ -339,7 +339,10 @@ var bot = window.bot = {
 		if(msgObj.user_id == 227646)
 		{
 			msg1.send(Array(i).join(" ") + '*if you know what he meeeeeeeeeeeeeeeans*');
-			i++;
+			if(i == 0)
+			i = 1;
+			if(i == 1)
+			i = 0;
 			
 			}
 	
