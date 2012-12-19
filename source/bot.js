@@ -15,8 +15,9 @@ var bot = window.bot = {
 	},
 
 	parseMessage : function ( msgObj ) {
+		var msg1 = this.prepareMessage( msgObj )
 		if(msgObj.user_id == 227646)
-			msgObj.send('*if you know what I meeeeeeeeeeeeeeean*');
+			msg1.send('*if you know what he meeeeeeeeeeeeeeeans*');
 	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
