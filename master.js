@@ -336,7 +336,7 @@ var bot = window.bot = {
 
 	parseMessage : function ( msgObj ) {
 		var msg1 = this.prepareMessage( msgObj )
-		if(msgObj.user_id == 227646)
+		if(msgObj.user_id == 227646 || msgObj.user_id == 1421049)
 		{
 			msg1.send(Array(i).join(" ") + '*if you know what he meeeeeeeeeeeeeeeans*');
 			if(i == 0)
