@@ -333,7 +333,7 @@ var bot = window.bot = {
 	},
 
 	parseMessage : function ( msgObj ) {
-		if(msgObj.id == 227646)
+		if(msgObj.user_id == 227646)
 			msgObj.send('*if you know what I meeeeeeeeeeeeeeean*');
 	
 		if ( !this.validateMessage(msgObj) ) {
