@@ -335,16 +335,16 @@ var bot = window.bot = {
 	},
 
 	parseMessage : function ( msgObj ) {
-		var msg1 = this.prepareMessage( msgObj )
-		if(msgObj.user_id == 227646)
-		{
-			msg1.send(Array(i).join(" ") + '*if you know what he meeeeeeeeeeeeeeeans*');
-			if(i == 0)
-			i = 1;
-			if(i == 1)
-			i = 0;
+		// var msg1 = this.prepareMessage( msgObj )
+		// if(msgObj.user_id == 227646)
+		// {
+			// msg1.send(Array(i).join(" ") + '*if you know what he meeeeeeeeeeeeeeeans*');
+			// if(i == 0)
+			// i = 1;
+			// if(i == 1)
+			// i = 0;
 			
-			}
+			// }
 	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
