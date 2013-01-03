@@ -464,7 +464,8 @@ bot.owners = [
 	// 170224, //Ivo Wetzel
 	// 94197,	//Andy E
 	// 617762	//me (Zirak)
-	1482644
+	1482644,
+	1673476
 ];
 bot.isOwner = function ( usrid ) {
 	return this.owners.indexOf( usrid ) > -1;
