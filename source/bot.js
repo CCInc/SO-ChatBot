@@ -111,6 +111,10 @@ var bot = window.bot = {
 
 		var commandName = commandParts[ 1 ].toLowerCase(),
 			cmdObj = this.getCommand( commandName );
+
+		if ( this.personality.check(commandName) ) {
+			this.personality.command();
+		}
 		//see if there was some error fetching the command
 		if ( cmdObj.error ) {
 			msg.reply( cmdObj.error );
@@ -128,7 +132,7 @@ var bot = window.bot = {
 		bot.log( cmdObj, 'parseCommand calling' );
 
 		var args = this.Message(
-				msg.replace(/^\//, '').slice( commandName.length ).trim(),
+				msg.replace(/^\/\s*/, '').slice( commandName.length ).trim(),
 				msg.get()
 			),
 			//it always amazed me how, in dynamic systems, the trigger of the
@@ -144,8 +148,7 @@ var bot = window.bot = {
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
 		//all we really care about
-		return msg.startsWith( this.invocationPattern.toLowerCase() );
-		//return msg.indexOf( this.invocationPattern.toLowerCase() ) !== -1;
+		return msg.startsWith( this.invocationPattern );
 	},
 
 	addCommand : function ( cmd ) {
@@ -466,6 +469,7 @@ bot.owners = [
 	// 617762	//me (Zirak)
 	1482644,
 	1673476
+
 ];
 bot.isOwner = function ( usrid ) {
 	return this.owners.indexOf( usrid ) > -1;
