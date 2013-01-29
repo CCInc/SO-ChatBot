@@ -7,7 +7,7 @@ bot.addCommand({
     //permissions object (can be ommitted for all-can-use, all-can-del)
     permissions : {
         use : 'ALL' ,
-        del : 'NONE' ,
+        del : 'NONE' 
     },
     description : 'Translate from english to spanish',
 
