@@ -6,8 +6,8 @@ bot.addCommand({
 
     //permissions object (can be ommitted for all-can-use, all-can-del)
     permissions : {
-        use : 'ALL' /*or*/ 'ALL' /*or*/ [array of usrids],
-        del : 'NONE' /*or*/ 'ALL' /*or*/ [array of usrids]
+        use : 'ALL' ,
+        del : 'NONE' ,
     },
     description : 'Translate from english to spanish`,
 
