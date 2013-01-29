@@ -12,7 +12,7 @@ bot.addCommand({
     description : 'Translate from english to spanish',
 
     //whether the command is asynchronous or not (default false)
-    async : true /*or*/ false
+    async : false
 });
 
 function spanish (args, cb) {
