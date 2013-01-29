@@ -9,7 +9,7 @@ bot.addCommand({
         use : 'ALL' ,
         del : 'NONE' ,
     },
-    description : 'Translate from english to spanish`,
+    description : 'Translate from english to spanish',
 
     //whether the command is asynchronous or not (default false)
     async : true /*or*/ false
