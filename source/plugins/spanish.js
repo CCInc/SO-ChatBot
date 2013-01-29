@@ -29,4 +29,4 @@ function spanish (args, cb) {
 }
 
 //add a listening regex and a corresponding callback
-}());
+};());
