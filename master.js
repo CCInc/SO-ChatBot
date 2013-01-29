@@ -6973,9 +6973,9 @@ function spanish (args, cb) {
                 "&oncomplete=mycallback";
            document.body.appendChild(s);
 		   
-		   function mycallback(responce)
+		   function mycallback(response)
 		   {
-				args.send(responce);
+				args.send(response);
 		   }
 }
 
