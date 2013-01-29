@@ -6971,7 +6971,12 @@ function spanish (args, cb) {
                 "&to=" + encodeURIComponent(to) +
                 "&text=" + encodeURIComponent(text) +
                 "&oncomplete=mycallback";
-            args.send(document.body.appendChild(s));
+           document.body.appendChild(s);
+		   
+		   function mycallback(responce)
+		   {
+				args.send(responce);
+		   }
 }
 
 //add a listening regex and a corresponding callback
