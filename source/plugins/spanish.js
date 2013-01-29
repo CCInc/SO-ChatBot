@@ -29,9 +29,4 @@ function spanish (args, cb) {
 }
 
 //add a listening regex and a corresponding callback
-bot.listen(
-    //regular expression or array of regular expressions
-    pattern,
-
-    callbackFun
-);}());
+;}());
