@@ -6969,7 +6969,6 @@ $.post(
     function(data){
   console.log(args);
   console.log(data);
- args.send(data);
     }
 );
 }
