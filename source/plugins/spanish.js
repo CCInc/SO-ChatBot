@@ -16,6 +16,7 @@ bot.addCommand({
 });
 
 function spanish (args, cb) {
+var text =args;
 $.post(
     'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
 	       
