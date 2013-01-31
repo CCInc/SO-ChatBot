@@ -1,4 +1,24 @@
 (function () {
+	
+function spanish (args, cb) {
+          var from = "en", to = "es", text = args.toString();
+      var windowsliveid = 'YOUR_WINDOWS_LIVE_ID_HERE';
+
+                var s = document.createElement("script");
+                s.src = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate" +
+                    '&appId=' + windowsliveid +
+                    "&from=" + encodeURIComponent(from) +
+                    "&to=" + encodeURIComponent(to) +
+                    "&text=" + encodeURIComponent(text) +
+                    "&oncomplete=mycallback";
+               document.body.appendChild(s);
+    		   
+    		   function mycallback(response)
+    		   {
+    				args.send(response);
+    		   }
+    }	
+	
 //add a bot command
 bot.addCommand({
     name : 'spanish',
@@ -14,24 +34,6 @@ bot.addCommand({
     //whether the command is asynchronous or not (default false)
     async : false
 });
-
-function spanish (args, cb) {
-      var from = "en", to = "es", text = args.toString();
-
-            var s = document.createElement("script");
-            s.src = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate" +
-                "?appId=Bearer " + encodeURIComponent(window.accessToken) +
-                "&from=" + encodeURIComponent(from) +
-                "&to=" + encodeURIComponent(to) +
-                "&text=" + encodeURIComponent(text) +
-                "&oncomplete=mycallback";
-           document.body.appendChild(s);
-		   
-		   function mycallback(response)
-		   {
-				args.send(response);
-		   }
-}
 
 //add a listening regex and a corresponding callback
 }());
