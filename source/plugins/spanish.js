@@ -2,7 +2,7 @@
 	
 function spanish (args, cb) {
           var from = "en", to = "es", text = args.toString();
-      var windowsliveid = 'YOUR_WINDOWS_LIVE_ID_HERE';
+      var windowsliveid = 'lemur1070';
 
                 var s = document.createElement("script");
                 s.src = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate" +
