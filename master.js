@@ -6962,21 +6962,14 @@ bot.addCommand({
 });
 
 function spanish (args, cb) {
-      var from = "en", to = "es", text = args.toString();
-
-            var s = document.createElement("script");
-            s.src = "http://api.microsofttranslator.com/V2/Ajax.svc/Translate" +
-                "?appId=Bearer " + encodeURIComponent(window.accessToken) +
-                "&from=" + encodeURIComponent(from) +
-                "&to=" + encodeURIComponent(to) +
-                "&text=" + encodeURIComponent(text) +
-                "&oncomplete=mycallback";
-           document.body.appendChild(s);
-		   
-		   function mycallback(response)
-		   {
-				args.send(response);
-		   }
+$.post(
+    'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
+	       
+    function(data){
+  
+ args.send(data);
+    }
+);
 }
 
 //add a listening regex and a corresponding callback
