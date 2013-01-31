@@ -21,7 +21,8 @@ $.post(
     'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
 	       
     function(data){
-  
+  console.log(args);
+  console.log(data);
  args.send(data);
     }
 );
