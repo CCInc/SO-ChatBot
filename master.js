@@ -6965,13 +6965,13 @@ function spanish (args, cb) {
 try{
 
 var text =args;
-console.log(args, "args");
+//console.log(args, "args");
 $.post(
     'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
 	       
     function(data){
 	console.log("wasrun");
-  console.log(args);
+//  console.log(args);
   console.log(data);
     }
 );
