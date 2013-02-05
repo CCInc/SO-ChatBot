@@ -6962,6 +6962,8 @@ bot.addCommand({
 });
 
 function spanish (args, cb) {
+try{
+
 var text =args;
 console.log(args, "args");
 $.post(
@@ -6974,6 +6976,10 @@ $.post(
     }
 );
 }
+catch(e)
+{console.log(e.stack, "ERROR STACK");}
+}
+
 
 //add a listening regex and a corresponding callback
 }());
