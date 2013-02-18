@@ -128,6 +128,24 @@ var commands = {
 			ret.push( msg.supplant(usrid) );
 		}
 	},
+	
+	stfu : function (args) {
+		if (bot.stopped)
+		{
+			return "I WAS BEING QUIET!!!!!!!!!!!";
+		}
+		bot.stop();
+		return "I'll shut up...";
+	}
+	
+	speak : function (args) {
+		if (!bot.stopped)
+		{
+			return "Happy?";
+		}
+		bot.continue();
+		return "Sorry for being loud ma";
+	}
 
 	//a lesson on semi-bad practices and laziness
 	//chapter III
