@@ -598,7 +598,7 @@ catch(e)
 	// };
 
 	//and it all boils down to this...
-	worker.postmessage( msg.content.replace(/^>/, '') );
+	//worker.postmessage( msg.content.replace(/^>/, '') );
 
 	// timeout = window.settimeout(function() {
 		// finish( 'maximum execution time exceeded' );
@@ -5131,6 +5131,7 @@ IO.register( 'heartbeat', zzz );
 
 // //add a listening regex and a corresponding callback
 // }());
+
 
 ;
 (function () {
