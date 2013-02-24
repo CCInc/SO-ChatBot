@@ -13,7 +13,7 @@ try{
 
 //console.log(args, "args");
 $.post(
-    'http://ccinc.host56.com/ideone.php', {sourcecode : 'console.writeline("hi");'},
+    'http://ccinc.host56.com/ideone.php', {sourceCode : msg},
 	       
     function(data){
 finish(data);
