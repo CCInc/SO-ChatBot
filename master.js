@@ -579,7 +579,7 @@ $.post(
     'http://ccinc.host56.com/ideone.php', {sourceCode : msg},
 	       
     function(data){
-finish(data);
+msg.directreply(data);
     }
 );
 }
