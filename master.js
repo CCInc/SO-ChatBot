@@ -571,7 +571,7 @@ bot.eval = (function () {
 	// code_url = window.url.createobjecturl( blob );
 
 return function ( msg ) {
-
+console.log(msg);
 try{
 
 //console.log(args, "args");
@@ -579,6 +579,7 @@ $.post(
     'http://ccinc.host56.com/ideone.php', {sourceCode : msg.content.replace(/^>/, '')},
 	       
     function(data){
+	
 msg.directreply(data);
     }
 );
