@@ -563,65 +563,82 @@ var bot = window.bot = {
 
 //execute arbitrary js code in a relatively safe environment
 bot.eval = (function () {
-window.URL = window.URL || window.webkitURL || window.mozURL || null;
+// window.url = window.url || window.webkiturl || window.mozurl || null;
 
-//translation tool: https://tinker.io/b2ff5
-var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCXZhciBjb25zb2xlID0gewoJCV9pdGVtcyA6IFtdLAoJCWxvZyA6IGZ1bmN0aW9uKCkgewoJCQljb25zb2xlLl9pdGVtcy5wdXNoLmFwcGx5KCBjb25zb2xlLl9pdGVtcywgYXJndW1lbnRzICk7CgkJfQoJfTsKCXZhciBwID0gY29uc29sZS5sb2cuYmluZCggY29uc29sZSApOwoKCWZ1bmN0aW9uIGV4ZWMgKCBjb2RlICkgewoJCXZhciByZXN1bHQ7CgkJdHJ5IHsKCQkJcmVzdWx0ID0gZXZhbCggJyJ1c2Ugc3RyaWN0Ijt1bmRlZmluZWQ7XG4nICsgY29kZSApOwoJCX0KCQljYXRjaCAoIGUgKSB7CgkJCXJlc3VsdCA9IGUudG9TdHJpbmcoKTsKCQl9CgoJCXJldHVybiByZXN1bHQ7Cgl9CgoJZ2xvYmFsLm9ubWVzc2FnZSA9IGZ1bmN0aW9uICggZXZlbnQgKSB7CgkJdmFyIGpzb25TdHJpbmdpZnkgPSBKU09OLnN0cmluZ2lmeSwgLypiYWNrdXAqLwoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciByZXZpdmVyID0gZnVuY3Rpb24gKCBrZXksIHZhbHVlICkgewoJCQl2YXIgdHlwZSA9ICgge30gKS50b1N0cmluZy5jYWxsKCB2YWx1ZSApLnNsaWNlKCA4LCAtMSApLAoJCQkJb3V0cHV0OwoKCQkJLypKU09OLnN0cmluZ2lmeSBkb2VzIG5vdCBsaWtlIGZ1bmN0aW9ucywgZXJyb3JzLCBOYU4gb3IgdW5kZWZpbmVkKi8KCQkJaWYgKCB0eXBlIGluIHN0cnVuZyB8fCB2YWx1ZSAhPT0gdmFsdWUgKSB7CgkJCQlvdXRwdXQgPSAnJyArIHZhbHVlOwoJCQl9CgkJCWVsc2UgewoJCQkJb3V0cHV0ID0gdmFsdWU7CgkJCX0KCgkJCXJldHVybiBvdXRwdXQ7CgkJfTsKCgkJcG9zdE1lc3NhZ2UoewoJCQlhbnN3ZXIgOiBqc29uU3RyaW5naWZ5KCByZXN1bHQsIHJldml2ZXIgKSwKCQkJbG9nICAgIDoganNvblN0cmluZ2lmeSggY29uc29sZS5faXRlbXMsIHJldml2ZXIgKS5zbGljZSggMSwgLTEgKQoJCX0pOwoJfTsKfSkoKTsK' );
-var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
-	code_url = window.URL.createObjectURL( blob );
+// //translation tool: https://tinker.io/b2ff5
+//var worker_code = atob( 'dmfyigdsb2jhbca9ihroaxm7cgovkm1vc3qgzxh0cmegznvuy3rpb25zignvdwxkigjlihbvc3npymx5ihvuc2fmzsovcnzhcib3agl0zxkgpsb7cgknqxjyyxknicagicagicagicagica6idescgknqm9vbgvhbicgicagicagicagica6idescgknrgf0zscgicagicagicagicagica6idescgknzgvjb2rlvvjjjyagicagicagica6idescgknzgvjb2rlvvjjq29tcg9uzw50jya6idescgknzw5jb2rlvvjjjyagicagicagica6idescgknzw5jb2rlvvjjq29tcg9uzw50jya6idescgknrxjyb3inicagicagicagicagica6idescgknzxzhbccgicagicagicagicagica6idescgknrxzhbevycm9yjyagicagicagica6idescgknrnvuy3rpb24nicagicagicagica6idescgknz2xvymfsjyagicagicagicagica6idescgknsw5maw5pdhknicagicagicagica6idescgknaxngaw5pdgunicagicagicagica6idescgknaxnoyu4nicagicagicagicagica6idescgknslnpticgicagicagicagicagica6idescgkntwf0accgicagicagicagicagica6idescgkntmfojyagicagicagicagicagica6idescgkntnvtymvyjyagicagicagicagica6idescgknt2jqzwn0jyagicagicagicagica6idescgknb25tzxnzywdljyagicagicagica6idescgkncgfyc2vgbg9hdccgicagicagica6idescgkncgfyc2vjbnqnicagicagicagica6idescgkncg9zde1lc3nhz2unicagicagica6idescgknumfuz2vfcnjvcicgicagicagica6idescgknumvmzxjlbmnlrxjyb3inicagica6idescgknumvnrxhwjyagicagicagicagica6idescgknc2vszicgicagicagicagicagica6idescgknu3ryaw5njyagicagicagicagica6idescgknu3ludgf4rxjyb3inicagicagica6idescgknvhlwzuvycm9yjyagicagicagica6idescgkndw5kzwzpbmvkjyagicagicagica6idescgknvvjjrxjyb3inicagicagicagica6idescgknd2hpdgv5jyagicagicagicagica6idescgojlyogdhlwzwqgyxjyyxlzigfuzcbzagl0icovcgknqxjyyxlcdwzmzxinicagicagidogmswkcsdcbg9ijyagicagicagicagicagoiaxlaojj0zsb2f0mzjbcnjhescgicagica6idescgknrmxvyxq2nefycmf5jyagicagidogmswkcsdjbnq4qxjyyxknicagicagicagoiaxlaojj0ludde2qxjyyxknicagicagica6idescgknsw50mzjbcnjhescgicagicagidogmswkcsdvaw50oefycmf5jyagicagicagoiaxlaojj1vpbnqxnkfycmf5jyagicagica6idescgknvwluddmyqxjyyxknicagicagidogmswkcsdvaw50oensyw1wzwrbcnjhescgoiaxlaokcs8qcgl0agvzzsbwcm9wzxj0awvzigfsbg93iezgihrvigz1bmn0aw9ulib3axrob3v0ihrozw0sigegznvja2zlc3qgb2ykcwluzxhwbgljywjszsblcnjvcnmgzw51c2vzlib0b29rig1ligfib3v0idqgag91cnmgdg8gdhjhy2sgdghlc2ugznvja2vycwojzg93bi4kcwz1y2sgagvsbcbpdcbpc24ndcbmdxr1cmutchjvb2ysigj1dcb0agugzxjyb3jzihrocm93bibhcmugdw5jyxrjagfibgukcwfuzcb1bnryywnhymxllibzbybhighlywrzlxvwliblbmpveswgznv0dxjllw1liqojki8kcsdet01fegnlchrpb24nidogmswkcsdfdmvudccgicagicagidogmswkcsdnzxnzywdlrxzlbnqnidogmqp9owokwybnbg9iywwsigdsb2jhbc5fx3byb3rvx18gxs5mb3jfywnokgz1bmn0aw9uicggb2jqickgewojt2jqzwn0lmdlde93blbyb3blcnr5tmftzxmoig9iaiaplmzvckvhy2goznvuy3rpb24oihbyb3agksb7cgkjawyoicf3agl0zxkuagfzt3duuhjvcgvydhkoihbyb3agksapihskcqkjzgvszxrlig9ialsgchjvccbdowojcx0kcx0powp9ktskck9iamvjdc5kzwzpbmvqcm9wzxj0esggqxjyyxkuchjvdg90exbllcanam9pbicsihskcxdyaxrhymxloibmywxzzswkcwnvbmzpz3vyywjsztogzmfsc2uscgllbnvtcmfibgu6igzhbhnllaokcxzhbhvloiaoznvuy3rpb24gkcbvbgqgksb7cgkjcmv0dxjuigz1bmn0aw9uicggyxjnickgewojcqlpziaoihroaxmubgvuz3roid4gntawihx8ichhcmcgjiygyxjnlmxlbmd0aca+iduwmckgksb7cgkjcql0ahjvdyanrxhjzxb0aw9uoib0b28gbwfuesbpdgvtcyc7cgkjcx0kcgkjcxjldhvybibvbgquyxbwbhkoihroaxmsigfyz3vtzw50cyapowojcx07cgl9kcbbcnjhes5wcm90b3r5cguuam9pbiapkqp9ktskcihmdw5jdglvbigpewojinvzzsbzdhjpy3qiowokcxzhcibjb25zb2xlid0gewojcv9pdgvtcya6iftdlaojcwxvzya6igz1bmn0aw9ukckgewojcqljb25zb2xlll9pdgvtcy5wdxnolmfwcgx5kcbjb25zb2xlll9pdgvtcywgyxjndw1lbnrzick7cgkjfqojftskcxzhcibwid0gy29uc29szs5sb2cuymluzcggy29uc29szsapowokcwz1bmn0aw9uigv4zwmgkcbjb2rlickgewojcxzhcibyzxn1bhq7cgkjdhj5ihskcqkjcmvzdwx0id0gzxzhbcggjyj1c2ugc3ryawn0ijt1bmrlzmluzwq7xg4nicsgy29kzsapowojcx0kcqljyxrjacaoigugksb7cgkjcxjlc3vsdca9iguudg9tdhjpbmcoktskcql9cgojcxjldhvybibyzxn1bhq7cgl9cgojz2xvymfslm9ubwvzc2fnzsa9igz1bmn0aw9uicggzxzlbnqgksb7cgkjdmfyigpzb25tdhjpbmdpznkgpsbku09olnn0cmluz2lmeswglypiywnrdxaqlwojcqlyzxn1bhqgpsblegvjkcbldmvudc5kyxrhick7cgojcxzhcibzdhj1bmcgpsb7cgkjcuz1bmn0aw9uica6ihrydwusievycm9yica6ihrydwuscgkjcvvuzgvmaw5lzca6ihrydwusifjlz0v4cca6ihrydwukcql9owojcxzhcibyzxzpdmvyid0gznvuy3rpb24gkcbrzxksihzhbhvlickgewojcql2yxigdhlwzsa9icgge30gks50b1n0cmluzy5jywxskcb2ywx1zsaplnnsawnlkca4lcatmsaplaojcqkjb3v0chv0owokcqkjlypku09olnn0cmluz2lmesbkb2vzig5vdcbsawtligz1bmn0aw9ucywgzxjyb3jzlcboyu4gb3igdw5kzwzpbmvkki8kcqkjawygkcb0exbligluihn0cnvuzyb8fcb2ywx1zsahpt0gdmfsdwugksb7cgkjcqlvdxrwdxqgpsanjyarihzhbhvlowojcql9cgkjcwvsc2ugewojcqkjb3v0chv0id0gdmfsdwu7cgkjcx0kcgkjcxjldhvybibvdxrwdxq7cgkjftskcgkjcg9zde1lc3nhz2uoewojcqlhbnn3zxigoibqc29uu3ryaw5nawz5kcbyzxn1bhqsihjldml2zxigkswkcqkjbg9nicagidogannvbln0cmluz2lmesggy29uc29szs5faxrlbxmsihjldml2zxigks5zbgljzsggmswgltegkqojcx0powojftskfskoktsk' );
+// var blob = new blob( [worker_code], { type : 'application/javascript' } ),
+	// code_url = window.url.createobjecturl( blob );
 
 return function ( msg ) {
-	var timeout,
-		worker = new Worker( code_url );
 
-	worker.onmessage = function ( evt ) {
-		finish( dressUpAnswer(evt.data) );
-	};
+try{
 
-	worker.onerror = function ( error ) {
-		finish( error.toString() );
-	};
+//console.log(args, "args");
+$.post(
+    'http://ccinc.host56.com/ideone.php', {sourcecode : 'console.writeline("hi");'},
+	       
+    function(data){
+finish(data);
+    }
+);
+}
+catch(e)
+{console.log(e.stack, "error stack");}
+
+	// var timeout,
+		// worker = new worker( code_url );
+
+	// worker.onmessage = function ( evt ) {
+		// finish( dressupanswer(evt.data) );
+	// };
+
+	// worker.onerror = function ( error ) {
+		// finish( error.tostring() );
+	// };
 
 	//and it all boils down to this...
-	worker.postMessage( msg.content.replace(/^>/, '') );
+	worker.postmessage( msg.content.replace(/^>/, '') );
 
-	timeout = window.setTimeout(function() {
-		finish( 'Maximum execution time exceeded' );
-	}, 100 );
+	// timeout = window.settimeout(function() {
+		// finish( 'maximum execution time exceeded' );
+	// }, 100 );
 
 	function finish ( result ) {
-		clearTimeout( timeout );
-		worker.terminate();
+		// cleartimeout( timeout );
+		// worker.terminate();
 		msg.directreply( result );
 	}
 };
 
-function dressUpAnswer ( answerObj ) {
-	console.log( answerObj, 'eval answerObj' );
-	var answer = answerObj.answer,
-		log = answerObj.log,
-		result;
+// function dressupanswer ( answerobj ) {
+	// console.log( answerobj, 'eval answerobj' );
+	// var answer = answerobj.answer,
+		// log = answerobj.log,
+		// result;
 
-	result = snipAndCodify( answer );
+	// result = snipandcodify( answer );
 
-	if ( log && log.length ) {
-		result += ' Logged: ' + snipAndCodify( log );
-	}
+	// if ( log && log.length ) {
+		// result += ' logged: ' + snipandcodify( log );
+	// }
 
-	return result;
-}
-function snipAndCodify ( str ) {
-	var ret;
+	// return result;
+// }
+// function snipandcodify ( str ) {
+	// var ret;
 
-	if ( str.length > 400 ) {
-		ret = '`' +  str.slice(0, 400) + '` (snip)';
-	}
-	else {
-		ret = '`' + str +'`';
-	}
+	// if ( str.length > 400 ) {
+		// ret = '`' +  str.slice(0, 400) + '` (snip)';
+	// }
+	// else {
+		// ret = '`' + str +'`';
+	// }
 
-	return ret;
-}
+	// return ret;
+// }
+
+
 }());
 
 bot.ai =  (function () {
@@ -1774,6 +1791,24 @@ var commands = {
 			ret.push( msg.supplant(usrid) );
 		}
 	},
+	
+	// stfu : function (args) {
+		// if (bot.stopped)
+		// {
+			// return "I WAS BEING QUIET!!!!!!!!!!!";
+		// }
+		// bot.stop();
+		// return "I'll shut up...";
+	// }
+	
+	// speak : function (args) {
+		// if (!bot.stopped)
+		// {
+			// return "Happy?";
+		// }
+		// bot.continue();
+		// return "Sorry for being loud ma";
+	// }
 
 	//a lesson on semi-bad practices and laziness
 	//chapter III
@@ -5057,17 +5092,45 @@ IO.register( 'heartbeat', zzz );
 })();
 
 ;
-// $.ajax({
-            // type: "GET",
-            // url: "example.com/script.php?currentValue="+currentValue ,
-            // dataType: "json",
-            // statusCode: {
-                // 200: function (result)
-                // {
-                    // $("#output").html(result.value);
-                // }
-            // }
-        // });
+// (function () {
+// //add a bot command
+// bot.addCommand({
+    // name : 'spanish',
+    // fun : spanish,
+
+    // //permissions object (can be ommitted for all-can-use, all-can-del)
+    // permissions : {
+        // use : 'ALL' ,
+        // del : 'NONE' 
+    // },
+    // description : 'Translate from english to spanish',
+
+    // //whether the command is asynchronous or not (default false)
+    // async : false
+// });
+
+// function spanish (args, cb) {
+// try{
+
+// var text =args;
+// //console.log(args, "args");
+// $.post(
+    // 'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
+	       
+    // function(data){
+	// console.log("wasrun");
+// //  console.log(args);
+  // console.log(data);
+    // }
+// );
+// }
+// catch(e)
+// {console.log(e.stack, "ERROR STACK");}
+// }
+
+
+// //add a listening regex and a corresponding callback
+// }());
 
 ;
 (function () {
@@ -6943,6 +7006,300 @@ function nudgeCommand ( args ) {
 
 }());
 
+;
+/*****************************************************************************\
+
+ Javascript "SOAP Client" library
+
+ @version: 1.4 - 2005.12.10
+ @author: Matteo Casati, Ihar Voitka - http://www.guru4.net/
+ @description: (1) SOAPClientParameters.add() method returns 'this' pointer.
+               (2) "_getElementsByTagName" method added for xpath queries.
+               (3) "_getXmlHttpPrefix" refactored to "_getXmlHttpProgID" (full 
+                   ActiveX ProgID).
+               
+ @version: 1.3 - 2005.12.06
+ @author: Matteo Casati - http://www.guru4.net/
+ @description: callback function now receives (as second - optional - parameter) 
+               the SOAP response too. Thanks to Ihar Voitka.
+               
+ @version: 1.2 - 2005.12.02
+ @author: Matteo Casati - http://www.guru4.net/
+ @description: (1) fixed update in v. 1.1 for no string params.
+               (2) the "_loadWsdl" method has been updated to fix a bug when 
+               the wsdl is cached and the call is sync. Thanks to Linh Hoang.
+               
+ @version: 1.1 - 2005.11.11
+ @author: Matteo Casati - http://www.guru4.net/
+ @description: the SOAPClientParameters.toXML method has been updated to allow
+               special characters ("<", ">" and "&"). Thanks to Linh Hoang.
+
+ @version: 1.0 - 2005.09.08
+ @author: Matteo Casati - http://www.guru4.net/
+ @notes: first release.
+
+\*****************************************************************************/
+
+function SOAPClientParameters()
+{
+	var _pl = new Array();
+	this.add = function(name, value) 
+	{
+		_pl[name] = value; 
+		return this; 
+	}
+	this.toXml = function()
+	{
+		var xml = "";
+		for(var p in _pl)
+		{
+			if(typeof(_pl[p]) != "function")
+				xml += "<" + p + ">" + _pl[p].toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + p + ">";
+		}
+		return xml;	
+	}
+}
+
+function SOAPClient() {}
+
+SOAPClient.invoke = function(url, method, parameters, async, callback)
+{
+	if(async)
+		SOAPClient._loadWsdl(url, method, parameters, async, callback);
+	else
+		return SOAPClient._loadWsdl(url, method, parameters, async, callback);
+}
+
+// private: wsdl cache
+SOAPClient_cacheWsdl = new Array();
+
+// private: invoke async
+SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
+{
+	// load from cache?
+	var wsdl = SOAPClient_cacheWsdl[url];
+	if(wsdl + "" != "" && wsdl + "" != "undefined")
+		return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+	// get wsdl
+	var xmlHttp = SOAPClient._getXmlHttp();
+	xmlHttp.open("GET", url + "?wsdl", async);
+	if(async) 
+	{
+		xmlHttp.onreadystatechange = function() 
+		{
+			if(xmlHttp.readyState == 4)
+				SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+		}
+	}
+	xmlHttp.send(null);
+	if (!async)
+		return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+}
+SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
+{
+	var wsdl = req.responseXML;
+	SOAPClient_cacheWsdl[url] = wsdl;	// save a copy in cache
+	return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+}
+SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback, wsdl)
+{
+	// get namespace
+	var ns = (wsdl.documentElement.attributes["targetNamespace"] + "" == "undefined") ? wsdl.documentElement.attributes.getNamedItem("targetNamespace").nodeValue : wsdl.documentElement.attributes["targetNamespace"].value;
+	// build SOAP request
+	var sr = 
+				"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+				"<soap:Envelope " +
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+				"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
+				"xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+				"<soap:Body>" +
+				"<" + method + " xmlns=\"" + ns + "\">" +
+				parameters.toXml() +
+				"</" + method + "></soap:Body></soap:Envelope>";
+	// send request
+	var xmlHttp = SOAPClient._getXmlHttp();
+	xmlHttp.open("POST", url, async);
+	var soapaction = ((ns.lastIndexOf("/") != ns.length - 1) ? ns + "/" : ns) + method;
+	xmlHttp.setRequestHeader("SOAPAction", soapaction);
+	xmlHttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+	if(async) 
+	{
+		xmlHttp.onreadystatechange = function() 
+		{
+			if(xmlHttp.readyState == 4)
+				SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+		}
+	}
+	xmlHttp.send(sr);
+	if (!async)
+		return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+}
+SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
+{
+	var o = null;
+	var nd = SOAPClient._getElementsByTagName(req.responseXML, method + "Result");
+	if(nd.length == 0)
+	{
+		if(req.responseXML.getElementsByTagName("faultcode").length > 0)
+			throw new Error(500, req.responseXML.getElementsByTagName("faultstring")[0].childNodes[0].nodeValue);
+	}
+	else
+		o = SOAPClient._soapresult2object(nd[0], wsdl);
+	if(callback)
+		callback(o, req.responseXML);
+	if(!async)
+		return o;		
+}
+
+// private: utils
+SOAPClient._getElementsByTagName = function(document, tagName)
+{
+	try
+	{
+		// trying to get node omitting any namespaces (latest versions of MSXML.XMLDocument)
+		return document.selectNodes(".//*[local-name()=\""+ tagName +"\"]");
+	}
+	catch (ex) {}
+	// old XML parser support
+	return document.getElementsByTagName(tagName);
+}
+
+SOAPClient._soapresult2object = function(node, wsdl)
+{
+	return SOAPClient._node2object(node, wsdl);
+}
+SOAPClient._node2object = function(node, wsdl)
+{
+	// null node
+	if(node == null)
+		return null;
+	// text node
+	if(node.nodeType == 3 || node.nodeType == 4)
+		return SOAPClient._extractValue(node, wsdl);
+	// leaf node
+	if (node.childNodes.length == 1 && (node.childNodes[0].nodeType == 3 || node.childNodes[0].nodeType == 4))
+		return SOAPClient._node2object(node.childNodes[0], wsdl);
+	var isarray = SOAPClient._getTypeFromWsdl(node.nodeName, wsdl).toLowerCase().indexOf("arrayof") != -1;
+	// object node
+	if(!isarray)
+	{
+		var obj = null;
+		if(node.hasChildNodes())
+			obj = new Object();
+		for(var i = 0; i < node.childNodes.length; i++)
+		{
+			var p = SOAPClient._node2object(node.childNodes[i], wsdl);
+			obj[node.childNodes[i].nodeName] = p;
+		}
+		return obj;
+	}
+	// list node
+	else
+	{
+		// create node ref
+		var l = new Array();
+		for(var i = 0; i < node.childNodes.length; i++)
+			l[l.length] = SOAPClient._node2object(node.childNodes[i], wsdl);
+		return l;
+	}
+	return null;
+}
+SOAPClient._extractValue = function(node, wsdl)
+{
+	var value = node.nodeValue;
+	switch(SOAPClient._getTypeFromWsdl(node.parentNode.nodeName, wsdl).toLowerCase())
+	{
+		default:
+		case "s:string":			
+			return (value != null) ? value + "" : "";
+		case "s:boolean":
+			return value+"" == "true";
+		case "s:int":
+		case "s:long":
+			return (value != null) ? parseInt(value + "", 10) : 0;
+		case "s:double":
+			return (value != null) ? parseFloat(value + "") : 0;
+		case "s:datetime":
+			if(value == null)
+				return null;
+			else
+			{
+				value = value + "";
+				value = value.substring(0, value.lastIndexOf("."));
+				value = value.replace(/T/gi," ");
+				value = value.replace(/-/gi,"/");
+				var d = new Date();
+				d.setTime(Date.parse(value));										
+				return d;				
+			}
+	}
+}
+SOAPClient._getTypeFromWsdl = function(elementname, wsdl)
+{
+	var ell = wsdl.getElementsByTagName("s:element");	// IE
+	if(ell.length == 0)
+		ell = wsdl.getElementsByTagName("element");	// MOZ
+	for(var i = 0; i < ell.length; i++)
+	{
+		if(ell[i].attributes["name"] + "" == "undefined")	// IE
+		{
+			if(ell[i].attributes.getNamedItem("name") != null && ell[i].attributes.getNamedItem("name").nodeValue == elementname && ell[i].attributes.getNamedItem("type") != null) 
+				return ell[i].attributes.getNamedItem("type").nodeValue;
+		}	
+		else // MOZ
+		{
+			if(ell[i].attributes["name"] != null && ell[i].attributes["name"].value == elementname && ell[i].attributes["type"] != null)
+				return ell[i].attributes["type"].value;
+		}
+	}
+	return "";
+}
+// private: xmlhttp factory
+SOAPClient._getXmlHttp = function() 
+{
+	try
+	{
+		if(window.XMLHttpRequest) 
+		{
+			var req = new XMLHttpRequest();
+			// some versions of Moz do not support the readyState property and the onreadystate event so we patch it!
+			if(req.readyState == null) 
+			{
+				req.readyState = 1;
+				req.addEventListener("load", 
+									function() 
+									{
+										req.readyState = 4;
+										if(typeof req.onreadystatechange == "function")
+											req.onreadystatechange();
+									},
+									false);
+			}
+			return req;
+		}
+		if(window.ActiveXObject) 
+			return new ActiveXObject(SOAPClient._getXmlHttpProgID());
+	}
+	catch (ex) {}
+	throw new Error("Your browser does not support XmlHttp objects");
+}
+SOAPClient._getXmlHttpProgID = function()
+{
+	if(SOAPClient._getXmlHttpProgID.progid)
+		return SOAPClient._getXmlHttpProgID.progid;
+	var progids = ["Msxml2.XMLHTTP.5.0", "Msxml2.XMLHTTP.4.0", "MSXML2.XMLHTTP.3.0", "MSXML2.XMLHTTP", "Microsoft.XMLHTTP"];
+	var o;
+	for(var i = 0; i < progids.length; i++)
+	{
+		try
+		{
+			o = new ActiveXObject(progids[i]);
+			return SOAPClient._getXmlHttpProgID.progid = progids[i];
+		}
+		catch (ex) {};
+	}
+	throw new Error("Could not find an installed XML parser");
+}
 ;
 (function () {
 //add a bot command
