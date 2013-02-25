@@ -16,24 +16,22 @@ bot.addCommand({
 });
 
 function spanish (args, cb) {
+
 try{
 
-var text =args;
 //console.log(args, "args");
 $.post(
-    'http://ccinc.host56.com/python.php', {txtToTranslate:text},
+    'http://ccinc.host56.com/python.php', {sourceCode : args},
 	       
     function(data){
-	console.log("wasrun");
-//  console.log(args);
-  console.log(data);
+	
+msg.directreply(data);
     }
 );
 }
 catch(e)
-{console.log(e.stack, "ERROR STACK");}
+{console.log(e.stack, "error stack");}
 }
-
 
 //add a listening regex and a corresponding callback
 }());
