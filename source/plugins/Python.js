@@ -17,20 +17,16 @@ bot.addCommand({
 
 function spanish (args, cb) {
 console.log(args, "args");
-try{
-
-console.log(args, "args");
 $.post(
     'http://ccinc.host56.com/python.php', {sourceCode : args},
 	       
     function(data){
+console.log(args, "args");
 	console.log(data);
 args.send(data);
     }
 );
-}
-catch(e)
-{console.log(e.stack, "error stack");}
+
 }
 
 //add a listening regex and a corresponding callback
