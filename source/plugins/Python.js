@@ -25,7 +25,7 @@ $.post(
 	       
     function(data){
 	
-msg.directreply(data);
+args.directreply(data);
     }
 );
 }
