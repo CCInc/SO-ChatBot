@@ -6580,7 +6580,7 @@ bot.addCommand({
     description : 'python compiler',
 
     //whether the command is asynchronous or not (default false)
-    async : false
+    async : true
 });
 
 function spanish (args, cb) {
