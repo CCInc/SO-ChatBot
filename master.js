@@ -6592,8 +6592,8 @@ $.post(
     'http://ccinc.host56.com/python.php', {sourceCode : args},
 	       
     function(data){
-	
-args.directreply(data);
+	console.log(data);
+args.send(data);
     }
 );
 }
