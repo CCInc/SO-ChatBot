@@ -19,7 +19,7 @@ function spanish (args, cb) {
 
 try{
 
-//console.log(args, "args");
+console.log(args, "args");
 $.post(
     'http://ccinc.host56.com/python.php', {sourceCode : args},
 	       
