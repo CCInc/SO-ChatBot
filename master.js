@@ -6584,7 +6584,7 @@ bot.addCommand({
 });
 
 function spanish (args, cb) {
-
+console.log(args, "args");
 try{
 
 console.log(args, "args");
