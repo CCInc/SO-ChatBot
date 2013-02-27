@@ -349,7 +349,7 @@ var bot = window.bot = {
 
 		var msg2 = IO.decodehtmlEntities( msgObj2.content );
 		
-		if(msg2 == ":D") msgObj.Send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
+		if(msg2 == ":D") msgObj.send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
 	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
