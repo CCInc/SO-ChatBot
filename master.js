@@ -345,7 +345,7 @@ var bot = window.bot = {
 			// i = 0;
 			
 			// }
-					msgObj2 = this.adapter.transform( msgObj );
+				var	msgObj2 = this.adapter.transform( msgObj );
 
 		var msg2 = IO.decodehtmlEntities( msgObj2.content );
 		
