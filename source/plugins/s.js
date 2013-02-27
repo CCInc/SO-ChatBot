@@ -130,16 +130,9 @@ bot.addCommand({
 		'`nudge|remind|poke me? in? intervalInMinutes message`'
 });
 
-bot.listen(/s?(\s?(.*))$/,
-	nudgeListener
-);
-
 function nudgeCommand ( args ) {
 	var props = args.parse();
 	return addNudge( props[0], props.slice(1).join(' '), args );
-}
-function nudgeListener ( args ) {
-	return addNudge( args.matches[1], args.matches[2], args );
 }
 
 }());
