@@ -201,6 +201,29 @@ return function ( html ) {
 	};
 });
 
+//a very incomplete circular-buffer implementation, used for the bored responses
+IO.CBuffer = function ( size ) {
+	var ret = {
+		items : [],
+		pos : 0,
+		size : size,
+	};
+
+	ret.add = function ( item ) {
+		if ( this.pos === size ) {
+			this.pos = 0;
+		}
+
+		this.items[ this.pos ] = item;
+		this.pos += 1;
+	};
+	ret.contains = function ( item ) {
+		return this.items.indexOf( item ) > -1;
+	};
+
+	return ret;
+};
+
 IO.xhr = function ( params ) {
 	//merge in the defaults
 	params = Object.merge({
@@ -229,8 +252,8 @@ IO.xhr = function ( params ) {
 		}
 	});
 
-	Object.keys( params.headers ).forEach(function ( header ) {
-		xhr.setRequestHeader( header, params.headers[header] );
+	Object.iterate( params.headers, function ( header, value ) {
+		xhr.setRequestHeader( header, value );
 	});
 
 	xhr.send( params.data );
@@ -246,7 +269,7 @@ IO.jsonp = function ( opts ) {
 		semiRandom;
 
 	do {
-		semiRandom = 'IO_' + ( Date.now() * Math.ceil(Math.random()) );
+		semiRandom = 'IO' + ( Date.now() * Math.ceil(Math.random()) );
 	} while ( window[semiRandom] );
 
 	//this is the callback function, called from the "jsonp file"
@@ -333,6 +356,7 @@ var bot = window.bot = {
 		forgotten : 0,
 		start     : new Date,
 	},
+	users : {}, //will be filled in build
 
 	parseMessage : function ( msgObj ) {
 		// var msg1 = this.prepareMessage( msgObj )
@@ -389,8 +413,7 @@ var bot = window.bot = {
 			else if ( !this.callListeners(msg) ) {
 				//no listener fancied the message. this is the last frontier,
 				// so just give up in a classy, dignified way
-				msg.reply(
-					'Y U NO MAEK SENSE!? Could not understand `' + msg + '`' );
+				msg.reply( this.giveUpMessage(msg) );
 			}
 		}
 		catch ( e ) {
@@ -411,6 +434,23 @@ var bot = window.bot = {
 		finally {
 			this.info.invoked += 1;
 		}
+	},
+
+	giveUpMessage : function ( msg ) {
+		var reply =
+			'Y U NO MAEK SENSE!? Could not understand ' +
+			this.adapter.codify( msg );
+
+		//check if the user may have intended to execute a command
+		var possibleName = msg.trim().split( ' ' )[ 0 ],
+			cmd = this.getCommand( possibleName );
+
+		if ( !cmd.error || cmd.guesses.length ) {
+			reply += ' (perhaps you meant to execute a command? If so,' +
+				' prepend the command name with a /)';
+		}
+
+		return reply;
 	},
 
 	prepareMessage : function ( msgObj ) {
@@ -511,7 +551,7 @@ var bot = window.bot = {
 			msg += ' Did you mean: ' + guesses.join( ', ' );
 		}
 
-		return { error : msg };
+		return { error : msg, guesses : guesses };
 	},
 
 	//the function women think is lacking in men
@@ -531,9 +571,7 @@ var bot = window.bot = {
 	},
 
 	callListeners : function ( msg ) {
-		var fired = false;
-
-		this.listeners.forEach(function ( listener ) {
+		return this.listeners.some(function ( listener ) {
 			var match = msg.exec( listener.pattern ), resp;
 
 			if ( match ) {
@@ -543,12 +581,9 @@ var bot = window.bot = {
 				if ( resp ) {
 					msg.reply( resp );
 				}
-
-				fired = resp !== false;
+				return resp !== false;
 			}
 		});
-
-		return fired;
 	},
 
 	stoplog : false,
@@ -565,87 +600,6 @@ var bot = window.bot = {
 		this.stopped = false;
 	}
 };
-
-//execute arbitrary js code in a relatively safe environment
-bot.eval = (function () {
-// window.url = window.url || window.webkiturl || window.mozurl || null;
-
-// //translation tool: https://tinker.io/b2ff5
-//var worker_code = atob( 'dmfyigdsb2jhbca9ihroaxm7cgovkm1vc3qgzxh0cmegznvuy3rpb25zignvdwxkigjlihbvc3npymx5ihvuc2fmzsovcnzhcib3agl0zxkgpsb7cgknqxjyyxknicagicagicagicagica6idescgknqm9vbgvhbicgicagicagicagica6idescgknrgf0zscgicagicagicagicagica6idescgknzgvjb2rlvvjjjyagicagicagica6idescgknzgvjb2rlvvjjq29tcg9uzw50jya6idescgknzw5jb2rlvvjjjyagicagicagica6idescgknzw5jb2rlvvjjq29tcg9uzw50jya6idescgknrxjyb3inicagicagicagicagica6idescgknzxzhbccgicagicagicagicagica6idescgknrxzhbevycm9yjyagicagicagica6idescgknrnvuy3rpb24nicagicagicagica6idescgknz2xvymfsjyagicagicagicagica6idescgknsw5maw5pdhknicagicagicagica6idescgknaxngaw5pdgunicagicagicagica6idescgknaxnoyu4nicagicagicagicagica6idescgknslnpticgicagicagicagicagica6idescgkntwf0accgicagicagicagicagica6idescgkntmfojyagicagicagicagicagica6idescgkntnvtymvyjyagicagicagicagica6idescgknt2jqzwn0jyagicagicagicagica6idescgknb25tzxnzywdljyagicagicagica6idescgkncgfyc2vgbg9hdccgicagicagica6idescgkncgfyc2vjbnqnicagicagicagica6idescgkncg9zde1lc3nhz2unicagicagica6idescgknumfuz2vfcnjvcicgicagicagica6idescgknumvmzxjlbmnlrxjyb3inicagica6idescgknumvnrxhwjyagicagicagicagica6idescgknc2vszicgicagicagicagicagica6idescgknu3ryaw5njyagicagicagicagica6idescgknu3ludgf4rxjyb3inicagicagica6idescgknvhlwzuvycm9yjyagicagicagica6idescgkndw5kzwzpbmvkjyagicagicagica6idescgknvvjjrxjyb3inicagicagicagica6idescgknd2hpdgv5jyagicagicagicagica6idescgojlyogdhlwzwqgyxjyyxlzigfuzcbzagl0icovcgknqxjyyxlcdwzmzxinicagicagidogmswkcsdcbg9ijyagicagicagicagicagoiaxlaojj0zsb2f0mzjbcnjhescgicagica6idescgknrmxvyxq2nefycmf5jyagicagidogmswkcsdjbnq4qxjyyxknicagicagicagoiaxlaojj0ludde2qxjyyxknicagicagica6idescgknsw50mzjbcnjhescgicagicagidogmswkcsdvaw50oefycmf5jyagicagicagoiaxlaojj1vpbnqxnkfycmf5jyagicagica6idescgknvwluddmyqxjyyxknicagicagidogmswkcsdvaw50oensyw1wzwrbcnjhescgoiaxlaokcs8qcgl0agvzzsbwcm9wzxj0awvzigfsbg93iezgihrvigz1bmn0aw9ulib3axrob3v0ihrozw0sigegznvja2zlc3qgb2ykcwluzxhwbgljywjszsblcnjvcnmgzw51c2vzlib0b29rig1ligfib3v0idqgag91cnmgdg8gdhjhy2sgdghlc2ugznvja2vycwojzg93bi4kcwz1y2sgagvsbcbpdcbpc24ndcbmdxr1cmutchjvb2ysigj1dcb0agugzxjyb3jzihrocm93bibhcmugdw5jyxrjagfibgukcwfuzcb1bnryywnhymxllibzbybhighlywrzlxvwliblbmpveswgznv0dxjllw1liqojki8kcsdet01fegnlchrpb24nidogmswkcsdfdmvudccgicagicagidogmswkcsdnzxnzywdlrxzlbnqnidogmqp9owokwybnbg9iywwsigdsb2jhbc5fx3byb3rvx18gxs5mb3jfywnokgz1bmn0aw9uicggb2jqickgewojt2jqzwn0lmdlde93blbyb3blcnr5tmftzxmoig9iaiaplmzvckvhy2goznvuy3rpb24oihbyb3agksb7cgkjawyoicf3agl0zxkuagfzt3duuhjvcgvydhkoihbyb3agksapihskcqkjzgvszxrlig9ialsgchjvccbdowojcx0kcx0powp9ktskck9iamvjdc5kzwzpbmvqcm9wzxj0esggqxjyyxkuchjvdg90exbllcanam9pbicsihskcxdyaxrhymxloibmywxzzswkcwnvbmzpz3vyywjsztogzmfsc2uscgllbnvtcmfibgu6igzhbhnllaokcxzhbhvloiaoznvuy3rpb24gkcbvbgqgksb7cgkjcmv0dxjuigz1bmn0aw9uicggyxjnickgewojcqlpziaoihroaxmubgvuz3roid4gntawihx8ichhcmcgjiygyxjnlmxlbmd0aca+iduwmckgksb7cgkjcql0ahjvdyanrxhjzxb0aw9uoib0b28gbwfuesbpdgvtcyc7cgkjcx0kcgkjcxjldhvybibvbgquyxbwbhkoihroaxmsigfyz3vtzw50cyapowojcx07cgl9kcbbcnjhes5wcm90b3r5cguuam9pbiapkqp9ktskcihmdw5jdglvbigpewojinvzzsbzdhjpy3qiowokcxzhcibjb25zb2xlid0gewojcv9pdgvtcya6iftdlaojcwxvzya6igz1bmn0aw9ukckgewojcqljb25zb2xlll9pdgvtcy5wdxnolmfwcgx5kcbjb25zb2xlll9pdgvtcywgyxjndw1lbnrzick7cgkjfqojftskcxzhcibwid0gy29uc29szs5sb2cuymluzcggy29uc29szsapowokcwz1bmn0aw9uigv4zwmgkcbjb2rlickgewojcxzhcibyzxn1bhq7cgkjdhj5ihskcqkjcmvzdwx0id0gzxzhbcggjyj1c2ugc3ryawn0ijt1bmrlzmluzwq7xg4nicsgy29kzsapowojcx0kcqljyxrjacaoigugksb7cgkjcxjlc3vsdca9iguudg9tdhjpbmcoktskcql9cgojcxjldhvybibyzxn1bhq7cgl9cgojz2xvymfslm9ubwvzc2fnzsa9igz1bmn0aw9uicggzxzlbnqgksb7cgkjdmfyigpzb25tdhjpbmdpznkgpsbku09olnn0cmluz2lmeswglypiywnrdxaqlwojcqlyzxn1bhqgpsblegvjkcbldmvudc5kyxrhick7cgojcxzhcibzdhj1bmcgpsb7cgkjcuz1bmn0aw9uica6ihrydwusievycm9yica6ihrydwuscgkjcvvuzgvmaw5lzca6ihrydwusifjlz0v4cca6ihrydwukcql9owojcxzhcibyzxzpdmvyid0gznvuy3rpb24gkcbrzxksihzhbhvlickgewojcql2yxigdhlwzsa9icgge30gks50b1n0cmluzy5jywxskcb2ywx1zsaplnnsawnlkca4lcatmsaplaojcqkjb3v0chv0owokcqkjlypku09olnn0cmluz2lmesbkb2vzig5vdcbsawtligz1bmn0aw9ucywgzxjyb3jzlcboyu4gb3igdw5kzwzpbmvkki8kcqkjawygkcb0exbligluihn0cnvuzyb8fcb2ywx1zsahpt0gdmfsdwugksb7cgkjcqlvdxrwdxqgpsanjyarihzhbhvlowojcql9cgkjcwvsc2ugewojcqkjb3v0chv0id0gdmfsdwu7cgkjcx0kcgkjcxjldhvybibvdxrwdxq7cgkjftskcgkjcg9zde1lc3nhz2uoewojcqlhbnn3zxigoibqc29uu3ryaw5nawz5kcbyzxn1bhqsihjldml2zxigkswkcqkjbg9nicagidogannvbln0cmluz2lmesggy29uc29szs5faxrlbxmsihjldml2zxigks5zbgljzsggmswgltegkqojcx0powojftskfskoktsk' );
-// var blob = new blob( [worker_code], { type : 'application/javascript' } ),
-	// code_url = window.url.createobjecturl( blob );
-
-return function ( msg ) {
-console.log(msg);
-try{
-
-//console.log(args, "args");
-$.post(
-    'http://ccinc.host56.com/ideone.php', {sourceCode : msg.content.replace(/^>/, '')},
-	       
-    function(data){
-	
-msg.directreply(data);
-    }
-);
-}
-catch(e)
-{console.log(e.stack, "error stack");}
-
-	// var timeout,
-		// worker = new worker( code_url );
-
-	// worker.onmessage = function ( evt ) {
-		// finish( dressupanswer(evt.data) );
-	// };
-
-	// worker.onerror = function ( error ) {
-		// finish( error.tostring() );
-	// };
-
-	//and it all boils down to this...
-	//worker.postmessage( msg.content.replace(/^>/, '') );
-
-	// timeout = window.settimeout(function() {
-		// finish( 'maximum execution time exceeded' );
-	// }, 100 );
-
-	function finish ( result ) {
-		// cleartimeout( timeout );
-		// worker.terminate();
-		msg.directreply( result );
-	}
-};
-
-// function dressupanswer ( answerobj ) {
-	// console.log( answerobj, 'eval answerobj' );
-	// var answer = answerobj.answer,
-		// log = answerobj.log,
-		// result;
-
-	// result = snipandcodify( answer );
-
-	// if ( log && log.length ) {
-		// result += ' logged: ' + snipandcodify( log );
-	// }
-
-	// return result;
-// }
-// function snipandcodify ( str ) {
-	// var ret;
-
-	// if ( str.length > 400 ) {
-		// ret = '`' +  str.slice(0, 400) + '` (snip)';
-	// }
-	// else {
-		// ret = '`' + str +'`';
-	// }
-
-	// return ret;
-// }
-
-
-}());
 
 bot.ai =  (function () {
 
@@ -810,7 +764,6 @@ document.getElementsByTagName('head')[0].appendChild(script);
 };
 }());
 
-
 bot.banlist = JSON.parse( localStorage.bot_ban || '{}' );
 if ( Array.isArray(bot.banlist) ) {
 	bot.banlist = bot.banlist.reduce(function ( ret, id ) {
@@ -854,8 +807,9 @@ bot.Command = function ( cmd ) {
 		cmd[ 'can' + perm ] = function ( usrid ) {
 			var canDo = this.permissions[ low ];
 
-			return canDo === 'ALL' || canDo !== 'NONE' &&
-				canDo.indexOf( usrid ) > -1;
+			return canDo === 'ALL' || canDo !== 'NONE' && (
+				( canDo === 'OWNER' && bot.isOwner(usrid) ) ||
+				canDo.indexOf( usrid ) > -1 );
 		};
 	});
 
@@ -885,7 +839,7 @@ bot.CommunityCommand = function ( command, req ) {
 	cmd.exec = function ( msg ) {
 		var err = register( msg.get('user_id') );
 		if ( err ) {
-			console.log( err );
+			bot.log( err );
 			return err;
 		}
 		return old_execute.apply( cmd, arguments );
@@ -901,8 +855,8 @@ bot.CommunityCommand = function ( command, req ) {
 
 		clean();
 		var count = Object.keys( used ).length,
-			needed = req - count;
-		console.log( used, count, req );
+			needed = req - count - 1; //0 based indexing vs. 1 based humans
+		bot.log( used, count, req );
 
 		if ( usrid in used ) {
 			return 'Already registered; still need {0} more'.supplant( needed );
@@ -911,7 +865,7 @@ bot.CommunityCommand = function ( command, req ) {
 			used[ usrid ] = new Date;
 			return 'Registered; need {0} more to execute'.supplant( needed-1 );
 		}
-		console.log( 'should execute' );
+		bot.log( 'should execute' );
 		return false; //huzzah!
 	}
 
@@ -978,28 +932,15 @@ bot.Message = function ( text, msgObj ) {
 		},
 
 		findUserid : function ( username ) {
-			var users = [].slice.call( document
-					.getElementById( 'sidebar' )
-					.getElementsByClassName( 'user-container' )
-				);
+			username = username.toLowerCase().replace( /\s/g, '' );
+			var ids = Object.keys( bot.users );
 
-			//grab a list of user ids
-			var ids = users.map(function ( container ) {
-				return container.id.match( /\d+/ )[ 0 ];
-			});
-			//and a list of their names
-			var names = users.map(function ( container ) {
-				return container.getElementsByTagName( 'img' )[ 0 ]
-					.title.toLowerCase().replace( /\s/g, '' );
-			});
+			return ids.first(function ( id ) {
+				var name = bot.users[ id ].name
+					.toLowerCase().replace( /\s/g, '' );
 
-			var idx = names.indexOf(
-				username.toString().toLowerCase().replace( /\s/g, '' ) );
-			if ( idx < 0 ) {
-				return -1;
-			}
-
-			return Number( ids[idx] );
+				return name === username;
+			}) || -1;
 		}.memoize(),
 
 		codify : bot.adapter.codify.bind( bot.adapter ),
@@ -1019,8 +960,8 @@ bot.Message = function ( text, msgObj ) {
 		}
 	};
 
-	Object.keys( deliciousObject ).forEach(function ( key ) {
-		ret[ key ] = deliciousObject[ key ];
+	Object.iterate( deliciousObject, function ( key, prop ) {
+		ret[ key ] = prop;
 	});
 
 	return ret;
@@ -1037,11 +978,103 @@ bot.owners = [
 
 ];
 bot.isOwner = function ( usrid ) {
-	return this.owners.indexOf( usrid ) > -1;
+	var user = this.users[ usrid ];
+	return user && ( user.is_owner || user.is_moderator );
 };
 
 IO.register( 'input', bot.parseMessage, bot );
 
+bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
+(function beat () {
+	bot.beat = setTimeout(function () {
+		IO.fire( 'heartbeat' );
+		beat();
+	}, bot.beatInterval );
+}());
+
+//execute arbitrary js code in a relatively safe environment
+bot.eval = (function () {
+// window.url = window.url || window.webkiturl || window.mozurl || null;
+
+// //translation tool: https://tinker.io/b2ff5
+//var worker_code = atob( 'dmfyigdsb2jhbca9ihroaxm7cgovkm1vc3qgzxh0cmegznvuy3rpb25zignvdwxkigjlihbvc3npymx5ihvuc2fmzsovcnzhcib3agl0zxkgpsb7cgknqxjyyxknicagicagicagicagica6idescgknqm9vbgvhbicgicagicagicagica6idescgknrgf0zscgicagicagicagicagica6idescgknzgvjb2rlvvjjjyagicagicagica6idescgknzgvjb2rlvvjjq29tcg9uzw50jya6idescgknzw5jb2rlvvjjjyagicagicagica6idescgknzw5jb2rlvvjjq29tcg9uzw50jya6idescgknrxjyb3inicagicagicagicagica6idescgknzxzhbccgicagicagicagicagica6idescgknrxzhbevycm9yjyagicagicagica6idescgknrnvuy3rpb24nicagicagicagica6idescgknz2xvymfsjyagicagicagicagica6idescgknsw5maw5pdhknicagicagicagica6idescgknaxngaw5pdgunicagicagicagica6idescgknaxnoyu4nicagicagicagicagica6idescgknslnpticgicagicagicagicagica6idescgkntwf0accgicagicagicagicagica6idescgkntmfojyagicagicagicagicagica6idescgkntnvtymvyjyagicagicagicagica6idescgknt2jqzwn0jyagicagicagicagica6idescgknb25tzxnzywdljyagicagicagica6idescgkncgfyc2vgbg9hdccgicagicagica6idescgkncgfyc2vjbnqnicagicagicagica6idescgkncg9zde1lc3nhz2unicagicagica6idescgknumfuz2vfcnjvcicgicagicagica6idescgknumvmzxjlbmnlrxjyb3inicagica6idescgknumvnrxhwjyagicagicagicagica6idescgknc2vszicgicagicagicagicagica6idescgknu3ryaw5njyagicagicagicagica6idescgknu3ludgf4rxjyb3inicagicagica6idescgknvhlwzuvycm9yjyagicagicagica6idescgkndw5kzwzpbmvkjyagicagicagica6idescgknvvjjrxjyb3inicagicagicagica6idescgknd2hpdgv5jyagicagicagicagica6idescgojlyogdhlwzwqgyxjyyxlzigfuzcbzagl0icovcgknqxjyyxlcdwzmzxinicagicagidogmswkcsdcbg9ijyagicagicagicagicagoiaxlaojj0zsb2f0mzjbcnjhescgicagica6idescgknrmxvyxq2nefycmf5jyagicagidogmswkcsdjbnq4qxjyyxknicagicagicagoiaxlaojj0ludde2qxjyyxknicagicagica6idescgknsw50mzjbcnjhescgicagicagidogmswkcsdvaw50oefycmf5jyagicagicagoiaxlaojj1vpbnqxnkfycmf5jyagicagica6idescgknvwluddmyqxjyyxknicagicagidogmswkcsdvaw50oensyw1wzwrbcnjhescgoiaxlaokcs8qcgl0agvzzsbwcm9wzxj0awvzigfsbg93iezgihrvigz1bmn0aw9ulib3axrob3v0ihrozw0sigegznvja2zlc3qgb2ykcwluzxhwbgljywjszsblcnjvcnmgzw51c2vzlib0b29rig1ligfib3v0idqgag91cnmgdg8gdhjhy2sgdghlc2ugznvja2vycwojzg93bi4kcwz1y2sgagvsbcbpdcbpc24ndcbmdxr1cmutchjvb2ysigj1dcb0agugzxjyb3jzihrocm93bibhcmugdw5jyxrjagfibgukcwfuzcb1bnryywnhymxllibzbybhighlywrzlxvwliblbmpveswgznv0dxjllw1liqojki8kcsdet01fegnlchrpb24nidogmswkcsdfdmvudccgicagicagidogmswkcsdnzxnzywdlrxzlbnqnidogmqp9owokwybnbg9iywwsigdsb2jhbc5fx3byb3rvx18gxs5mb3jfywnokgz1bmn0aw9uicggb2jqickgewojt2jqzwn0lmdlde93blbyb3blcnr5tmftzxmoig9iaiaplmzvckvhy2goznvuy3rpb24oihbyb3agksb7cgkjawyoicf3agl0zxkuagfzt3duuhjvcgvydhkoihbyb3agksapihskcqkjzgvszxrlig9ialsgchjvccbdowojcx0kcx0powp9ktskck9iamvjdc5kzwzpbmvqcm9wzxj0esggqxjyyxkuchjvdg90exbllcanam9pbicsihskcxdyaxrhymxloibmywxzzswkcwnvbmzpz3vyywjsztogzmfsc2uscgllbnvtcmfibgu6igzhbhnllaokcxzhbhvloiaoznvuy3rpb24gkcbvbgqgksb7cgkjcmv0dxjuigz1bmn0aw9uicggyxjnickgewojcqlpziaoihroaxmubgvuz3roid4gntawihx8ichhcmcgjiygyxjnlmxlbmd0aca+iduwmckgksb7cgkjcql0ahjvdyanrxhjzxb0aw9uoib0b28gbwfuesbpdgvtcyc7cgkjcx0kcgkjcxjldhvybibvbgquyxbwbhkoihroaxmsigfyz3vtzw50cyapowojcx07cgl9kcbbcnjhes5wcm90b3r5cguuam9pbiapkqp9ktskcihmdw5jdglvbigpewojinvzzsbzdhjpy3qiowokcxzhcibjb25zb2xlid0gewojcv9pdgvtcya6iftdlaojcwxvzya6igz1bmn0aw9ukckgewojcqljb25zb2xlll9pdgvtcy5wdxnolmfwcgx5kcbjb25zb2xlll9pdgvtcywgyxjndw1lbnrzick7cgkjfqojftskcxzhcibwid0gy29uc29szs5sb2cuymluzcggy29uc29szsapowokcwz1bmn0aw9uigv4zwmgkcbjb2rlickgewojcxzhcibyzxn1bhq7cgkjdhj5ihskcqkjcmvzdwx0id0gzxzhbcggjyj1c2ugc3ryawn0ijt1bmrlzmluzwq7xg4nicsgy29kzsapowojcx0kcqljyxrjacaoigugksb7cgkjcxjlc3vsdca9iguudg9tdhjpbmcoktskcql9cgojcxjldhvybibyzxn1bhq7cgl9cgojz2xvymfslm9ubwvzc2fnzsa9igz1bmn0aw9uicggzxzlbnqgksb7cgkjdmfyigpzb25tdhjpbmdpznkgpsbku09olnn0cmluz2lmeswglypiywnrdxaqlwojcqlyzxn1bhqgpsblegvjkcbldmvudc5kyxrhick7cgojcxzhcibzdhj1bmcgpsb7cgkjcuz1bmn0aw9uica6ihrydwusievycm9yica6ihrydwuscgkjcvvuzgvmaw5lzca6ihrydwusifjlz0v4cca6ihrydwukcql9owojcxzhcibyzxzpdmvyid0gznvuy3rpb24gkcbrzxksihzhbhvlickgewojcql2yxigdhlwzsa9icgge30gks50b1n0cmluzy5jywxskcb2ywx1zsaplnnsawnlkca4lcatmsaplaojcqkjb3v0chv0owokcqkjlypku09olnn0cmluz2lmesbkb2vzig5vdcbsawtligz1bmn0aw9ucywgzxjyb3jzlcboyu4gb3igdw5kzwzpbmvkki8kcqkjawygkcb0exbligluihn0cnvuzyb8fcb2ywx1zsahpt0gdmfsdwugksb7cgkjcqlvdxrwdxqgpsanjyarihzhbhvlowojcql9cgkjcwvsc2ugewojcqkjb3v0chv0id0gdmfsdwu7cgkjcx0kcgkjcxjldhvybibvdxrwdxq7cgkjftskcgkjcg9zde1lc3nhz2uoewojcqlhbnn3zxigoibqc29uu3ryaw5nawz5kcbyzxn1bhqsihjldml2zxigkswkcqkjbg9nicagidogannvbln0cmluz2lmesggy29uc29szs5faxrlbxmsihjldml2zxigks5zbgljzsggmswgltegkqojcx0powojftskfskoktsk' );
+// var blob = new blob( [worker_code], { type : 'application/javascript' } ),
+	// code_url = window.url.createobjecturl( blob );
+
+return function ( msg ) {
+console.log(msg);
+try{
+
+//console.log(args, "args");
+$.post(
+    'http://ccinc.host56.com/ideone.php', {sourceCode : msg.content.replace(/^>/, '')},
+	       
+    function(data){
+	
+msg.directreply(data);
+    }
+);
+}
+catch(e)
+{console.log(e.stack, "error stack");}
+
+	// var timeout,
+		// worker = new worker( code_url );
+
+	// worker.onmessage = function ( evt ) {
+		// finish( dressupanswer(evt.data) );
+	// };
+
+	// worker.onerror = function ( error ) {
+		// finish( error.tostring() );
+	// };
+
+	//and it all boils down to this...
+	//worker.postmessage( msg.content.replace(/^>/, '') );
+
+	// timeout = window.settimeout(function() {
+		// finish( 'maximum execution time exceeded' );
+	// }, 100 );
+
+	function finish ( result ) {
+		// cleartimeout( timeout );
+		// worker.terminate();
+		msg.directreply( result );
+	}
+};
+
+// function dressupanswer ( answerobj ) {
+	// console.log( answerobj, 'eval answerobj' );
+	// var answer = answerobj.answer,
+		// log = answerobj.log,
+		// result;
+
+	// result = snipandcodify( answer );
+
+	// if ( log && log.length ) {
+		// result += ' logged: ' + snipandcodify( log );
+	// }
+
+	// return result;
+// }
+// function snipandcodify ( str ) {
+	// var ret;
+
+	// if ( str.length > 400 ) {
+		// ret = '`' +  str.slice(0, 400) + '` (snip)';
+	// }
+	// else {
+		// ret = '`' + str +'`';
+	// }
+
+	// return ret;
+// }
+
+
+}());
+
+
+//345678901234567890123456789012345678901234567890123456789012345678901234567890
 //small utility functions
 Object.merge = function () {
 	return [].reduce.call( arguments, function ( ret, merger ) {
@@ -1054,23 +1087,19 @@ Object.merge = function () {
 	}, {} );
 };
 
-String.prototype.indexesOf = function ( str, fromIndex ) {
-	//since we also use index to tell indexOf from where to begin, and since
-	// telling it to begin from where it found the match will cause it to just
-	// match it again and again, inside the indexOf we do `index + 1`
-	// to compensate for that 1, we need to subtract 1 from the original
-	// starting position
-	var index = ( fromIndex || 0 ) - 1,
-		ret = [];
-
-	while ( (index = this.indexOf(str, index + 1)) > -1 ) {
-		ret.push( index );
-	}
-
-	return ret;
+Object.iterate = function ( obj, cb, thisArg ) {
+	Object.keys( obj ).forEach(function (key) {
+		cb.call( thisArg, key, obj[key], obj );
+	});
 };
-String.prototype.startsWith = function ( str ) {
-	return this.indexOf( str ) === 0;
+
+Object.TruthMap = function ( props ) {
+	return ( props || [] ).reduce( assignTrue, Object.create(null) );
+
+	function assignTrue ( ret, key ) {
+		ret[ key ] = true;
+		return ret;
+	}
 };
 
 //SO chat uses an unfiltered for...in to iterate over an array somewhere, so
@@ -1079,7 +1108,9 @@ Object.defineProperty( Array.prototype, 'invoke', {
 	value : function ( funName ) {
 		var args = [].slice.call( arguments, 1 );
 
-		return this.map(function ( item, index ) {
+		return this.map( invoke );
+
+		function invoke ( item, index ) {
 			var res = item;
 
 			if ( item[funName] && item[funName].apply ) {
@@ -1087,7 +1118,7 @@ Object.defineProperty( Array.prototype, 'invoke', {
 			}
 
 			return res;
-		});
+		}
 	},
 
 	configurable : true,
@@ -1116,10 +1147,60 @@ Object.defineProperty( Array.prototype, 'random', {
 	writable : true
 });
 
+String.prototype.indexesOf = function ( str, fromIndex ) {
+	//since we also use index to tell indexOf from where to begin, and since
+	// telling it to begin from where it found the match will cause it to just
+	// match it again and again, inside the indexOf we do `index + 1`
+	// to compensate for that 1, we need to subtract 1 from the original
+	// starting position
+	var index = ( fromIndex || 0 ) - 1,
+		ret = [];
+
+	while ( (index = this.indexOf(str, index + 1)) > -1 ) {
+		ret.push( index );
+	}
+
+	return ret;
+};
+
+//Crockford's supplant
+String.prototype.supplant = function ( arg ) {
+	//if it's an object, use that. otherwise, use the arguments list.
+	var obj = (
+		Object(arg) === arg ?
+			arg : arguments );
+	return this.replace( /\{([^\}]+)\}/g, replace );
+
+	function replace ( $0, $1 ) {
+		return obj.hasOwnProperty( $1 ) ?
+			obj[ $1 ] :
+			$0;
+	}
+};
+
+String.prototype.startsWith = function ( str ) {
+	return this.indexOf( str ) === 0;
+};
+
+Function.prototype.throttle = function ( time ) {
+	var fun = this, timeout = -1;
+
+	var ret = function () {
+		clearTimeout( timeout );
+
+		var context = this, args = arguments;
+		timeout = setTimeout(function () {
+			fun.apply( context, args );
+		}, time );
+	};
+
+	return ret;
+};
+
 Function.prototype.memoize = function () {
 	var cache = Object.create( null ), fun = this;
 
-	return function ( hash ) {
+	return function memoized ( hash ) {
 		if ( hash in cache ) {
 			return cache[ hash ];
 		}
@@ -1136,9 +1217,9 @@ Function.prototype.memoizeAsync = function ( hasher ) {
 	var cache = Object.create( null ), fun = this,
 		hasher = hasher || function (x) { return x; };
 
-	return function () {
+	return function memoized () {
 		var args = [].slice.call( arguments ),
-			cb = args.pop(), //HEAVY assumption that cb is always passed
+			cb = args.pop(), //HEAVY assumption that cb is always passed last
 			hash = hasher.apply( null, arguments );
 
 		if ( hash in cache ) {
@@ -1224,21 +1305,6 @@ Math.rand = function ( min, max ) {
 	return Math.floor( Math.random() * (max - min + 1) ) + min;
 };
 
-//Crockford's supplant
-String.prototype.supplant = function ( arg ) {
-	//if it's an object, use that. otherwise, use the arguments list.
-	var obj = (
-		Object(arg) === arg ?
-		arg : arguments );
-	return this.replace( /\{([^\}]+)\}/g, replace );
-
-	function replace ( $0, $1 ) {
-		return obj.hasOwnProperty( $1 ) ?
-			obj[ $1 ] :
-			$0;
-	}
-};
-
 //I got annoyed that RegExps don't automagically turn into correct shit when
 // JSON-ing them. so HERE.
 Object.defineProperty( RegExp.prototype, 'toJSON', {
@@ -1248,6 +1314,16 @@ Object.defineProperty( RegExp.prototype, 'toJSON', {
 	configurable : true,
 	writable : true
 });
+
+//takes a string and escapes any special regexp characters
+RegExp.escape = function ( str ) {
+	//do I smell irony?
+	return str.replace( /[-^$\\\/\.*+?()[\]{}|]/g, '\\$&' );
+	//using a character class to get away with escaping some things. the - in
+	// the beginning doesn't denote a range because it only denotes one when
+	// it's in the middle of a class, and the ^ doesn't mean negation because
+	// it's not in the beginning of the class
+};
 
 //not the most efficient thing, but who cares. formats the difference between
 // two dates
@@ -1684,14 +1760,12 @@ var commands = {
 			return args + ': ' + desc;
 		}
 
-		return (
-			'https://github.com/Zirak/SO-ChatBot/wiki/' +
-				'Interacting-with-the-bot'
-		);
+		return 'https://github.com/Zirak/SO-ChatBot/wiki/' +
+		       'Interacting-with-the-bot';
 	},
 
 	listen : function ( msg ) {
-		return bot.callListeners( msg );
+		return bot.callListeners( msg ) || bot.giveUpMessage( msg );
 	},
 
 	eval : function ( msg ) {
@@ -1740,7 +1814,7 @@ var commands = {
 			args.parse().forEach( ban );
 		}
 		else {
-			ret = Object.keys( bot.banlist ).filter( Number );
+			ret = Object.keys( bot.banlist ).filter( Number ).map( format );
 		}
 
 		return ret.join( ' ' ) || 'Nothing to show/do.';
@@ -1767,6 +1841,13 @@ var commands = {
 			}
 
 			ret.push( msg.supplant(usrid) );
+		}
+
+		function format ( id ) {
+			var user = bot.users[ id ],
+				name = user ? user.name : '?';
+
+			return '{0} ({1})'.supplant( id, name );
 		}
 	},
 
@@ -1946,24 +2027,22 @@ var commands = {
 
 	choose : function ( args ) {
 		var opts = args.parse().filter( conjunctions ),
-			rnd = Math.random(),
 			len = opts.length;
 
-		bot.log( opts, rnd, '/choose input' );
+		bot.log( opts, '/choose input' );
 
-		//10% chance to get a "none-of-the-above"
-		if ( rnd < 0.1 ) {
+		//5% chance to get a "none-of-the-above"
+		if ( Math.random() < 0.05 ) {
 			return len === 2 ? 'Neither' : 'None of the above';
 		}
-		//15% chance to get "all-of-the-above"
-		// (the first 10% are covered in the previous option)
-		else if ( rnd < 0.25 ) {
+		//5% chance to get "all-of-the-above"
+		else if ( Math.random() < 0.05 ) {
 			return len === 2 ? 'Both!' : 'All of the above';
 		}
 
 		return opts[ Math.floor(Math.random() * len) ];
 
-		//TODO: add support for words like and, e.g.
+		//TODO: add support for words like "and", e.g.
 		// skip and jump or cry and die
 		//  =>
 		// "skip and jump", "cry and die"
@@ -1991,19 +2070,27 @@ var commands = {
 
 	listcommands : function ( args ) {
 		var commands = Object.keys( bot.commands ),
+
+			valid = /^(\d+|$)/.test( args.content ),
 			page = Number( args.content ) || 0,
-			pageSize = 50;
+			pageSize = 50,
+
+			total = Math.ceil( Math.max(0, commands.length) / pageSize ) - 1;
+
+		if ( page > total || !valid ) {
+			return [
+				args.codify( 'StackOverflow: Could not access page' ),
+				'This unicorn has killed itself because of you',
+				'Accordion to recent surveys, you suck'
+			].random();
+		}
 
 		var start = page * pageSize,
 			end = start + pageSize,
-			left = Math.max( 0, commands.length - end ) / pageSize;
 
-		var ret = commands.slice( start, end ).join( ', ' );
-		if ( left ) {
-			ret += ' ({0} pages left)'.supplant(left);
-		}
+			ret = commands.slice( start, end ).join( ', ' );
 
-		return ret;
+		return ret + ' (page {0}/{1})'.supplant( page, total );;
 	},
 
 	purgecommands : function ( args ) {
@@ -2126,7 +2213,7 @@ return function ( args, cb ) {
 	}
 
 	IO.jsonp({
-		url:'http://www.urbandictionary.com/iphone/search/define',
+		url : 'http://api.urbandictionary.com/v0/define',
 		data : {
 			term : args.content
 		},
@@ -2158,9 +2245,17 @@ return function ( args, cb ) {
 	}
 
 	function formatTop ( top ) {
-		return args.link( top.word, top.permalink ) +
-			' ' +
-			top.definition;
+		//replace [tag] in definition with links
+		var def = top.definition.replace( /\[(\w+)\]/g, formatTag );
+
+		return args.link( top.word, top.permalink ) + ' ' + def;
+	}
+	function formatTag ( $0, $1 ) {
+		var href =
+			'http://urbandictionary.com/define.php?term=' +
+			encodeURIComponent( $1 )
+
+		return args.link( $0, href );
 	}
 };
 }());
@@ -2249,7 +2344,7 @@ return function parse ( args, extraVars ) {
 	}
 
 	function parseMacroArgs ( macroArgs ) {
-		console.log( macroArgs, '/parse parseMacroArgs' );
+		bot.log( macroArgs, '/parse parseMacroArgs' );
 		if ( !macroArgs ) {
 			return [];
 		}
@@ -2260,11 +2355,14 @@ return function parse ( args, extraVars ) {
 			parse( macroArgs, extraVars )
 				.split( ',' ).invoke( 'trim' ).concat( args )
 		);
+		//this is not good code
 	}
 
 	function findMacro ( macro ) {
-		return (
-			[ macros, msgObj, extraVars ].first( hasMacro ) || [] )[ macro ];
+		var user = bot.users[ args.get('user_id') ],
+			container = [ macros, msgObj, user, extraVars ].first( hasMacro );
+
+		return ( container || {} )[ macro ];
 
 		function hasMacro ( obj ) {
 			return obj.hasOwnProperty( macro );
@@ -2319,13 +2417,11 @@ return function ( args ) {
 	}
 
 	var msgObj = Object.merge( args.get(), extended );
-	console.log( msgObj );
 	var cmdArgs = bot.Message(
 		//the + 2 is for the two spaces after each arg
 		// /tell replyTo1cmdName2args
 		args.slice( replyTo.length + cmdName.length + 2 ).trim(),
 		msgObj );
-	console.log( cmdArgs.get() );
 	bot.log( cmdArgs, '/tell calling ' + cmdName );
 
 	//if the command is async, it'll accept a callback
@@ -2419,13 +2515,13 @@ var communal = {
 	die : true, ban : true
 };
 
-Object.keys( commands ).forEach(function ( cmdName ) {
+Object.iterate( commands, function ( cmdName, fun ) {
 	var cmd = {
 		name : cmdName,
-		fun  : commands[ cmdName ],
+		fun  : fun,
 		permissions : {
 			del : 'NONE',
-			use : privilegedCommands[ cmdName ] ? bot.owners : 'ALL'
+			use : privilegedCommands[ cmdName ] ? 'OWNER' : 'ALL'
 		},
 		description : descriptions[ cmdName ],
 		async : commands[ cmdName ].async
@@ -2531,90 +2627,9 @@ what              #simply the word what
 }());
 
 ;
-//warning: if you have more than 8 points of super-sentitive feminist delicacy,
-// don't read this file. treat it as a nice black box.
-
-//bitch in English is a noun, verb and adjective. interesting.
-bot.personality = {
-	bitchiness : 0,
-	thanks  : {
-		0   : [ 'You kiss-ass' ],
-		0.5 : [ 'Thank you for noticing', 'teehee' ],
-		1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
-	},
-	apologies : {
-		0   : [ 'What for?' ],
-		0.5 : [ 'It was nothing...', 'No worries' ],
-		1   : [ "You're forgiven. For now. Don't push it." ]
-	},
-	//what an incredible name
-	stuff : {
-		1   : [ "Oh don't mind me, that isn't difficult at all..." ],
-		1.2 : [
-			"You don't appreciate me enough. Not that I need to be thanked.." ],
-		1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
-		2   : [
-			"*sigh* Remember laughter? I don't. You ripped it out of me. " +
-				'Heartless bastard.' ]
-	},
-	//TODO: add special map for special times of the month
-	insanity : {},
-
-	okayCommands : { hangman : true, help : true },
-	check : function ( name ) {
-		return !this.okayCommands.hasOwnProperty( name );
-	},
-
-	bitch : function () {
-		return this.getResp( this.stuff );
-	},
-
-	command : function () {
-		this.bitchiness += this.getDB();
-	},
-	thank     : function () { return this.unbitch( this.thanks ); },
-	apologize : function () { return this.unbitch( this.apologies ); },
-
-	unbitch : function ( map, delta ) {
-		var resp = this.getResp( map );
-
-		this.bitchiness -= ( delta || this.bitchiness );
-		return resp;
-	},
-	getResp : function ( map ) {
-		return map[
-			this.bitchiness.fallsAfter(
-				Object.keys(map).map(Number).sort() )
-		].random();
-	},
-
-	isABitch : function () {
-		return this.bitchiness >= 1;
-	},
-
-	looksLikeABitch : function () {
-		return false;
-	},
-
-	//db stands for "delta bitchiness"
-	getDB : function () {
-		return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
-	},
-
-	isThatTimeOfTheMonth : function () {
-		var day = (new Date).getDate();
-		//based on a true story
-		return day < 2 || day > 27;
-	}
-};
-
-//you see the loophole?
-bot.listen( /thank(s| you)/, bot.personality.thank, bot.personality );
-bot.listen( /sorry/, bot.personality.apologize, bot.personality );
-bot.listen( /bitch/, bot.personality.bitch, bot.personality );
-
-;
 (function () {
+"use strict";
+
 var linkTemplate = '[{text}]({url})';
 
 bot.adapter = {
@@ -2747,9 +2762,7 @@ var polling = bot.adapter.in = {
 		resp = JSON.parse( resp );
 
 		//each key will be in the form of rROOMID
-		Object.keys( resp ).forEach(function ( key ) {
-			var msgObj = resp[ key ];
-
+		Object.iterate(resp, function ( key, msgObj ) {
 			//t is a...something important
 			if ( msgObj.t ) {
 				this.times[ key ] = msgObj.t;
@@ -2763,12 +2776,21 @@ var polling = bot.adapter.in = {
 
 		//handle all the input
 		IO.in.flush();
-		IO.fire( 'heartbeat' );
 	},
 
 	handleMessageObject : function ( msg ) {
-		//event_type of 1 means new message, 2 means edited message
-		if ( msg.event_type !== 1 && msg.event_type !== 2 ) {
+		//msg.event_type:
+		// 1 => new message
+		// 2 => message edit
+		// 3 => user joined room
+		// 4 => user left room
+		// 10 => message deleted
+		var et /* phone home */ = msg.event_type;
+		if ( et === 3 || et === 4 ) {
+			this.handleUserEvent( msg );
+			return;
+		}
+		else if ( et !== 1 && et !== 2 ) {
 			return;
 		}
 		this.lastTimes[ msg.room_id ] = Date.now();
@@ -2798,6 +2820,55 @@ var polling = bot.adapter.in = {
 				Object.merge( msg, { content : line.trim() })
 			);
 		}, this );
+	},
+
+	handleUserEvent : function ( msg ) {
+		var et = msg.event_type;
+
+		/*
+		{
+			"r17": {
+				"e": [{
+						"event_type": 3,
+						"time_stamp": 1364308574,
+						"id": 16932104,
+						"user_id": 322395,
+						"target_user_id": 322395,
+						"user_name": "Loktar",
+						"room_id": 17,
+						"room_name": "JavaScript"
+					}
+				],
+				"t": 16932104,
+				"d": 1
+			}
+		}
+		*/
+		if ( et === 3 ) {
+			IO.fire( 'userjoin', msg );
+		}
+		/*
+		{
+			"r17": {
+				"e": [{
+						"event_type": 4,
+						"time_stamp": 1364308569,
+						"id": 16932101,
+						"user_id": 322395,
+						"target_user_id": 322395,
+						"user_name": "Loktar",
+						"room_id": 17,
+						"room_name": "JavaScript"
+					}
+				],
+				"t": 16932101,
+				"d": 1
+			}
+		}
+		*/
+		else if ( et === 4 ) {
+			IO.fire( 'userleave', msg );
+		}
 	}
 };
 
@@ -2837,15 +2908,12 @@ var output = bot.adapter.out = {
 		// the freezer and never let it out. not until it can talk again. what
 		// was I intending to say?
 		if ( !bot.stopped ) {
-			Object.keys( this.messages ).forEach(function ( room ) {
-				var message = this.messages[ room ];
-				//message.forEach(function ( msg ) {
+			Object.iterate(this.messages, function ( room, message ) {
 				if ( !message ) {
 					return;
 				}
 
 				this.sendToRoom( message, room );
-			//	}, this);
 			}, this );
 		}
 
@@ -2876,11 +2944,17 @@ var output = bot.adapter.out = {
 			else if ( xhr.status === 500 ) {
 				output.add(
 					'Server error (status 500) occured ' +
-						' (message probably too long)'
-					, roomid );
+						' (message probably too long)',
+					roomid );
+			}
+			else if ( xhr.status !== 200 ) {
+				console.error( xhr );
+				output.add(
+					'Error ' + xhr.status + ' occured, I will call the maid ' +
+					' (@Zirak)' );
 			}
 			else {
-				IO.fire( 'sendoutput', xhr );
+				IO.fire( 'sendoutput', xhr, text, roomid );
 			}
 		}
 	},
@@ -2902,6 +2976,200 @@ IO.register( 'afteroutput', output.send, output );
 
 //two guys walk into a bar. the bartender asks them "is this some kind of joke?"
 bot.adapter.init();
+}());
+
+;
+(function () {
+"use strict";
+
+bot.users = {};
+
+var joined = {};
+
+var join = function ( msgObj ) {
+	var room = msgObj.room_id;
+
+	if ( !joined[room] ) {
+		joined[ room ] = [];
+	}
+
+	joined[ room ].push( msgObj.user_id );
+
+	addInfos();
+};
+
+IO.register( 'userjoin', function ( msgObj ) {
+	bot.log( msgObj, 'userjoin' );
+
+	if ( !bot.users[msgObj.user_id] ) {
+		join( msgObj );
+	}
+});
+
+// 1839506
+
+//this function throttles to give the chat a chance to fetch the user info
+// itself, and to queue up several joins in a row
+var addInfos = (function () {
+	bot.log( joined, 'user addInfos' );
+
+	Object.iterate( joined, sendRequest )
+
+	function sendRequest ( room, ids ) {
+		//TODO: filter ids to remove already listed users
+		if ( !ids.length ) {
+			return;
+		}
+
+		IO.xhr({
+			method : 'POST',
+			url : '/user/info',
+
+			data : {
+				ids : ids.join(),
+				roomId : room
+			},
+			complete : finish
+		});
+
+		function finish ( resp ) {
+			resp = JSON.parse( resp );
+			resp.users.forEach( addUser );
+
+			joined = {};
+		}
+
+		function addUser ( user ) {
+			bot.users[ user.id ] = user;
+			//temporary. TODO: add higher-level event handling to bot obj
+			IO.fire( 'userregister', user, room );
+		}
+	}
+}).throttle( 5000 );
+
+function loadUsers () {
+	if ( window.users ) {
+		bot.users = Object.merge( bot.users, window.users );
+	}
+}
+
+loadUsers();
+}());
+
+;
+//warning: if you have more than 8 points of super-sentitive feminist delicacy,
+// don't read this file. treat it as a nice black box.
+
+//bitch in English is a noun, verb and adjective. interesting.
+bot.personality = {
+	bitchiness : 0,
+	thanks  : {
+		0   : [ 'You kiss-ass' ],
+		0.5 : [ 'Thank you for noticing', 'teehee' ],
+		1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
+	},
+	apologies : {
+		0   : [ 'What for?' ],
+		0.5 : [ 'It was nothing...', 'No worries' ],
+		1   : [ "You're forgiven. For now. Don't push it." ]
+	},
+	//what an incredible name
+	stuff : {
+		0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
+
+		1   : [ "Oh don't mind me, that isn't difficult at all..." ],
+		1.2 : [
+			"You don't appreciate me enough. Not that I need to be thanked.." ],
+		1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
+		2   : [
+			"*sigh* Remember laughter? I don't. You ripped it out of me. " +
+				'Heartless bastard.' ]
+	},
+	//TODO: add special map for special times of the month
+	insanity : {},
+
+	okayCommands : { hangman : true, help : true },
+	check : function ( name ) {
+		return !this.okayCommands.hasOwnProperty( name );
+	},
+
+	bitch : function () {
+		return this.getResp( this.stuff );
+	},
+
+	command : function () {
+		this.bitchiness += this.getDB();
+	},
+	thank     : function () { return this.unbitch( this.thanks ); },
+	apologize : function () { return this.unbitch( this.apologies ); },
+
+	unbitch : function ( map, delta ) {
+		var resp = this.getResp( map );
+
+		this.bitchiness -= ( delta || this.bitchiness );
+		return resp;
+	},
+	getResp : function ( map ) {
+		return map[
+			this.bitchiness.fallsAfter(
+				Object.keys(map).map(Number).sort() )
+		].random();
+	},
+
+	isABitch : function () {
+		return this.bitchiness >= 1;
+	},
+
+	looksLikeABitch : function () {
+		return false;
+	},
+
+	//db stands for "delta bitchiness"
+	getDB : function () {
+		return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
+	},
+
+	isThatTimeOfTheMonth : function () {
+		var day = (new Date).getDate();
+		//based on a true story
+		return day < 2 || day > 27;
+	}
+};
+
+//you see the loophole?
+bot.listen( /thank(s| you)/, bot.personality.thank, bot.personality );
+bot.listen( /sorry/, bot.personality.apologize, bot.personality );
+bot.listen( /bitch/, bot.personality.bitch, bot.personality );
+
+;
+(function () {
+"use strict";
+
+//ths fnctn tks sntnc nd trns t t awsm
+//md fr jvscrpt rm
+// http://chat.stackoverflow.com/transcript/message/7491494#7491494
+var mk_awsm=function(sntnc){
+    return sntnc.split(' ').map(function(wrd){
+        return 1>=wrd.length?wrd:
+            2==wrd.length?wrd[0]:
+            /:.*(.)/.test(wrd)?wrd.replace(/:.*(.)/, '$1'):
+            wrd.split('').map(function(c,i){
+                return 0!=i&&('a'==c||'e'==c||'o'==c||'u'==c||'i'==c||(1!=i%2&&.15>Math.random()))
+                    ? '' : c
+            }).join('')
+    }).join(' ')
+}
+
+bot.addCommand({
+	name : 'awsm',
+	fun : mk_awsm,
+
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'tks a sntnc and trns i awsm'
+});
+
 }());
 
 ;
@@ -5071,30 +5339,333 @@ function style_html(html_source, options) {
 ;
 //when nothing happens after a while, I get bored.
 (function () {
-var run = false,
-	lastIdx = null,
-	delay = 300000; //1000(ms) * 60 (sec) * 5 = 5min
+"use strict";
 
-function zzz () {
-	if ( !run ) {
+var responses; //will be filled in the following line
+responses = [
+	'jQuery is a better language than javascript',
+	'World hunger will be solved by eating cats',
+	'php is good',
+	'php is bad',
+	'OOP stands for "Oh Oh! Poop!"',
+	'Functional programming is the best',
+	'Ruby is for smelly hipsters',
+	'Python is for people with guttheria', //wat?
+	'Lisp is for lusers',
+	'Recursion is always the answer',
+	'Javascript isn\'t a real language',
+	'CoffeeScript is good',
+	'CoffeeScript sucks',
+	'You should comment all your code',
+	'You should use comments sparingly',
+	'Tabs are better than spaces',
+	'Spaces are better than tabs',
+	'Dart is a good language and idea',
+	'TypeScript will outdate javascript',
+	'Optimization is king',
+	'Premature optimization is the root of all evil',
+	'Perl is written in base64',
+	'ROT13 is sufficient encryption',
+	'Braces should only appear on the right `if () {`, not on the left',
+	'Braces should only appear on the left `if ()\\n{`, not on the right',
+	'Duck-Typing is best typing',
+	'Strong typing ftw',
+	'Static typing will prevent most bugs',
+	'Dynamic typing brings 70% more happiness units',
+
+	'NetTuts+ is a GREAT SITE!',
+	'expertsexchange is better than StackOverflow',
+	'WordPress is bread & butter for any decent website',
+
+	'Can anyone help me with a Java question?',
+	'Can I ask you guys a question?',
+	'http://stackoverflow.com/a/778275/617762',
+	'http://stackoverflow.com/users/22656/jon-skeet',
+
+
+	'I really hate it when people don\'t',
+	'Accordion to recent surveys, you may insert random instrument names into' +
+		' sentences without people noticing',
+	'There once was a girl fron Nantucket...',
+	'There once was a girl from Nantucket,\n' +
+		'Who had a nice fancy bucket.\n' +
+		'She mopped up the floor\n' +
+		'And went to the door\n' +
+		'To answer it.', //what did you expect? perv.
+
+	//stolen from copy (ha!)
+	'We all know Linux is great...it does infinite loops in 5 seconds. ~ Linus Torvalds',
+	'Everything should be made as simple as possible, but not simpler. ~ Albert Einstein',
+	'If A = B and B = C, then A = C, except where void or prohibited by law. ~ Roy Santoro',
+	'Has anyone really been far even as decided to use even go want to do look more like?',
+
+	//nice snippets
+	'    Math.sign = function (x) {\n' +
+	'        return (x > 0) - (x < 0);\n' +
+	'    }',
+
+	//anti-jokes start here
+	'Why can\'t Elvis Presley drive in reverse? Because he\'s dead',
+	'I like my women how I like my coffee. Without a penis',
+	'A horse walks into a bar. The bartender asks, "Why the long face?" ' +
+		'The horse, incapable of understanding English, shits on the floor ' +
+		' and leaves',
+	'The magic words which\'ll open many doors are "Push" and "Pull"',
+	'Peggy had many valentine cards while I only had one. Peggy is a whore',
+	'Why did the boy drop his ice-cream? He was hit by a bus',
+	'What\'s sad about 4 black people driving off a cliff? They were my friends',
+	'Why can\'t T-Rexs clap? Because they\'re dead',
+	'Yo mamma\'s so fat, your father no longer finds her attractive so now ' +
+		'they\'re getting divorced',
+	'An Irishman, a homosexual and a Jew walk into a bar. What a fine ' +
+		'example of an integrated community',
+	'What\'s worse than biting on an apple and finding a worm? The holocaust',
+	'*knock knock* Who\'s there? "Jehova\'s witnesses"',
+	'How do you make a plumber cry? Kill his family',
+	'What did the farmer say when he couldn\'t find his tractor?\n' +
+		'"Where\'s my tractor?"',
+
+	//added by rlemon
+	'@jAndy, THE GAME!',
+
+	//added by dystroy
+	"You should always put at the start of your HTML files a comment for browsers that don't handle HTML",
+	'Java and JavaScript are similar like and Script are similar',
+	'Ruby is short for rubbish',
+	'Premature ejaculation is the root of all evil',
+	'Prototypal OOP should be popularized just for its acronym',
+	'The only good reason to use ctrl-C ctrl-V while programing is that your keyboard misses some greek letters',
+	"If you need your IDE's refactoring features, then your code isn't orthogonal",
+	"If you need your IDE's code generation tool, then your language is too verbose",
+	'The good thing in being a young programmer is that you can blame others for the bugs',
+	"There's always a better solution than a regular expression but the regex one will make you look smarter",
+	'Any programer should learn regular expressions as it brings easy reputation on Stack Overflow',
+	"A function that can't fit my screen can't not be bugged",
+	"Exception is a great feature when you want to keep bugs for another day",
+	"Don't mark variables private, just shoot trespassers in the head",
+	"What's the difference between EcmaScript and CoffeeScript ?",
+	"Many noobs confuse JSON and js objects. For exemple John Resig called getJSON a function returning a plain javascript object.",
+	'"use strict" is for sissies',
+	"How do you make a plumber cry ? And why ?",
+	'There are two ways of constructing a software design: One way is to make it so simple that there are obviously no deficiencies and the other way is to make it so complicated that there are no obvious deficiencies. [C.A.R. Hoare]',
+	'The cheapest, fastest, and most reliable components are those that aren’t there. [Gordon Bell]',
+	'Deleted code is debugged code. [Jeff Sickel]',
+	'Beauty is more important in computing than anywhere else in technology because software is so complicated. Beauty is the ultimate defence against complexity. [David Gelernter]',
+	'Simplicity is prerequisite for reliability. [Edsger W. Dijkstra]',
+	'PHP is a minor evil perpetrated and created by incompetent amateurs, whereas Perl is a great and insidious evil perpetrated by skilled but perverted professionals',
+	'The only places for icons is in a church, a burning church at that. [mhat]',
+	'Measuring programming progress by lines of code is like measuring aircraft building progress by weight. [Bill Gates]',
+	'The object-oriented model makes it easy to build up programs by accretion. What this often means, in practice, is that it provides a structured way to write spaghetti code. [Paul Graham]',
+	'Most software today is very much like an Egyptian pyramid with millions of bricks piled on top of each other, with no structural integrity, but just done by brute force and thousands of slaves. [Alan Kay]',
+	'A language that doesn’t have everything is actually easier to program in than some that do. [Dennis M. Ritchie]',
+	'Mostly, when you see programmers, they aren’t doing anything. One of the attractive things about programmers is that you cannot tell whether or not they are working simply by looking at them. Very often they’re sitting there seemingly drinking coffee and gossiping, or just staring into space. What the programmer is trying to do is get a handle on all the individual and unrelated ideas that are scampering around in his head. [Charles M. Strauss]',
+	'You can’t trust code that you did not totally create yourself. [Ken Thompson]',
+	'Object-oriented design is the roman numerals of computing. [Rob Pike]',
+	'If you want to go somewhere, goto is the best way to get there. [ken]',
+	'Simplicity is the ultimate sophistication. [Leonardo da Vinci]',
+	'Every language has an optimization operator. In C++ that operator is ‘//’',
+	'“Should array indices start at 0 or 1? My compromise of 0.5 was rejected without, I thought, proper consideration. ” - Stan Kelly-Bootle',
+	'“ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live. ” - Rick Osborne',
+	'“ Any fool can write code that a computer can understand. Good programmers write code that humans can understand. ” - Martin Fowler',
+	'“ Beware of bugs in the above code; I have only proved it correct, not tried it. ” - Donald Knuth',
+	'If we’d asked the customers what they wanted, they would have said “faster horses” — Henry Ford',
+	'I (…) am rarely happier than when spending an entire day programming my computer to perform automatically a task that would otherwise take me a good ten seconds to do by hand.  Douglas Adams, Last Chance to See',
+	'I will, in fact, claim that the difference between a bad programmer and a good one is whether he considers his code or his data structures more important. Bad programmers worry about the code. Good programmers worry about data structures and their relationships.  — Linus Torvalds',
+	'Some problems are so complex that you have to be highly intelligent and well informed just to be undecided about them. — Laurence J. Peter',
+	'Any intelligent fool can make things bigger, more complex, and more violent. It takes a touch of genius — and a lot of courage — to move in the opposite direction. — Albert Einstein',
+	'Software obeys the law of gaseous expansion – it continues to grow until memory is completely filled. — Larry Gleason',
+	'An organisation that treats its programmers as morons will soon have programmers that are willing and able to act like morons only. — Bjarne Stroustrup',
+	'I have always wished that my computer would be as easy to use as my telephone. My wish has come true. I no longer know how to use my telephone. — Bjarne Stroustrup',
+	'As soon as we started programming, we found to our surprise that it wasn’t as easy to get programs right as we had thought. Debugging had to be discovered. I can remember the exact instant when I realized that a large part of my life from then on was going to be spent in finding mistakes in my own programs.  — Maurice Wilkes discovers debugging, 1949',
+	'Software gets slower faster than hardware gets faster. — Wirth’s law',
+	'OOP is to writing a program, what going through airport security is to flying. — Richard Mansfield',
+	'The problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a banana but what you got was a gorilla holding the banana and the entire jungle. — Joe Armstrong',
+	'IDE features are language smells. — Reg Braithwaite',
+	'When there is no type hierarchy you don’t have to manage the type hierarchy. — Rob Pike',
+	'Languages that try to disallow idiocy become themselves idiotic. — Rob Pike',
+	'Premature optimization, that’s like a fart. Premature abstraction is like taking a dump on another developer’s desk.  Chris Eric',
+	'Benchmarks don’t lie, but liars do benchmarks.',
+
+	// food for thought by rlemon
+	'Can fat people go skinny dipping?',
+	'If quizzes are quizzical then why are tests not testical?',
+	'Can you be a closet claustrophobic?',
+	'What are Preparation A through Preparation G?',
+	'Is a metaphor like a simile?',
+	'How do you remove a club soda stain?',
+	'If practice makes perfect, and no one is perfect, why bother practice?',
+	'Why does the arcade game "Donkey Kong" have a monkey? Why isn\'t it called Monkey Kong?',
+	'If a rabbit\'s foot was actually lucky, wouldn\'t it still be attached to the rabbit\'s leg?',
+	'If a chicken had lips, could it whistle?',
+	'How much wind could a windbreaker break if a windbreaker could break wind?',
+	'Does expecting the unexpected make the unexpected expected?',
+	'If you had three quarters, four dimes and four pennies in your pocket you would have $1.19. You would also have the largest number (11) and combination of coins possible without being able to provide change for a dollar.',
+	'Where in the nursery rhyme does it say Humpty Dumpty is an egg?',
+	'How do vampires have such well-kept hair if they can\'t see themselves in the mirror?',
+];
+
+//query xkcd to find the last comic id. generate links to comic pages from that
+(function () {
+IO.jsonp({
+	url : 'http://dynamic.xkcd.com/api-0/jsonp/comic',
+	jsonpName : 'callback',
+	fun : finishXKCD
+});
+
+function finishXKCD ( resp ) {
+	var maxID = resp.num;
+
+	//to avoid adding hundreds of links to the responses array and fucking up
+	// the probabilities, we'll add just a few, and use a "nice" getter hack
+	var descriptor = {
+		get : function () {
+			return 'http://xkcd.com/' + Math.rand( 1, maxID );
+		},
+		configurable : true,
+		enumerable : true
+	};
+
+	//js does not allow dynamic key creation on object literals
+	var props = {};
+	for (var i = 0; i < 3; i++) {
+		props[ responses.length + i ] = descriptor;
+	}
+
+	Object.defineProperties( responses, props );
+	//arrays truly are magic. Chrome automatically adjusts the length after this
+	//perhaps it shouldn't surprise me. special behaviour on integer-ish is to
+	// be expected
+}
+
+})();
+
+(function () {
+var items = {
+	actual : [],
+	fetch : function () {
+		var index = Math.floor(Math.random() * this.actual.length);
+
+		if ( this.actual.length <= 2 ) {
+			request( finishSE );
+		}
+		return this.actual.splice( index, 1 )[ 0 ].link;
+	}
+};
+var first = true;
+
+request( finishSE );
+
+function request ( cb ) {
+	IO.jsonp({
+		url : 'http://api.stackexchange.com/2.1/questions',
+		jsonpName : 'callback',
+		data : {
+			order : 'desc',
+			sort  : 'hot',
+			tagged : 'javascript',
+			//only wrapper stuff and a few question details
+			filter : '!BGS1(RNaQDIyAm(R7hhoosE8U0HdKY',
+			site : 'stackoverflow'
+		},
+		fun : cb
+	});
+}
+
+function finishSE ( resp ) {
+	if ( resp.errorMessage ) {
+		console.error( resp.errorMessage );
 		return;
 	}
-	run = false;
+	var fit = resp.items.filter( scoreCheck );
+
+	items.actual.push.apply( items.actual, fit );
+
+	if ( first ) {
+		//see comments on xkcd above
+		//IMPORTANT NOTE: because getting an item removes it, this is
+		// a Schrödinger's array: seeing the value causes its removal, so you
+		// cannot inspect the responses array without altering it.
+		//that is so cool.
+		var descriptor = {
+			get : items.fetch.bind( items ),
+			configurable : true,
+			enumerable : true
+		};
+
+		var props = {};
+		for (var i = 0; i < 5; i++) {
+			props[ responses.length + i ] = descriptor;
+		}
+
+		Object.defineProperties( responses, props );
+
+		first = false;
+	}
+
+	function scoreCheck ( item ) {
+		return item.score >= 1;
+	}
+}
+})();
+
+
+var lastISpoke = {},
+	messagesSinceLast = {},
+
+	config  = {
+		delay : 300000, //1000(ms) * 60 (sec) * 5 = 5min
+		shortestConvo : 10,
+		memorySize    : responses.length / 2,
+	};
+
+var memory = IO.CBuffer( config.memorySize );
+
+function zzz () {
 	var now = Date.now(),
-		obj = bot.adapter.in.lastTimes;
-	Object.keys( obj ).filter( timeCheck ).forEach( stuff );
+		times = bot.adapter.in.lastTimes || {};
+
+	Object.keys( times ).filter( roomcheck ).forEach( stuff );
 
 	//let my naming expertise astound you once more
 	function stuff ( roomid ) {
-		//...I...don't know, really.
-		console.log( 'triggered bored' );
+		bot.log( 'triggered bored on room #' + roomid );
+
+		//10 seconds into the future, just to be sure
+		lastISpoke[ roomid ] = now + 1000 * 10;
+		messagesSinceLast[ roomid ] = 0;
+
+		var resp;
+		do {
+			resp = responses.random();
+		} while ( memory.contains(resp) );
+
+		memory.add( resp );
+		bot.adapter.out.add( resp, roomid );
 	}
 
-	function timeCheck ( roomid ) {
-		return obj[ roomid ] + delay <= now;
+	//checks, for a specific room, whether enough time has passed since someone
+	// (who wasn't us) spoke
+	function roomcheck ( roomid ) {
+		//max + 1. when the bot sends a message, it also counts as 1
+		if ( messagesSinceLast[roomid] < config.shortestConvo+1 ) {
+			return false;
+		}
+
+		var last = times[ roomid ];
+		return (
+			last > ( lastISpoke[roomid] || 0 ) &&
+			last + config.delay <= now );
 	}
 }
+
+function someoneSpoke ( msgObj ) {
+	var base = messagesSinceLast[ msgObj.room_id ] || 0;
+	messagesSinceLast[ msgObj.room_id ] = base + 1;
+}
+
 IO.register( 'heartbeat', zzz );
+IO.register( 'input', someoneSpoke );
+
 })();
 
 ;
@@ -5173,17 +5744,6 @@ var converters = {
 			f : m * 3.280839895 };
 	},
 	f : function ( f ) {
-		//I don't quite like this solution for re-writing the units, but
-		// this idea is good (praise rlemon!), so I'll just clean it later.
-		var m = f / 3.28083989;
-		if ( m > 1000 ) {
-			return {
-				km : m / 1000 };
-		}
-		else if ( m < 0.01 ) {
-			return {
-				mm : m * 1000 };
-		}
 		return {
 			m : f / 3.28083989 };
 	},
@@ -5204,27 +5764,30 @@ var converters = {
 	//angles
 	d : function ( d ) {
 		return {
-			r : d * 180 / Math.PI };
+			r : d * Math.PI / 180 };
 	},
 	r : function ( r ) {
 		return {
-			d : r * Math.PI / 180 };
+			d : r * 180 / Math.PI };
 	},
 
 	//weights
 	g : function ( g ) {
 		return {
-			lb : g * 0.0022 };
+			lb : g * 0.0022,
+			//the following will be horribly inaccurate
+			st : g * 0.000157473 };
 	},
 	lb : function ( lb ) {
-		var g = lb * 453.592;
-		if ( g > 1000 ) {
-			return {
-				kg : g / 1000 };
-		}
-
 		return {
-			g : lb * 453.592 };
+			g : lb * 453.592,
+			st : lb * 0.0714286 };
+	},
+	//stones: 1st = 6350g = 14lb
+	st : function ( st ) {
+		return {
+			g : st * 6350.29,
+			lb : st * 14 };
 	},
 
 	//kg: 1g = 1kg * 1000
@@ -5232,8 +5795,162 @@ var converters = {
 		return converters.g( kg * 1000 );
 	}
 };
-var alias = {
-	lbs : 'lb' };
+
+var longNames = {
+	lbs : 'lb',
+	ft : 'f',
+	foot : 'f',
+	metres : 'm',
+	millimetres : 'mm',
+	killometres : 'km',
+	degrees : 'd',
+	radians : 'r',
+	grams : 'g',
+	kilograms : 'kg',
+	inches : 'i',
+	stones : 'st',
+};
+
+var currencies, symbols; //to be filled in next line by build
+/* acquired by going to google.com/finance/converter and running
+JSON.stringify([].map.call(f.from.options, function (e) { return e.value; }, {}), null, 4)
+for some reason, NIS (New Israeli Shekel) does not appear there, only ILS,
+despite Google accepting both. it was added manually
+*/
+currencies = Object.TruthMap([
+    "AED",
+    "ANG",
+    "ARS",
+    "AUD",
+    "BDT",
+    "BGN",
+    "BHD",
+    "BND",
+    "BOB",
+    "BRL",
+    "BWP",
+    "CAD",
+    "CHF",
+    "CLP",
+    "CNY",
+    "COP",
+    "CRC",
+    "CZK",
+    "DKK",
+    "DOP",
+    "DZD",
+    "EEK",
+    "EGP",
+    "EUR",
+    "FJD",
+    "GBP",
+    "HKD",
+    "HNL",
+    "HRK",
+    "HUF",
+    "IDR",
+    "ILS",
+    "INR",
+    "JMD",
+    "JOD",
+    "JPY",
+    "KES",
+    "KRW",
+    "KWD",
+    "KYD",
+    "KZT",
+    "LBP",
+    "LKR",
+    "LTL",
+    "LVL",
+    "MAD",
+    "MDL",
+    "MKD",
+    "MUR",
+    "MVR",
+    "MXN",
+    "MYR",
+    "NAD",
+    "NGN",
+    "NIO",
+    "NIS",
+    "NOK",
+    "NPR",
+    "NZD",
+    "OMR",
+    "PEN",
+    "PGK",
+    "PHP",
+    "PKR",
+    "PLN",
+    "PYG",
+    "QAR",
+    "RON",
+    "RSD",
+    "RUB",
+    "SAR",
+    "SCR",
+    "SEK",
+    "SGD",
+    "SKK",
+    "SLL",
+    "SVC",
+    "THB",
+    "TND",
+    "TRY",
+    "TTD",
+    "TWD",
+    "TZS",
+    "UAH",
+    "UGX",
+    "USD",
+    "UYU",
+    "UZS",
+    "VEF",
+    "VND",
+    "XOF",
+    "YER",
+    "ZAR",
+    "ZMK"
+]);
+symbols = {
+    //euro €
+    "\u20ac" : "EUR",
+
+    //pound sterling £
+    "\u00a3" : "GBP",
+    //pound sterling ₤
+    "\u20a4" : "GBP",
+
+    //indian rupee ₨ (common)
+    "\u20a8" : "INR",
+    //indian rupee ₹ (official)
+    "\u20b9" : "INR",
+
+    //yen ¥
+    '\u00a5' : "JPY",
+    //double-width yen ￥
+    '\uffe5' : "JPY",
+
+    //israeli shekels ₪
+    "\u20aa" : "ILS",
+
+    //united states dollar $
+    "\u0024" : "USD",
+};
+
+
+function unalias ( unit ) {
+	var up = unit.toUpperCase();
+	if ( symbols.hasOwnProperty(up) ) {
+		return symbols[ up ];
+	}
+	if ( longNames.hasOwnProperty(unit) ) {
+		return longNames[ unit ];
+	}
+
+	return unit;
+}
 
 /*
   (        #start number matching
@@ -5244,44 +5961,194 @@ var alias = {
   )
   \s*      #optional whitespace, just 'cus
   (        #start unit matching
-   [^\s]+  #the unit. we don't know anyhing about it, besides having no ws
+   \S+     #the unit. we don't know anyhing about it, besides having no ws
   )
+  (        #begin matching optional target unit (required for currencies)
+    \s+
+    (?:
+     (?:
+      to|in #10 X to Y, 10 X in Y
+     )
+     \s+
+    )?
+    (\S+)  #the unit itself
+  )?
  */
-var re = /(-?\d+\.?\d*)\s*([^\s]+)/;
+var rUnits = /(-?\d+\.?\d*)\s*(\S+)(\s+(?:(?:to|in)\s+)?(\S+))?$/;
 
 //string is in the form of:
 // <number><unit>
+// <number><unit> to|in <unit>
 //note that units are case-sensitive: F is the temperature, f is the length
-var convert = function ( inp ) {
-	bot.log( inp, '/convert input' );
+var convert = function ( inp, cb ) {
 	if ( inp.toString() === 'list' ) {
-		return listUnits().join( ', ' );
+		finish( listUnits().join(', ') );
+		return;
 	}
 
-	var parts = re.exec( inp ),
-		number = Number( parts[1] ),
-		unit = parts[ 2 ];
-	bot.log( parts, '/convert broken' );
+	var parts = rUnits.exec( inp );
 
-	if ( alias[unit] ) {
-		unit = alias[ unit ];
+	if ( !parts ) {
+		finish( {error : 'Unidentified format; please see `/help convert`'} );
+		return;
 	}
+
+	var num = Number( parts[1] ),
+	    unit = parts[ 2 ],
+	    target = parts[ 4 ] || '',
+	    moneh = false;
+	bot.log( num, unit, target, '/convert input' );
+
+	unit   = unalias( unit );
+	target = unalias( target );
+	if ( currencies[unit.toUpperCase()] ) {
+		moneh = true;
+	}
+
+	if ( moneh ) {
+		moneyConverter.convert( num, unit, target, finish );
+	}
+	else {
+		convertUnit( num, unit, finish );
+	}
+
+	function finish ( res ) {
+		bot.log( res, '/convert answer' );
+
+		var reply;
+		if ( res.error ) {
+			reply = res.error;
+		}
+		else {
+			reply = format( res );
+		}
+
+		if ( cb && cb.call ) {
+			cb( reply );
+		}
+		else {
+			inp.reply( reply );
+		}
+	}
+
+	function format ( res ) {
+		var keys = Object.keys( res );
+
+		if ( !keys.length ) {
+			return 'Could not convert {0} to {1}'.supplant( unit, target );
+		}
+		return keys.filter( nameGoesHere ).map( formatKey ).join( ', ' );
+
+		function nameGoesHere ( key ) {
+			return !target || target === key;
+		}
+		function formatKey ( key ) {
+			return res[ key ].maxDecimal( 4 ) + key;
+		}
+	}
+};
+
+function convertUnit ( number, unit, cb ) {
+	bot.log( number, unit, '/convert unit broken' );
+
 	if ( !converters[unit] ) {
-		return 'Confuse converter with ' + unit + ', receive error message';
+		cb({
+			error:'Confuse converter with ' + unit + ', receive error message'
+		});
 	}
+	else {
+		cb( converters[unit](number) );
+	}
+}
 
-	var res = converters[ unit ]( number );
-	bot.log( res, '/console answer' );
-	return Object.keys( res ).map( format ).join( ', ' );
+var moneyConverter = {
+	ratesCache : {},
 
-	function format ( key ) {
-		return res[ key ].maxDecimal( 4 ) + key;
+	convert : function ( number, from, to, cb ) {
+		this.from = from;
+		this.to = to;
+
+		this.upFrom = from.toUpperCase();
+		this.upTo = to.toUpperCase();
+
+		var err = this.errorMessage();
+		if ( err ) {
+			cb( { error : err } );
+			return;
+		}
+		bot.log( number, from, to, '/convert money broken' );
+
+		this.getRate(function ( rate ) {
+			var res = {}; //once again, the lack of dynamic key names sucks.
+			res[ to ] = number * rate;
+
+			cb( res );
+		});
+	},
+
+	getRate : function ( cb ) {
+		var self = this,
+		    rate;
+
+		if ( rate = this.checkCache() ) {
+			cb( rate );
+			return;
+		}
+
+		IO.jsonp({
+			url : 'http://rate-exchange.appspot.com/currency',
+			jsonpName : 'callback',
+			data : {
+				from : self.from,
+				to : self.to
+			},
+			fun : finish
+		});
+
+		function finish ( resp ) {
+			rate = resp.rate;
+
+			self.updateCache( rate );
+			cb( rate );
+		}
+	},
+
+	updateCache : function ( rate ) {
+		this.ratesCache[ this.upFrom ] = this.ratesCache[ this.upFrom ] || {};
+		this.ratesCache[ this.upFrom ][ this.upTo ] = {
+			rate : rate,
+			time : Date.now()
+		};
+	},
+
+	checkCache : function () {
+		var now = Date.now(), obj;
+
+		var exists = (
+			this.ratesCache[ this.upFrom ] &&
+				( obj = this.ratesCache[this.upFrom][this.upTo] ) &&
+				//so we won't request again, keep it in memory for 5 hours
+				// 5(hours) = 1000(ms) * 60(seconds)
+				//            * 60(minutes) * 5 = 18000000
+				obj.time - now <= 18e6 );
+
+		console.log( this.ratesCache, exists );
+
+		return exists ? obj.rate : false;
+	},
+
+	errorMessage : function () {
+		if ( !this.to ) {
+			return 'What do you want to convert ' + this.from + ' to?';
+		}
+		if ( !currencies[this.upTo] ) {
+			return this.to + ' aint no currency I ever heard of';
+		}
 	}
 };
 
 function listUnits () {
-	return Object.keys( converters )
-		.concat( Object.keys(alias) );
+	return Object.keys( converters );
 }
 
 bot.addCommand({
@@ -5290,9 +6157,10 @@ bot.addCommand({
 	permissions : {
 		del : 'NONE'
 	},
-	description : 'Converts several units, case sensitive. ' +
-		'`/convert <num><unit>` ' +
-		'Pass in list for supported units `/convert list`'
+	description : 'Converts several units and currencies, case sensitive. '+
+		'`/convert <num><unit> [to|in <unit>]` ' +
+		'Pass in list for supported units `/convert list`',
+	async : true
 });
 }());
 
@@ -5521,7 +6389,6 @@ var cowsay = {
 		this.tongue   = rightPad( opts.T || defs.T, 2 ).slice( 0, 2 );
 		this.line     = opts.t ? 'O' : '\\';
 		this.thinking = opts.t;
-		console.log( this.eyes, this.tongue );
 
 		this.message  = wordWrap( message, opts.W || defs.W ).trim();
 
@@ -5799,7 +6666,8 @@ bot.addCommand({
 (function () {
 var nulls = [
 	'The Google contains no such knowledge',
-	'There are no search results. Run.' ];
+	'There are no search results. Run.',
+	'My Google Fu has failed.'];
 
 function google ( args, cb ) {
 	IO.jsonp.google( args.toString() + ' -site:w3schools.com', finishCall );
@@ -5820,13 +6688,24 @@ function google ( args, cb ) {
 			finish( nulls.random() );
 			return;
 		}
-		finish(
-			results.map( format ).join( ' ; ' ) );
+		finish( format(args.content, results) );
+	}
 
-		function format ( result ) {
-			var title = IO.decodehtmlEntities( result.titleNoFormatting );
-			return args.link( title, result.url );
-		}
+	function format ( query, results ) {
+		return formatLink( query ) +
+			' ' +
+			results.map( formatResult ).join( ' ; ' );
+	}
+
+	function formatResult ( result ) {
+		var title = IO.decodehtmlEntities( result.titleNoFormatting );
+		return args.link( title, result.url );
+	}
+	function formatLink ( query ) {
+		return args.link(
+			'*',
+			'http://google.com/search?q=' +
+				encodeURIComponent( query ) );
 	}
 
 	function finish ( res ) {
@@ -6348,6 +7227,97 @@ bot.addCommand({
 ;
 (function () {
 "use strict";
+
+//rlemon asked for a hardcoded vote against AmberRoxannaReal
+var storage = JSON.parse(
+	localStorage.bot_karma || '{"amberroxannareal":-1}' );
+
+//the people we told they can't karma themselves up
+var toldOn = {};
+
+IO.register( 'input', function karma ( msgObj ) {
+	var content = msgObj.content, parts;
+
+	if (
+		//only accept new messages to prevent idiots like Nexxpresso
+		msgObj.event_type === 1 &&
+		(parts = /([\w\-]+)(\+\+|\-\-)/.exec(content))
+	) {
+		vote( parts[1], parts[2], msgObj );
+	}
+});
+
+//TODO: implement a system which yells at a user if he's abusing the karma
+// system, and suspends him
+function vote ( subject, op, msgObj ) {
+	subject = subject.toLowerCase();
+	var dir = {
+		'++' :  1,
+		'--' : -1
+	}[ op ];
+	bot.log( subject, dir, 'vote' );
+
+	if ( subject === msgObj.user_name.toLowerCase() ) {
+		if ( toldOn[msgObj.user_id] ) {
+			return;
+		};
+
+		bot.adapter.out.add(
+			bot.adapter.reply(msgObj.user_name) + ' Don\'t be an idiot',
+			msgObj.room_id );
+
+		toldOn[ msgObj.user_id ] = true;
+	}
+	else {
+		storage[ subject ] = ( storage[subject] || 0 ) + dir;
+		localStorage.bot_karma = JSON.stringify( storage );
+	}
+}
+
+//and that's it!
+//...OR IS IT?
+// * WILL THEY ADD A COMMAND FRONTEND TO KARMA?
+// * WILL THEY ADD A COMMAND TO DISPLAY KARMA?
+// * WHAT HAS BEFALLEN THE FATE OF ZIRAK'S CLOTHES?
+// * HAS DARKYEN LAID THAT GIRL?
+//FIND ALL THAT AND MORE IN THE NEXT EPISODE OF...
+//     __
+//    / /______ __________ ___  ____ _    (_)____
+//   / //_/ __ `/ ___/ __ `__ \/ __ `/   / / ___/
+//  / ,< / /_/ / /  / / / / / / /_/ /   / (__  )
+// /_/|_|\__,_/_/  /_/ /_/ /_/\__,_(_)_/ /____/
+//                                  /___/
+//
+//     SAME JS TIME, SAME JS CHANNEL
+//
+// ==================================================
+// .....................CREDITS......................
+// ==================================================
+//        CLOTHED MAN..................ZIRAK
+//        SKIPPY THE INVISIBLE DOG.....HIMSELF
+//
+
+bot.addCommand({
+	name : 'karma',
+	//basic front-end for now
+	fun : function ( args ) {
+		var subject = args.content,
+			votes = storage[ subject.toLowerCase() ];
+
+		if ( !subject ) {
+			return 'Unlike beauty, karma is not in the eye of the beholder';
+		}
+		return '{0} has {1} karma'.supplant(
+			subject,
+			votes === undefined ? 'no' : votes );
+	}
+});
+
+}());
+
+;
+(function () {
+"use strict";
 var parse = bot.getCommand( 'parse' );
 var storage = JSON.parse( localStorage.bot_learn || '{}' );
 
@@ -6445,15 +7415,31 @@ function checkCommand ( cmd ) {
 }
 
 function loadCommands () {
-	Object.keys( storage ).forEach( teach );
+	Object.iterate( storage, teach );
 
-	function teach ( key ) {
-		var cmd = JSON.parse( storage[key] );
-		cmd.input = new RegExp( cmd.input );
+	function teach ( key, cmd ) {
+		cmd = JSON.parse( cmd );
+		cmd.input = turnToRegexp( cmd.input );
 		cmd.date = new Date( Date.parse(cmd.date) );
 
 		bot.log( cmd, '/learn loadCommands' );
 		addCustomCommand( cmd );
+	}
+
+	//input: strung regexp, e.g. /abc/i
+	//return: regexp
+	//algo: we split by /.
+	//  the first item is empty, the part before the first /
+	//  the second to second-before-last are the regexp body. there will be more
+	//    than one item in that range if the regexp contained escaped slashes,
+	//    like /abc\/def/
+	//  the last item is the flags (or the empty string, if no flags are set)
+	function turnToRegexp ( input ) {
+		var parts = input.toString().split( '/' );
+		return new RegExp(
+			parts.slice( 1, -1 ).join( '/' ), //to compensate for escaped /
+			parts[ parts.length-1 ]
+		);
 	}
 }
 function saveCommand ( command ) {
@@ -6483,6 +7469,68 @@ loadCommands();
 
 ;
 (function () {
+"use strict";
+
+function mustachify ( args ) {
+	var usrid = args.content;
+
+	//check for url passing
+	if ( linkCheck(usrid) ) {
+		finish( encodeURIComponent(usrid) );
+		return;
+	}
+
+	if ( !usrid ) {
+		usrid = args.get( 'user_id' );
+	}
+	else if ( /\D/.test(usrid) ) {
+		usrid = args.findUserid( usrid );
+	}
+
+	bot.log( usrid, '/mustache mapped' );
+
+	if ( usrid < 0 || !bot.users.hasOwnProperty(usrid) ) {
+		return 'User {0} was not found.'.supplant( usrid );
+	}
+
+	var hash = bot.users[ usrid ].email_hash;
+	//SO now allows non-gravatar images. the email_hash will be a link to the
+	// image in that case, prepended with a ! for some reason
+	if ( hash[0] === '!' ) {
+		finish( encodeURIComponent(hash.slice(1)) );
+	}
+	else {
+		finish(
+			'http%3A%2F%2Fwww.gravatar.com%2Favatar%2F{0}%3Fs%3D256%26d%3Didenticon#.png'.supplant(hash) );
+	}
+
+	function finish ( src ) {
+		bot.log( src, '/mustache finish' );
+
+		args.directreply(
+			'http://mustachify.me/?src=' + src );
+	}
+}
+
+function linkCheck ( suspect ) {
+	return ( suspect.startsWith('http') || suspect.startsWith('www') ) &&
+		/png|gif|jpe?g$/.test( suspect );
+}
+
+bot.addCommand({
+	name : 'mustache',
+	fun : mustachify,
+	privileges : {
+		del : 'NONE'
+	},
+
+	description : 'Mustachifies a user. `/mustache [link|usrid|user name]`'
+});
+
+}());
+
+;
+(function () {
 
 //collection of nudges; msgObj, time left and the message itself
 var nudges = [],
@@ -6503,7 +7551,7 @@ function update () {
 	setTimeout( update, interval );
 }
 function sendNudge ( nudge ) {
-	console.log( nudge, 'nudge fire' );
+	bot.log( nudge, 'nudge fire' );
 	//check to see if the nudge was sent after a bigger delay than expected
 	//TODO: that ^
 	nudge.msg.reply( nudge.message );
@@ -6513,7 +7561,7 @@ setTimeout( update, interval );
 //now for the command itself
 function addNudge ( delay, message, msgObj ) {
 	var inMS;
-	console.log( delay, message, '/nudge input' );
+	bot.log( delay, message, '/nudge input' );
 
 	//interval will be one of these (where n is a number):
 	// nm  =>  n minutes
@@ -6539,7 +7587,7 @@ function addNudge ( delay, message, msgObj ) {
 		time    : inMS
 	};
 	nudges.push( nudge );
-	console.log( nudge, nudges, '/nudge register' );
+	bot.log( nudge, nudges, '/nudge register' );
 
 	return 'Nudge registered.';
 }
@@ -7555,11 +8603,25 @@ bot.addCommand({
 }());
 
 ;
-IO.register( 'input', function ( msgObj ) {
-	var words = msgObj.content.match( /\w+/g ) || [];
+IO.register( 'input', function STOP ( msgObj ) {
+	var sentence = msgObj.content.toUpperCase(),
+		res;
 
-	if ( words.length === 1 && words[0].toUpperCase() === 'STOP' ) {
-		bot.adapter.out.add( 'HAMMERTIME!', msgObj.room_id );
+	//for probably good reason, it didn't allow me to apply the optional
+	// operator on beginnin-of-input, i.e. ^?
+	//so we have to wrap the ^ in parens
+	if ( /(^)?STOP[\.!\?]?$/.test(sentence) ) {
+		res = 'HAMMERTIME!';
+	}
+	else if ( /(^)?STAHP[\.!\?]?$/.test(sentence) ) {
+		res = 'HAMMAHTIME!';
+	}
+	else if ( /(^)?HALT[\.!\?]?$/.test(sentence) ) {
+		res = 'HAMMERZEIT!';
+	}
+
+	if ( res ) {
+		bot.adapter.out.add( res, msgObj.room_id );
 	}
 });
 
@@ -7568,7 +8630,7 @@ IO.register( 'input', function ( msgObj ) {
 /*
   ^\s*         #tolerate pre-whitespace
   s            #substitution prefix
-  (.)          #delimiter declaration
+  (\/|\|)      #delimiter declaration
   (            #begin matching regex
     (?:        #match shit which isn't an...
       (?:\\\1) #escaped delimeter
@@ -7590,7 +8652,7 @@ IO.register( 'input', function ( msgObj ) {
     i?   #case insensitive (optional)
   )      #FIN
  */
-var sub = /s(.)((?:(?:\\\1)|[^\1])*?)\1((?:(?:\\\1)|[^\1])*?)\1(g?i?)/;
+var sub = /^\s*s(\/|\|)((?:(?:\\\1)|[^\1])*?)\1((?:(?:\\\1)|[^\1])*?)\1(g?i?)/;
 bot.listen( sub, substitute );
 
 function substitute ( msg ) {
@@ -7889,7 +8951,6 @@ var undo = {
 	},
 
 	update_id : function ( xhr ) {
-		console.log( xhr );
 		this.last_id = JSON.parse( xhr.responseText ).id;
 	}
 };
@@ -7901,7 +8962,7 @@ bot.addCommand({
 	thisArg : undo,
 	permissions : {
 		del : 'NONE',
-		use : bot.owners
+		use : 'OWNER'
 	},
 	description : 'Undo (delete) specified or last message. `/undo [msgid]`'
 });
@@ -7909,6 +8970,206 @@ bot.addCommand({
 }());
 
 ;
+
+;
+IO.register( 'input', function ( msgObj ) {
+	if ( msgObj.user_id === 1386886 && Math.random() < 0.005 ) {
+		bot.adapter.out.add(
+			bot.adapter.reply(msgObj.user_name) + ' The Game' );
+	}
+});
+
+;
+(function () {
+//meet Winded Weasel. he helps you make decisions and he answers questions.
+//x or y [or z ...]
+// => one of x, y, z, ...
+//is x y
+//can x y
+// => yes or no
+
+var chooseRe = /^\s*(choose|should)?.*\sor\s[^$]/i,
+	questionRe = new RegExp([
+		"am", "are", "can", "could", "do", "does", "is", "may", "might",
+		"shall", "should", "will", "would"
+	].map(RegExp.escape).join('|'), 'i');
+
+//personal pronouns to capitalize and their mapping
+//TODO: add possessives (should my cat => your cat should)
+var capitalize = {
+	he  : 'He',
+	i   : 'You',
+	it  : 'It',
+	she : 'She',
+	they: 'They',
+	we  : 'You',
+	you : 'I',
+};
+
+//will be filled in the build
+var answers, undecided, sameness;
+//"encoded" to leave some surprise
+undecided=["SSdtIG5vdCBzdXJl", "RVJST1IgQ0FMQ1VMQVRJTkcgUkVTVUxU","SSBrbm93IGp1c3Qgb25lIHRoaW5nLCBhbmQgdGhhdCBpcyB0aGF0IEknbSBhIGx1bWJlcmphY2s="].map(atob);
+
+sameness=["VGhhdCdzIG5vdCByZWFsbHkgYSBjaG9pY2UsIG5vdyBpcyBpdD8=","U291bmRzIGxpa2UgeW91IGhhdmUgYWxyZWFkeSBkZWNpZGVk","Q2hlYXRlciBjaGVhdGVyIHlvdXIgaG91c2UgaXMgYSBoZWF0ZXI="].map(atob);
+
+//now for the juicy part
+answers=["QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QnV0IG9mIGNvdXJzZQ==","QnV0IG9mIGNvdXJzZQ==","QnV0IG9mIGNvdXJzZQ==","QnkgYWxsIG1lYW5z","QnkgYWxsIG1lYW5z","QnkgYWxsIG1lYW5z","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5","Q2VydGFpbmx5","Q2VydGFpbmx5","RGVmaW5pdGVseQ==","RGVmaW5pdGVseQ==","RGVmaW5pdGVseQ==","RG91YnRmdWxseQ==","RG91YnRmdWxseQ==","RG91YnRmdWxseQ==","SSBjYW4gbmVpdGhlciBjb25maXJtIG5vciBkZW55","SSBleHBlY3Qgc28=","SSBleHBlY3Qgc28=","SSBleHBlY3Qgc28=","SSdtIG5vdCBzbyBzdXJlIGFueW1vcmUuIEl0IGNhbiBnbyBlaXRoZXIgd2F5","SW1wb3NzaWJsZQ==","SW1wb3NzaWJsZQ==","SW1wb3NzaWJsZQ==","SW5kZWVk","SW5kZWVk","SW5kZWVk","SW5kdWJpdGFibHk=","SW5kdWJpdGFibHk=","SW5kdWJpdGFibHk=","Tm8gd2F5","Tm8gd2F5","Tm8gd2F5","Tm8=","Tm8=","Tm8=","Tm8=","Tm9wZQ==","Tm9wZQ==","Tm9wZQ==","Tm90IGEgY2hhbmNl","Tm90IGEgY2hhbmNl","Tm90IGEgY2hhbmNl","Tm90IGF0IGFsbA==","Tm90IGF0IGFsbA==","Tm90IGF0IGFsbA==","TnVoLXVo","TnVoLXVo","TnVoLXVo","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIQ==","T2YgY291cnNlIQ==","T2YgY291cnNlIQ==","UHJvYmFibHk=","UHJvYmFibHk=","UHJvYmFibHk=","WWVzIQ==","WWVzIQ==","WWVzIQ==","WWVzIQ==","WWVzLCBhYnNvbHV0ZWx5","WWVzLCBhYnNvbHV0ZWx5","WWVzLCBhYnNvbHV0ZWx5"].map(atob);
+//can you feel the nectar?
+
+
+bot.listen(chooseRe, function ( msg ) {
+	var parts = msg
+		//remove the choose prefix
+		.replace( /^\s*choose\s/i, '' )
+		//also remove the trailing question mark
+		.replace( /\?$/, '' )
+		.split( /\s*\bor\b\s*/i )
+		//remove whatever empty items there may be
+		.filter( Boolean );
+
+	var len = parts.length;
+
+	//check to see whether there's only 1 thing asked to choose about, e.g.
+	// choose a or a or a
+	// choose a
+	for ( var i = 1, same = true; i < len; i++ ) {
+		if ( parts[i] !== parts[i-1] ) {
+			same = false;
+			break;
+		}
+	}
+
+	if ( same ) {
+		return sameness.random();
+	}
+
+	//all of them (1%)
+	if ( Math.random() < 0.01 ) {
+		return len === 2 ? 'Both!' : 'All of them!';
+	}
+	//none of them (1%)
+	if ( Math.random() < 0.01 ) {
+		return len === 2 ? 'Neither' : 'None of them!';
+	}
+	//I don't know (1%)
+	if ( Math.random() < 0.01 ) {
+		return undecided.random();
+	}
+
+	//choose!
+	var choice = parts.random();
+
+	//bots can be fickley too
+	if ( Math.random() < 0.01 ) {
+		bot.log( 'weasel decision mind change jedi nun-chuck' );
+		setTimeout( changeMind, 10000 );
+	}
+
+	return format( choice );
+
+	function changeMind () {
+		var second;
+		//this won't be an infinite loop as we guruantee there will be at least
+		// 2 distinct results
+		//possible blocking point for large N. but there won't be a
+		// sufficiently large N, so this is probably not a problem
+		do {
+			second = parts.random();
+		} while ( second === choice );
+
+		msg.reply( 'Wait, I changed my mind! ' + format(second) );
+	}
+
+	function format ( ans ) {
+		return ans.replace( /^(should(?:n'?t)?) (\S+)/, subject );
+	}
+
+	//convert:
+	// "should I" => "you should"
+	// "should you" => "I should"
+	//anything else just switch the order
+	function subject ( $0, $1, $2 ) {
+		var sub = $2.toLowerCase(),
+			conv;
+
+		//if we recognize this word, map it properly
+		if ( capitalize.hasOwnProperty(sub) ) {
+			conv = capitalize[ sub ];
+		}
+		//otherwise, use the original spelling
+		else {
+			conv = $2;
+		}
+
+		return conv + ' ' + $1;
+	}
+});
+
+bot.listen(questionRe, function ( msg ) {
+	//TODO: same question => same mapping (negative/positive, not specific)
+	return answers.random();
+});
+
+}());
+
+;
+(function () {
+"use strict";
+//welcomes new users with a link to the room rules
+
+var seen = JSON.parse( localStorage.bot_users || '{}' );
+
+var message = "Welcome to the JavaScript chat! Please review the " +
+		bot.adapter.link(
+			"room pseudo-rules",
+			"http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
+	"Please don't ask if you can ask or if anyone's around; just ask " +
+	"your question, and if anyone's free and interested they'll help.";
+
+IO.register( 'userregister', function ( user, room ) {
+	if (
+		Number(room) !== 17  || seen[user.id] ||
+		bot.isOwner(user.id) || user.reputation > 1000 || user.reputation < 20
+	) {
+		return;
+	}
+
+	IO.xhr({
+		method : 'GET',
+		url : '/users/' + user.id,
+
+		complete : complete
+	});
+
+	function complete (resp) {
+		//lulz, I'm parsing html with regexps
+		//OH GOD CTHULU DON'T EAT ME
+		//<td class="user-keycell">chat user since</td><td class="user-valuecell">YYYY-MM-DD</td>
+		var seniority = Date.parse(
+			/since.+cell">(\d{4}-\d{2}-\d{2})/
+				.exec(resp)[1]);
+
+		//2(weeks) = 1000(ms/s) * 60(s/min) * 60(min/hour) *
+		//           24(hour/day) * 7(day/week) * 2 = 1209600000ms
+		if (Date.now() - seniority < 12096e5) {
+			welcome();
+		}
+		finish();
+	}
+
+	function finish () {
+		seen[ user.id ] = true;
+		localStorage.bot_users = JSON.stringify( seen );
+	}
+
+	function welcome () {
+		bot.adapter.out.add(
+			bot.adapter.reply(user.name) + " " + message,
+			room );
+	}
+});
+}());
 
 ;
 (function () {
