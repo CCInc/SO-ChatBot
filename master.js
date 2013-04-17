@@ -7489,10 +7489,10 @@ function google ( args, cb ) {
 		var results = resp.responseData.results[0];
 		//bot.log( results, '/google results' );
 
-		if ( !results.length ) {
-			finish( nulls.random() );
-			return;
-		}
+		// if ( !results.length ) {
+			// finish( nulls.random() );
+			// return;
+		// }
 		finish( format(args.content, results) );
 	}
 
