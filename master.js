@@ -376,7 +376,7 @@ var bot = window.bot = {
 		if(msg2 == ":D") this.prepareMessage(msgObj).send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
 		
 
-	
+		if( this.prepareMessageNoSlice( msgObj ).user_id != 1834132)
 		this.callListeners(this.prepareMessageNoSlice( msgObj ));
 	
 		if ( !this.validateMessage(msgObj) ) {
