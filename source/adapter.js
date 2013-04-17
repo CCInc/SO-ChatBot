@@ -1,4 +1,6 @@
 (function () {
+"use strict";
+
 var linkTemplate = '[{text}]({url})';
 
 bot.adapter = {
@@ -131,9 +133,7 @@ var polling = bot.adapter.in = {
 		resp = JSON.parse( resp );
 
 		//each key will be in the form of rROOMID
-		Object.keys( resp ).forEach(function ( key ) {
-			var msgObj = resp[ key ];
-
+		Object.iterate(resp, function ( key, msgObj ) {
 			//t is a...something important
 			if ( msgObj.t ) {
 				this.times[ key ] = msgObj.t;
@@ -147,12 +147,21 @@ var polling = bot.adapter.in = {
 
 		//handle all the input
 		IO.in.flush();
-		IO.fire( 'heartbeat' );
 	},
 
 	handleMessageObject : function ( msg ) {
-		//event_type of 1 means new message, 2 means edited message
-		if ( msg.event_type !== 1 && msg.event_type !== 2 ) {
+		//msg.event_type:
+		// 1 => new message
+		// 2 => message edit
+		// 3 => user joined room
+		// 4 => user left room
+		// 10 => message deleted
+		var et /* phone home */ = msg.event_type;
+		if ( et === 3 || et === 4 ) {
+			this.handleUserEvent( msg );
+			return;
+		}
+		else if ( et !== 1 && et !== 2 ) {
 			return;
 		}
 		this.lastTimes[ msg.room_id ] = Date.now();
@@ -182,6 +191,55 @@ var polling = bot.adapter.in = {
 				Object.merge( msg, { content : line.trim() })
 			);
 		}, this );
+	},
+
+	handleUserEvent : function ( msg ) {
+		var et = msg.event_type;
+
+		/*
+		{
+			"r17": {
+				"e": [{
+						"event_type": 3,
+						"time_stamp": 1364308574,
+						"id": 16932104,
+						"user_id": 322395,
+						"target_user_id": 322395,
+						"user_name": "Loktar",
+						"room_id": 17,
+						"room_name": "JavaScript"
+					}
+				],
+				"t": 16932104,
+				"d": 1
+			}
+		}
+		*/
+		if ( et === 3 ) {
+			IO.fire( 'userjoin', msg );
+		}
+		/*
+		{
+			"r17": {
+				"e": [{
+						"event_type": 4,
+						"time_stamp": 1364308569,
+						"id": 16932101,
+						"user_id": 322395,
+						"target_user_id": 322395,
+						"user_name": "Loktar",
+						"room_id": 17,
+						"room_name": "JavaScript"
+					}
+				],
+				"t": 16932101,
+				"d": 1
+			}
+		}
+		*/
+		else if ( et === 4 ) {
+			IO.fire( 'userleave', msg );
+		}
 	}
 };
 
@@ -221,15 +279,12 @@ var output = bot.adapter.out = {
 		// the freezer and never let it out. not until it can talk again. what
 		// was I intending to say?
 		if ( !bot.stopped ) {
-			Object.keys( this.messages ).forEach(function ( room ) {
-				var message = this.messages[ room ];
-				//message.forEach(function ( msg ) {
+			Object.iterate(this.messages, function ( room, message ) {
 				if ( !message ) {
 					return;
 				}
 
 				this.sendToRoom( message, room );
-			//	}, this);
 			}, this );
 		}
 
@@ -260,11 +315,17 @@ var output = bot.adapter.out = {
 			else if ( xhr.status === 500 ) {
 				output.add(
 					'Server error (status 500) occured ' +
-						' (message probably too long)'
-					, roomid );
+						' (message probably too long)',
+					roomid );
+			}
+			else if ( xhr.status !== 200 ) {
+				console.error( xhr );
+				output.add(
+					'Error ' + xhr.status + ' occured, I will call the maid ' +
+					' (@Zirak)' );
 			}
 			else {
-				IO.fire( 'sendoutput', xhr );
+				IO.fire( 'sendoutput', xhr, text, roomid );
 			}
 		}
 	},

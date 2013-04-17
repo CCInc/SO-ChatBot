@@ -10,14 +10,20 @@ The bot is currently a big dangle-on script running in your browser. **Run `book
 #one must first get the repo
 $ git clone git://github.com/Zirak/SO-ChatBot.git
 $ cd SO-ChatBot
+```
 
-#to build something
+The provided `publi.sh` automagically does building, adds all changed items to commit and publishes for you:
+
+```sh
+$ ./publi.sh commit-message
+```
+
+To build manually:
+
+```sh
 $ node build.js
-#or, to skip minification
+#to skip minification
 $ node build.js no-min
-#or, to not add the adapter
-$ node build.js no-adapter
-#you can combine the two options above in whichever order
 ```
 The result will be in `master.js` and `master.min.js`
 

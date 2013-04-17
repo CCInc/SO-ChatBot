@@ -15,6 +15,7 @@ var bot = window.bot = {
 		forgotten : 0,
 		start     : new Date,
 	},
+	users : {}, //will be filled in build
 
 	parseMessage : function ( msgObj ) {
 		// var msg1 = this.prepareMessage( msgObj )
@@ -71,8 +72,7 @@ var bot = window.bot = {
 			else if ( !this.callListeners(msg) ) {
 				//no listener fancied the message. this is the last frontier,
 				// so just give up in a classy, dignified way
-				msg.reply(
-					'Y U NO MAEK SENSE!? Could not understand `' + msg + '`' );
+				msg.reply( this.giveUpMessage(msg) );
 			}
 		}
 		catch ( e ) {
@@ -93,6 +93,23 @@ var bot = window.bot = {
 		finally {
 			this.info.invoked += 1;
 		}
+	},
+
+	giveUpMessage : function ( msg ) {
+		var reply =
+			'Y U NO MAEK SENSE!? Could not understand ' +
+			this.adapter.codify( msg );
+
+		//check if the user may have intended to execute a command
+		var possibleName = msg.trim().split( ' ' )[ 0 ],
+			cmd = this.getCommand( possibleName );
+
+		if ( !cmd.error || cmd.guesses.length ) {
+			reply += ' (perhaps you meant to execute a command? If so,' +
+				' prepend the command name with a /)';
+		}
+
+		return reply;
 	},
 
 	prepareMessage : function ( msgObj ) {
@@ -193,7 +210,7 @@ var bot = window.bot = {
 			msg += ' Did you mean: ' + guesses.join( ', ' );
 		}
 
-		return { error : msg };
+		return { error : msg, guesses : guesses };
 	},
 
 	//the function women think is lacking in men
@@ -213,9 +230,7 @@ var bot = window.bot = {
 	},
 
 	callListeners : function ( msg ) {
-		var fired = false;
-
-		this.listeners.forEach(function ( listener ) {
+		return this.listeners.some(function ( listener ) {
 			var match = msg.exec( listener.pattern ), resp;
 
 			if ( match ) {
@@ -225,12 +240,9 @@ var bot = window.bot = {
 				if ( resp ) {
 					msg.reply( resp );
 				}
-
-				fired = resp !== false;
+				return resp !== false;
 			}
 		});
-
-		return fired;
 	},
 
 	stoplog : false,
@@ -248,9 +260,7 @@ var bot = window.bot = {
 	}
 };
 
-//#build eval.js
 //#build cleverbot.js
-
 bot.banlist = JSON.parse( localStorage.bot_ban || '{}' );
 if ( Array.isArray(bot.banlist) ) {
 	bot.banlist = bot.banlist.reduce(function ( ret, id ) {
@@ -294,8 +304,9 @@ bot.Command = function ( cmd ) {
 		cmd[ 'can' + perm ] = function ( usrid ) {
 			var canDo = this.permissions[ low ];
 
-			return canDo === 'ALL' || canDo !== 'NONE' &&
-				canDo.indexOf( usrid ) > -1;
+			return canDo === 'ALL' || canDo !== 'NONE' && (
+				( canDo === 'OWNER' && bot.isOwner(usrid) ) ||
+				canDo.indexOf( usrid ) > -1 );
 		};
 	});
 
@@ -325,7 +336,7 @@ bot.CommunityCommand = function ( command, req ) {
 	cmd.exec = function ( msg ) {
 		var err = register( msg.get('user_id') );
 		if ( err ) {
-			console.log( err );
+			bot.log( err );
 			return err;
 		}
 		return old_execute.apply( cmd, arguments );
@@ -341,8 +352,8 @@ bot.CommunityCommand = function ( command, req ) {
 
 		clean();
 		var count = Object.keys( used ).length,
-			needed = req - count;
-		console.log( used, count, req );
+			needed = req - count - 1; //0 based indexing vs. 1 based humans
+		bot.log( used, count, req );
 
 		if ( usrid in used ) {
 			return 'Already registered; still need {0} more'.supplant( needed );
@@ -351,7 +362,7 @@ bot.CommunityCommand = function ( command, req ) {
 			used[ usrid ] = new Date;
 			return 'Registered; need {0} more to execute'.supplant( needed-1 );
 		}
-		console.log( 'should execute' );
+		bot.log( 'should execute' );
 		return false; //huzzah!
 	}
 
@@ -418,28 +429,15 @@ bot.Message = function ( text, msgObj ) {
 		},
 
 		findUserid : function ( username ) {
-			var users = [].slice.call( document
-					.getElementById( 'sidebar' )
-					.getElementsByClassName( 'user-container' )
-				);
+			username = username.toLowerCase().replace( /\s/g, '' );
+			var ids = Object.keys( bot.users );
 
-			//grab a list of user ids
-			var ids = users.map(function ( container ) {
-				return container.id.match( /\d+/ )[ 0 ];
-			});
-			//and a list of their names
-			var names = users.map(function ( container ) {
-				return container.getElementsByTagName( 'img' )[ 0 ]
-					.title.toLowerCase().replace( /\s/g, '' );
-			});
+			return ids.first(function ( id ) {
+				var name = bot.users[ id ].name
+					.toLowerCase().replace( /\s/g, '' );
 
-			var idx = names.indexOf(
-				username.toString().toLowerCase().replace( /\s/g, '' ) );
-			if ( idx < 0 ) {
-				return -1;
-			}
-
-			return Number( ids[idx] );
+				return name === username;
+			}) || -1;
 		}.memoize(),
 
 		codify : bot.adapter.codify.bind( bot.adapter ),
@@ -459,8 +457,8 @@ bot.Message = function ( text, msgObj ) {
 		}
 	};
 
-	Object.keys( deliciousObject ).forEach(function ( key ) {
-		ret[ key ] = deliciousObject[ key ];
+	Object.iterate( deliciousObject, function ( key, prop ) {
+		ret[ key ] = prop;
 	});
 
 	return ret;
@@ -477,10 +475,21 @@ bot.owners = [
 
 ];
 bot.isOwner = function ( usrid ) {
-	return this.owners.indexOf( usrid ) > -1;
+	var user = this.users[ usrid ];
+	return user && ( user.is_owner || user.is_moderator );
 };
 
 IO.register( 'input', bot.parseMessage, bot );
+
+bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
+(function beat () {
+	bot.beat = setTimeout(function () {
+		IO.fire( 'heartbeat' );
+		beat();
+	}, bot.beatInterval );
+}());
+
+//#build eval.js
 
 //#build util.js
 //#build parseCommandArgs.js

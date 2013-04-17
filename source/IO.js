@@ -200,6 +200,29 @@ return function ( html ) {
 	};
 });
 
+//a very incomplete circular-buffer implementation, used for the bored responses
+IO.CBuffer = function ( size ) {
+	var ret = {
+		items : [],
+		pos : 0,
+		size : size,
+	};
+
+	ret.add = function ( item ) {
+		if ( this.pos === size ) {
+			this.pos = 0;
+		}
+
+		this.items[ this.pos ] = item;
+		this.pos += 1;
+	};
+	ret.contains = function ( item ) {
+		return this.items.indexOf( item ) > -1;
+	};
+
+	return ret;
+};
+
 IO.xhr = function ( params ) {
 	//merge in the defaults
 	params = Object.merge({
@@ -228,8 +251,8 @@ IO.xhr = function ( params ) {
 		}
 	});
 
-	Object.keys( params.headers ).forEach(function ( header ) {
-		xhr.setRequestHeader( header, params.headers[header] );
+	Object.iterate( params.headers, function ( header, value ) {
+		xhr.setRequestHeader( header, value );
 	});
 
 	xhr.send( params.data );
@@ -245,7 +268,7 @@ IO.jsonp = function ( opts ) {
 		semiRandom;
 
 	do {
-		semiRandom = 'IO_' + ( Date.now() * Math.ceil(Math.random()) );
+		semiRandom = 'IO' + ( Date.now() * Math.ceil(Math.random()) );
 	} while ( window[semiRandom] );
 
 	//this is the callback function, called from the "jsonp file"

@@ -160,8 +160,15 @@ var minify = function ( code, callback, outName ) {
 	outName = outName || 'master.min.js';
 	build.print( '\nminifying...' );
 
-	var min = require( 'uglify-js2' )
-		.minify( code, { fromString : true } ).code;
+	var min;
+	try {
+		min = require( 'uglify-js2' )
+			.minify( code, { fromString : true } ).code;
+	}
+	catch ( e ) {
+		console.error( e.toString() );
+		return;
+	}
 
 	fs.writeFile( outName, min, finish );
 
@@ -310,7 +317,11 @@ if ( process.argv.indexOf('no-min') > -1 ) {
 var files = [
 	'./source/IO.js',
 	'./source/bot.js',
-	'./source/personality.js' ];
+	'./source/adapter.js',
+	'./source/users.js',
+	'./source/personality.js',
+	'./source/plugins/'
+];
 function filter ( fileName ) {
 	return (
 		//only .js files
@@ -321,12 +332,6 @@ function filter ( fileName ) {
 			fileName.indexOf( '~' ) === -1 &&
 			fileName.indexOf( '#' ) !== 0 );
 }
-
-if ( process.argv.indexOf('no-adapter') === -1 ) {
-	files.push( './source/adapter.js' );
-}
-//the adapter, if exists, needs to go before any plugin
-files.push( './source/plugins/' );
 
 build.start( files, filter );
 

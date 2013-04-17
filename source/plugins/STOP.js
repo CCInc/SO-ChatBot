@@ -1,7 +1,21 @@
-IO.register( 'input', function ( msgObj ) {
-	var words = msgObj.content.match( /\w+/g ) || [];
+IO.register( 'input', function STOP ( msgObj ) {
+	var sentence = msgObj.content.toUpperCase(),
+		res;
 
-	if ( words.length === 1 && words[0].toUpperCase() === 'STOP' ) {
-		bot.adapter.out.add( 'HAMMERTIME!', msgObj.room_id );
+	//for probably good reason, it didn't allow me to apply the optional
+	// operator on beginnin-of-input, i.e. ^?
+	//so we have to wrap the ^ in parens
+	if ( /(^)?STOP[\.!\?]?$/.test(sentence) ) {
+		res = 'HAMMERTIME!';
+	}
+	else if ( /(^)?STAHP[\.!\?]?$/.test(sentence) ) {
+		res = 'HAMMAHTIME!';
+	}
+	else if ( /(^)?HALT[\.!\?]?$/.test(sentence) ) {
+		res = 'HAMMERZEIT!';
+	}
+
+	if ( res ) {
+		bot.adapter.out.add( res, msgObj.room_id );
 	}
 });

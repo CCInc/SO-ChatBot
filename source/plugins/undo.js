@@ -58,7 +58,6 @@ var undo = {
 	},
 
 	update_id : function ( xhr ) {
-		console.log( xhr );
 		this.last_id = JSON.parse( xhr.responseText ).id;
 	}
 };
@@ -70,7 +69,7 @@ bot.addCommand({
 	thisArg : undo,
 	permissions : {
 		del : 'NONE',
-		use : bot.owners
+		use : 'OWNER'
 	},
 	description : 'Undo (delete) specified or last message. `/undo [msgid]`'
 });

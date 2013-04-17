@@ -1,3 +1,4 @@
+//345678901234567890123456789012345678901234567890123456789012345678901234567890
 //small utility functions
 Object.merge = function () {
 	return [].reduce.call( arguments, function ( ret, merger ) {
@@ -10,23 +11,19 @@ Object.merge = function () {
 	}, {} );
 };
 
-String.prototype.indexesOf = function ( str, fromIndex ) {
-	//since we also use index to tell indexOf from where to begin, and since
-	// telling it to begin from where it found the match will cause it to just
-	// match it again and again, inside the indexOf we do `index + 1`
-	// to compensate for that 1, we need to subtract 1 from the original
-	// starting position
-	var index = ( fromIndex || 0 ) - 1,
-		ret = [];
-
-	while ( (index = this.indexOf(str, index + 1)) > -1 ) {
-		ret.push( index );
-	}
-
-	return ret;
+Object.iterate = function ( obj, cb, thisArg ) {
+	Object.keys( obj ).forEach(function (key) {
+		cb.call( thisArg, key, obj[key], obj );
+	});
 };
-String.prototype.startsWith = function ( str ) {
-	return this.indexOf( str ) === 0;
+
+Object.TruthMap = function ( props ) {
+	return ( props || [] ).reduce( assignTrue, Object.create(null) );
+
+	function assignTrue ( ret, key ) {
+		ret[ key ] = true;
+		return ret;
+	}
 };
 
 //SO chat uses an unfiltered for...in to iterate over an array somewhere, so
@@ -35,7 +32,9 @@ Object.defineProperty( Array.prototype, 'invoke', {
 	value : function ( funName ) {
 		var args = [].slice.call( arguments, 1 );
 
-		return this.map(function ( item, index ) {
+		return this.map( invoke );
+
+		function invoke ( item, index ) {
 			var res = item;
 
 			if ( item[funName] && item[funName].apply ) {
@@ -43,7 +42,7 @@ Object.defineProperty( Array.prototype, 'invoke', {
 			}
 
 			return res;
-		});
+		}
 	},
 
 	configurable : true,
@@ -72,10 +71,60 @@ Object.defineProperty( Array.prototype, 'random', {
 	writable : true
 });
 
+String.prototype.indexesOf = function ( str, fromIndex ) {
+	//since we also use index to tell indexOf from where to begin, and since
+	// telling it to begin from where it found the match will cause it to just
+	// match it again and again, inside the indexOf we do `index + 1`
+	// to compensate for that 1, we need to subtract 1 from the original
+	// starting position
+	var index = ( fromIndex || 0 ) - 1,
+		ret = [];
+
+	while ( (index = this.indexOf(str, index + 1)) > -1 ) {
+		ret.push( index );
+	}
+
+	return ret;
+};
+
+//Crockford's supplant
+String.prototype.supplant = function ( arg ) {
+	//if it's an object, use that. otherwise, use the arguments list.
+	var obj = (
+		Object(arg) === arg ?
+			arg : arguments );
+	return this.replace( /\{([^\}]+)\}/g, replace );
+
+	function replace ( $0, $1 ) {
+		return obj.hasOwnProperty( $1 ) ?
+			obj[ $1 ] :
+			$0;
+	}
+};
+
+String.prototype.startsWith = function ( str ) {
+	return this.indexOf( str ) === 0;
+};
+
+Function.prototype.throttle = function ( time ) {
+	var fun = this, timeout = -1;
+
+	var ret = function () {
+		clearTimeout( timeout );
+
+		var context = this, args = arguments;
+		timeout = setTimeout(function () {
+			fun.apply( context, args );
+		}, time );
+	};
+
+	return ret;
+};
+
 Function.prototype.memoize = function () {
 	var cache = Object.create( null ), fun = this;
 
-	return function ( hash ) {
+	return function memoized ( hash ) {
 		if ( hash in cache ) {
 			return cache[ hash ];
 		}
@@ -92,9 +141,9 @@ Function.prototype.memoizeAsync = function ( hasher ) {
 	var cache = Object.create( null ), fun = this,
 		hasher = hasher || function (x) { return x; };
 
-	return function () {
+	return function memoized () {
 		var args = [].slice.call( arguments ),
-			cb = args.pop(), //HEAVY assumption that cb is always passed
+			cb = args.pop(), //HEAVY assumption that cb is always passed last
 			hash = hasher.apply( null, arguments );
 
 		if ( hash in cache ) {
@@ -180,21 +229,6 @@ Math.rand = function ( min, max ) {
 	return Math.floor( Math.random() * (max - min + 1) ) + min;
 };
 
-//Crockford's supplant
-String.prototype.supplant = function ( arg ) {
-	//if it's an object, use that. otherwise, use the arguments list.
-	var obj = (
-		Object(arg) === arg ?
-		arg : arguments );
-	return this.replace( /\{([^\}]+)\}/g, replace );
-
-	function replace ( $0, $1 ) {
-		return obj.hasOwnProperty( $1 ) ?
-			obj[ $1 ] :
-			$0;
-	}
-};
-
 //I got annoyed that RegExps don't automagically turn into correct shit when
 // JSON-ing them. so HERE.
 Object.defineProperty( RegExp.prototype, 'toJSON', {
@@ -204,6 +238,16 @@ Object.defineProperty( RegExp.prototype, 'toJSON', {
 	configurable : true,
 	writable : true
 });
+
+//takes a string and escapes any special regexp characters
+RegExp.escape = function ( str ) {
+	//do I smell irony?
+	return str.replace( /[-^$\\\/\.*+?()[\]{}|]/g, '\\$&' );
+	//using a character class to get away with escaping some things. the - in
+	// the beginning doesn't denote a range because it only denotes one when
+	// it's in the middle of a class, and the ^ doesn't mean negation because
+	// it's not in the beginning of the class
+};
 
 //not the most efficient thing, but who cares. formats the difference between
 // two dates

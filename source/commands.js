@@ -15,14 +15,12 @@ var commands = {
 			return args + ': ' + desc;
 		}
 
-		return (
-			'https://github.com/Zirak/SO-ChatBot/wiki/' +
-				'Interacting-with-the-bot'
-		);
+		return 'https://github.com/Zirak/SO-ChatBot/wiki/' +
+		       'Interacting-with-the-bot';
 	},
 
 	listen : function ( msg ) {
-		return bot.callListeners( msg );
+		return bot.callListeners( msg ) || bot.giveUpMessage( msg );
 	},
 
 	eval : function ( msg ) {
@@ -71,7 +69,7 @@ var commands = {
 			args.parse().forEach( ban );
 		}
 		else {
-			ret = Object.keys( bot.banlist ).filter( Number );
+			ret = Object.keys( bot.banlist ).filter( Number ).map( format );
 		}
 
 		return ret.join( ' ' ) || 'Nothing to show/do.';
@@ -98,6 +96,13 @@ var commands = {
 			}
 
 			ret.push( msg.supplant(usrid) );
+		}
+
+		function format ( id ) {
+			var user = bot.users[ id ],
+				name = user ? user.name : '?';
+
+			return '{0} ({1})'.supplant( id, name );
 		}
 	},
 
@@ -277,24 +282,22 @@ var commands = {
 
 	choose : function ( args ) {
 		var opts = args.parse().filter( conjunctions ),
-			rnd = Math.random(),
 			len = opts.length;
 
-		bot.log( opts, rnd, '/choose input' );
+		bot.log( opts, '/choose input' );
 
-		//10% chance to get a "none-of-the-above"
-		if ( rnd < 0.1 ) {
+		//5% chance to get a "none-of-the-above"
+		if ( Math.random() < 0.05 ) {
 			return len === 2 ? 'Neither' : 'None of the above';
 		}
-		//15% chance to get "all-of-the-above"
-		// (the first 10% are covered in the previous option)
-		else if ( rnd < 0.25 ) {
+		//5% chance to get "all-of-the-above"
+		else if ( Math.random() < 0.05 ) {
 			return len === 2 ? 'Both!' : 'All of the above';
 		}
 
 		return opts[ Math.floor(Math.random() * len) ];
 
-		//TODO: add support for words like and, e.g.
+		//TODO: add support for words like "and", e.g.
 		// skip and jump or cry and die
 		//  =>
 		// "skip and jump", "cry and die"
@@ -322,19 +325,27 @@ var commands = {
 
 	listcommands : function ( args ) {
 		var commands = Object.keys( bot.commands ),
+
+			valid = /^(\d+|$)/.test( args.content ),
 			page = Number( args.content ) || 0,
-			pageSize = 50;
+			pageSize = 50,
+
+			total = Math.ceil( Math.max(0, commands.length) / pageSize ) - 1;
+
+		if ( page > total || !valid ) {
+			return [
+				args.codify( 'StackOverflow: Could not access page' ),
+				'This unicorn has killed itself because of you',
+				'Accordion to recent surveys, you suck'
+			].random();
+		}
 
 		var start = page * pageSize,
 			end = start + pageSize,
-			left = Math.max( 0, commands.length - end ) / pageSize;
 
-		var ret = commands.slice( start, end ).join( ', ' );
-		if ( left ) {
-			ret += ' ({0} pages left)'.supplant(left);
-		}
+			ret = commands.slice( start, end ).join( ', ' );
 
-		return ret;
+		return ret + ' (page {0}/{1})'.supplant( page, total );;
 	},
 
 	purgecommands : function ( args ) {
@@ -457,7 +468,7 @@ return function ( args, cb ) {
 	}
 
 	IO.jsonp({
-		url:'http://www.urbandictionary.com/iphone/search/define',
+		url : 'http://api.urbandictionary.com/v0/define',
 		data : {
 			term : args.content
 		},
@@ -489,9 +500,17 @@ return function ( args, cb ) {
 	}
 
 	function formatTop ( top ) {
-		return args.link( top.word, top.permalink ) +
-			' ' +
-			top.definition;
+		//replace [tag] in definition with links
+		var def = top.definition.replace( /\[(\w+)\]/g, formatTag );
+
+		return args.link( top.word, top.permalink ) + ' ' + def;
+	}
+	function formatTag ( $0, $1 ) {
+		var href =
+			'http://urbandictionary.com/define.php?term=' +
+			encodeURIComponent( $1 )
+
+		return args.link( $0, href );
 	}
 };
 }());
@@ -580,7 +599,7 @@ return function parse ( args, extraVars ) {
 	}
 
 	function parseMacroArgs ( macroArgs ) {
-		console.log( macroArgs, '/parse parseMacroArgs' );
+		bot.log( macroArgs, '/parse parseMacroArgs' );
 		if ( !macroArgs ) {
 			return [];
 		}
@@ -591,11 +610,14 @@ return function parse ( args, extraVars ) {
 			parse( macroArgs, extraVars )
 				.split( ',' ).invoke( 'trim' ).concat( args )
 		);
+		//this is not good code
 	}
 
 	function findMacro ( macro ) {
-		return (
-			[ macros, msgObj, extraVars ].first( hasMacro ) || [] )[ macro ];
+		var user = bot.users[ args.get('user_id') ],
+			container = [ macros, msgObj, user, extraVars ].first( hasMacro );
+
+		return ( container || {} )[ macro ];
 
 		function hasMacro ( obj ) {
 			return obj.hasOwnProperty( macro );
@@ -650,13 +672,11 @@ return function ( args ) {
 	}
 
 	var msgObj = Object.merge( args.get(), extended );
-	console.log( msgObj );
 	var cmdArgs = bot.Message(
 		//the + 2 is for the two spaces after each arg
 		// /tell replyTo1cmdName2args
 		args.slice( replyTo.length + cmdName.length + 2 ).trim(),
 		msgObj );
-	console.log( cmdArgs.get() );
 	bot.log( cmdArgs, '/tell calling ' + cmdName );
 
 	//if the command is async, it'll accept a callback
@@ -750,13 +770,13 @@ var communal = {
 	die : true, ban : true
 };
 
-Object.keys( commands ).forEach(function ( cmdName ) {
+Object.iterate( commands, function ( cmdName, fun ) {
 	var cmd = {
 		name : cmdName,
-		fun  : commands[ cmdName ],
+		fun  : fun,
 		permissions : {
 			del : 'NONE',
-			use : privilegedCommands[ cmdName ] ? bot.owners : 'ALL'
+			use : privilegedCommands[ cmdName ] ? 'OWNER' : 'ALL'
 		},
 		description : descriptions[ cmdName ],
 		async : commands[ cmdName ].async
