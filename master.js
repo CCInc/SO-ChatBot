@@ -375,15 +375,17 @@ var bot = window.bot = {
 		console.log(msgObj2); console.log(msg2);
 		if(msg2 == ":D") this.prepareMessage(msgObj).send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
 		
-		var msg = this.prepareMessage( msgObj ),
-			id = msg.get( 'user_id' );
+
 	
-		this.callListeners(msg);
+		this.callListeners(this.prepareMessage( msgObj ));
 	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
 			return;
 		}
+		
+				var msg = this.prepareMessage( msgObj ),
+			id = msg.get( 'user_id' );
 
 		var msg = this.prepareMessage( msgObj ),
 			id = msg.get( 'user_id' );
