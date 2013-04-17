@@ -36,7 +36,7 @@ var bot = window.bot = {
 		
 
 	
-		this.callListeners(this.prepareMessage( msgObj ));
+		this.callListeners(this.prepareMessageNoSlice( msgObj ));
 	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
@@ -125,6 +125,15 @@ var bot = window.bot = {
 		var msg = IO.decodehtmlEntities( msgObj.content );
 		return this.Message(
 			msg.slice( this.invocationPattern.length ).trim(),
+			msgObj );
+	},
+	
+		prepareMessageNoSlice : function ( msgObj ) {
+		msgObj = this.adapter.transform( msgObj );
+
+		var msg = IO.decodehtmlEntities( msgObj.content );
+		return this.Message(
+			msg,
 			msgObj );
 	},
 
