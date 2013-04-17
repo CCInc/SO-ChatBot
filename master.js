@@ -7486,8 +7486,8 @@ function google ( args, cb ) {
 		}
 
 		//TODO: change hard limit to argument
-		var results = resp.responseData.results[0];
-		//bot.log( results, '/google results' );
+		var results = resp.responseData.results[0].url;
+		bot.log( results, '/google results' );
 
 		// if ( !results.length ) {
 			// finish( nulls.random() );
@@ -7507,10 +7507,11 @@ function google ( args, cb ) {
 		return args.link( title, result.url );
 	}
 	function formatLink ( query ) {
-		return args.link(
-			'*',
-			'http://google.com/search?q=' +
-				encodeURIComponent( query ) );
+		return "";
+		//args.link(
+		//	'*',
+		//	'http://google.com/search?q=' +
+		//		encodeURIComponent( query ) );
 	}
 
 	function finish ( res ) {
