@@ -34,6 +34,8 @@ var bot = window.bot = {
 		console.log(msgObj2); console.log(msg2);
 		if(msg2 == ":D") this.prepareMessage(msgObj).send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
 	
+		this.callListeners(msg);
+	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
 			return;
