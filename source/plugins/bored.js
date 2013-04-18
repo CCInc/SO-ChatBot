@@ -30,13 +30,13 @@ function zzz () {
 		lastISpoke[ roomid ] = now + 1000 * 10;
 		messagesSinceLast[ roomid ] = 0;
 
-		var resp;
-		do {
-			resp = responses.random();
-		} while ( memory.contains(resp) );
+		// var resp;
+		// do {
+			// resp = responses.random();
+		// } while ( memory.contains(resp) );
 
-		memory.add( resp );
-		bot.adapter.out.add( resp, roomid );
+		// memory.add( resp );
+		// bot.adapter.out.add( resp, roomid );
 	}
 
 	//checks, for a specific room, whether enough time has passed since someone

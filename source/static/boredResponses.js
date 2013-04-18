@@ -240,12 +240,12 @@ function finishSE ( resp ) {
 			enumerable : true
 		};
 
-		var props = {};
-		for (var i = 0; i < 5; i++) {
-			props[ responses.length + i ] = descriptor;
-		}
+	//	var props = {};
+	//	for (var i = 0; i < 5; i++) {
+		//	props[ responses.length + i ] = descriptor;
+	//	}
 
-		Object.defineProperties( responses, props );
+	//	Object.defineProperties( responses, props );
 
 		first = false;
 	}
