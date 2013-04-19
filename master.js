@@ -8848,7 +8848,7 @@ function get_matching_message ( re, onlyBefore ) {
 
 function google ( args, cb ) {
 		IO.jsonp({
-		url : 'http://www.worldweatheronline.com/feed/tz.ashx',
+		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx',
 		data : {
 			q   : args.toString(),
 			format: 'json',
