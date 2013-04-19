@@ -8863,7 +8863,7 @@ function get_matching_message ( re, onlyBefore ) {
 
 function google ( args, cb ) {
 		console.log(args.toString());
-IO.jsonp.image( args.toString(), done );
+IO.jsonp.time( args.toString(), done );
 
 	function done ( resp ) {
 		console.log(resp);
