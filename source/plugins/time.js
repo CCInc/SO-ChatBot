@@ -6,7 +6,7 @@ IO.jsonp.time( args.toString(), done );
 
 	function done ( resp ) {
 		console.log(resp);
-		args.send(calcTime(args.toString(),resp['data']['time_zone'][0]['utcOffset']));
+		args.send(calcTime(resp['request'][0]['query'],resp['data']['time_zone'][0]['utcOffset']));
 	}
 	
 	}
