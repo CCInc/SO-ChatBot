@@ -321,6 +321,20 @@ IO.jsonp.google = function ( query, cb ) {
 	});
 };
 
+IO.jsonp.time = function ( query, cb ) {
+	IO.jsonp({
+		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx',
+		jsonpName : 'callback',
+		data : {
+q   : query,
+			format: 'json',
+			callback: cb,
+			key : 'e7qnb5e3xh3cy2kysypbmuj5'
+		},
+		fun : cb
+	});
+};
+
 IO.jsonp.image = function ( query, cb, number ) {
 	IO.jsonp({
 		url : 'https://www.googleapis.com/customsearch/v1',

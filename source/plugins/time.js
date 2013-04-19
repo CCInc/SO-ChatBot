@@ -2,16 +2,7 @@
 
 function google ( args, cb ) {
 		console.log(args.toString());
-		IO.jsonp({
-		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx?',
-		data : {
-			q   : args.toString(),
-			format: 'json',
-			callback: done,
-			key : 'e7qnb5e3xh3cy2kysypbmuj5'
-		},
-		fun : done
-	});
+IO.jsonp.image( args.toString(), done );
 
 	function done ( resp ) {
 		console.log(resp);
