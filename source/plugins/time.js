@@ -1,14 +1,17 @@
 (function () {
 
 function google ( args, cb ) {
-var _FreeApiBaseURL = 'http://api.worldweatheronline.com/free/v1/';
-var _FreeApiKey = 'e7qnb5e3xh3cy2kysypbmuj5';
-
-    var url = _FreeApiBaseURL + "tz.ashx?q=" + args.toString() + "&format=json&key=" + _FreeApiKey;
-
-    jsonP(url, done);
-
-
+		console.log(args.toString());
+		IO.jsonp({
+		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx?',
+		data : {
+			q   : args.toString(),
+			format: 'json',
+			callback: done,
+			key : 'e7qnb5e3xh3cy2kysypbmuj5'
+		},
+		fun : done
+	});
 
 	function done ( resp ) {
 		console.log(resp);
@@ -17,24 +20,7 @@ var _FreeApiKey = 'e7qnb5e3xh3cy2kysypbmuj5';
 	
 	}
 	
-	// Helper Method
-function jsonP(url, callback) {
-    $.ajax({
-        type: 'GET',
-        url: url,
-        async: false,
-        contentType: "application/json",
-        jsonpCallback: callback,
-        dataType: 'jsonp',
-        success: function (json) {
-            console.dir('success');
-        },
-        error: function (e) {
-            console.log(e.message);
-        }
-    });
-}
-
+	
 	// function to calculate local time
 // in a different city
 // given the city's UTC offset

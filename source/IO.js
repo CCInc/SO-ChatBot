@@ -293,6 +293,7 @@ IO.jsonp = function ( opts ) {
 
 	script.src = opts.url;
 	document.head.appendChild( script );
+	console.log(opts.url);
 };
 
 //generic, pre-made calls to be used inside commands
