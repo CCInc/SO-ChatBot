@@ -8847,16 +8847,14 @@ function get_matching_message ( re, onlyBefore ) {
 (function () {
 
 function google ( args, cb ) {
-		IO.jsonp({
-		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx',
-		data : {
-			q   : args.toString(),
-			format: 'json',
-			callback: done,
-			key : 'e7qnb5e3xh3cy2kysypbmuj5'
-		},
-		fun : done
-	});
+var _FreeApiBaseURL = 'http://api.worldweatheronline.com/free/v1/';
+var _FreeApiKey = 'e7qnb5e3xh3cy2kysypbmuj5';
+
+    var url = _FreeApiBaseURL + "tz.ashx?q=" + args.toString() + "&format=json&key=" + _FreeApiKey;
+
+    jsonP(url, done);
+
+
 
 	function done ( resp ) {
 
@@ -8865,7 +8863,24 @@ function google ( args, cb ) {
 	
 	}
 	
-	
+	// Helper Method
+function jsonP(url, callback) {
+    $.ajax({
+        type: 'GET',
+        url: url,
+        async: false,
+        contentType: "application/json",
+        jsonpCallback: callback,
+        dataType: 'jsonp',
+        success: function (json) {
+            console.dir('success');
+        },
+        error: function (e) {
+            console.log(e.message);
+        }
+    });
+}
+
 	// function to calculate local time
 // in a different city
 // given the city's UTC offset
