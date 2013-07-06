@@ -336,6 +336,21 @@ IO.jsonp.google = function ( query, cb ) {
 	});
 };
 
+IO.jsonp.image = function ( query, cb, number ) {
+	IO.jsonp({
+		url : 'https://www.googleapis.com/customsearch/v1',
+		jsonpName : 'callback',
+		data : {
+			q : query,
+			searchType: "image",
+			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo',
+			cx: '009867671278203221224:g1mxqhphcsk',
+			num: number,
+			safe: 'high'
+		},
+		fun : cb
+	});
+};
 ;
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //small utility functions
