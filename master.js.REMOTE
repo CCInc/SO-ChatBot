@@ -653,7 +653,7 @@ Date.timeSince = function ( d0, d1 ) {
 "use strict";
 
 var bot = window.bot = {
-	invocationPattern : 'cc',
+	invocationPattern : '!!',
 
 	commands : {}, //will be filled as needed
 	commandDictionary : null, //it's null at this point, won't be for long
@@ -2984,91 +2984,120 @@ loadUsers();
 }());
 
 ;
-// //warning: if you have more than 7 points of super-sentitive feminist delicacy,
-// // don't read this file. treat it as a nice black box.
+//warning: if you have more than 7 points of super-sentitive feminist delicacy,
+// don't read this file. treat it as a nice black box.
 
-// //bitch in English is a noun, verb and adjective. interesting.
-// bot.personality = {
-	// bitchiness : 0,
-	// thanks  : {
-		// 0   : [ 'You kiss-ass', 'Most welcome' ],
-		// 0.5 : [ 'Thank you for noticing', 'teehee' ],
-		// 1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
-	// },
-	// apologies : {
-		// 0   : [ 'What for?' ],
-		// 0.5 : [ 'It was nothing...', 'No worries' ],
-		// 1   : [ "You're forgiven. For now. Don't push it." ]
-	// },
-	// //what an incredible name
-	// stuff : {
-		// 0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
+//bitch in English is a noun, verb and adjective. interesting.
+bot.personality = {
+	bitchiness : 0,
+	thanks  : {
+		0   : [ 'You kiss-ass', 'Most welcome' ],
+		0.5 : [ 'Thank you for noticing', 'teehee' ],
+		1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
+	},
+	apologies : {
+		0   : [ 'What for?' ],
+		0.5 : [ 'It was nothing...', 'No worries' ],
+		1   : [ "You're forgiven. For now. Don't push it." ]
+	},
+	//what an incredible name
+	stuff : {
+		0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
 
-		// 1   : [ "Oh don't mind me, that isn't difficult at all..." ],
-		// 1.2 : [
-			// "You don't appreciate me enough. Not that I need to be thanked.." ],
-		// 1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
-		// 2   : [
-			// "*sigh* Remember laughter? I don't. You ripped it out of me. " +
-				// 'Heartless bastard.' ]
-	// },
-	// //TODO: add special map for special times of the month
-	// insanity : {},
+		1   : [ "Oh don't mind me, that isn't difficult at all..." ],
+		1.2 : [
+			"You don't appreciate me enough. Not that I need to be thanked.." ],
+		1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
+		2   : [
+			"*sigh* Remember laughter? I don't. You ripped it out of me. " +
+				'Heartless bastard.' ]
+	},
+	//TODO: add special map for special times of the month
+	insanity : {},
 
-	// okayCommands : { hangman : true, help : true, info : true },
-	// check : function ( name ) {
-		// return !this.okayCommands.hasOwnProperty( name );
-	// },
+	okayCommands : { hangman : true, help : true, info : true },
+	check : function ( name ) {
+		return !this.okayCommands.hasOwnProperty( name );
+	},
 
-	// bitch : function () {
-		// return this.getResp( this.stuff );
-	// },
+	bitch : function () {
+		return this.getResp( this.stuff );
+	},
 
-	// command : function () {
-		// this.bitchiness += this.getDB();
-	// },
-	// thank     : function () { return this.unbitch( this.thanks ); },
-	// apologize : function () { return this.unbitch( this.apologies ); },
+	command : function () {
+		this.bitchiness += this.getDB();
+	},
+	thank     : function () { return this.unbitch( this.thanks ); },
+	apologize : function () { return this.unbitch( this.apologies ); },
 
-	// unbitch : function ( map, delta ) {
-		// var resp = this.getResp( map );
+	unbitch : function ( map, delta ) {
+		var resp = this.getResp( map );
 
-		// this.bitchiness -= ( delta || this.bitchiness );
-		// return resp;
-	// },
-	// getResp : function ( map ) {
-		// return map[
-			// this.bitchiness.fallsAfter(
-				// Object.keys(map).map(Number).sort() )
-		// ].random();
-	// },
+		this.bitchiness -= ( delta || this.bitchiness );
+		return resp;
+	},
+	getResp : function ( map ) {
+		return map[
+			this.bitchiness.fallsAfter(
+				Object.keys(map).map(Number).sort() )
+		].random();
+	},
 
-	// isABitch : function () {
-		// return this.bitchiness >= 1;
-	// },
+	isABitch : function () {
+		return this.bitchiness >= 1;
+	},
 
-	// looksLikeABitch : function () {
-		// return false;
-	// },
+	looksLikeABitch : function () {
+		return false;
+	},
 
-	// //db stands for "delta bitchiness"
-	// getDB : function () {
-		// return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
-	// },
+	//db stands for "delta bitchiness"
+	getDB : function () {
+		return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
+	},
 
-	// isThatTimeOfTheMonth : function () {
-		// var day = (new Date).getDate();
-		// //based on a true story
-		// return day < 2 || day > 27;
-	// }
-// };
+	isThatTimeOfTheMonth : function () {
+		var day = (new Date).getDate();
+		//based on a true story
+		return day < 2 || day > 27;
+	}
+};
 
-// //you see the loophole?
-// bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
-// bot.listen(
-	// /(I('m| am))?\s*sorry/i,
-	// bot.personality.apologize, bot.personality );
-// bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
+//you see the loophole?
+bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
+bot.listen(
+	/(I('m| am))?\s*sorry/i,
+	bot.personality.apologize, bot.personality );
+bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
+
+;
+
+;
+(function () {
+var hammers = {
+	STOP  : 'HAMMERTIME!',
+	STAHP : 'HAMMAHTIME!',
+	HALT  : 'HAMMERZEIT!',
+	STOY  : 'ZABIVAT\' VREMYA!',
+	CAESUM: 'MALLEUS TEMPUS!'
+};
+
+// /(STOP|STAHP|...)[\.!\?]?$/
+var re = new RegExp(
+	'(' +
+		Object.keys(hammers).map(RegExp.escape).join('|') +
+	')[\\.!?]?$' );
+
+IO.register( 'input', function STOP ( msgObj ) {
+	var sentence = msgObj.content.toUpperCase(),
+		res = re.exec( sentence );
+
+	if ( res ) {
+		bot.adapter.out.add( hammers[res[1]], msgObj.room_id );
+	}
+});
+
+})();
 
 ;
 (function () {
@@ -4238,6 +4267,8 @@ bot.addCommand({
 });
 
 ;
+
+;
 (function () {
 var nulls = [
 	'The Google contains no such knowledge',
@@ -4779,180 +4810,6 @@ bot.addCommand({
 
 ;
 (function () {
-var nulls = [
-	'The Google contains no such knowledge',
-	'There are no search results. Run.' ];
-
-function google ( args, cb ) {
-	var random = false;
-	var number = 0;
-
-	console.log(args.toString());
-	if(args.split(' ')[0].toLowerCase() == 'random')
-	{
-	console.log('true');
-	random = true;
-	var argsarray = args.split(' ');
-	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
-	}
-	else if(!isNaN(args.split(' ')[0]))
-	{
-		if(args.split(' ')[0] > 11)
-		{
-			args.reply('USE NUMBERS LESS THAN 10');
-			return;
-		}
-	
-	console.log(args.split(' ').splice(0, 1).join(' ').toString(), 'nan');
-		number = args.split(' ')[0] - 1;
-			var argsarray = args.split(' ');
-	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
-	}
-	else{ console.log('neither');
-	
-	IO.jsonp.image( args.toString(), finishCall, 10 );}
-	
-	function finishCall ( resp ) {
-		bot.log( resp, '/image response' );
-		// if ( resp.responseStatus !== 200 ) {
-			// finish( 'My Google-Fu is on vacation; status ' +
-					// resp.responseStatus );
-			// return;
-		// }
-var results;
-		//TODO: change hard limit to argument
-		
-		if(number != 0)
-		{console.log('number');
-		results = resp.items[number];}
-		else if(!random){console.log('not random');
-		results = resp.items[0];}
-		else{console.log('random');
-		results = resp.items[Math.floor(Math.random()*50)];}
-		
-		
-		bot.log( results, '/image results' );
-		var url;
-		if(results.link.lastIndexOf('.') != results.link.length-3)
-		{
-			console.log(results.link, 'DOES NOT CONTAIN EXTENSION');
-			console.log(results.link.length-3, 'DOES NOT CONTAIN EXTENSION');
-			finish(
-			results.link + "#.png");
-		}
-		else
-		finish(
-			results.link );
-		
-		
-	}
-
-	function finish ( res ) {
-		bot.log( res, '/image final' );
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.send( res );
-		}
-	}
-}
-
-bot.addCommand({
-	name : 'image',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Search Google images. `/image number|random query`',
-	async : true
-});
-}());
-;
-(function () {
-window.URL = window.URL || window.webkitURL || window.mozURL || null;
-
-//translation tool: https://tinker.io/b2ff5
-var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknYXRvYicgICAgICAgICAgICAgICA6IDEsCgknYnRvYScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCi8qIHdlIGRlZmluZSBpdCBvdXRzaWRlIHNvIGl0J2xsIG5vdCBiZSBpbiBzdHJpY3QgbW9kZSAqLwpmdW5jdGlvbiBleGVjICggY29kZSApIHsKCXJldHVybiBldmFsKCAndW5kZWZpbmVkO1xuJyArIGNvZGUgKTsKfQp2YXIgY29uc29sZSA9IHsKCV9pdGVtcyA6IFtdLAoJbG9nIDogZnVuY3Rpb24oKSB7CgkJY29uc29sZS5faXRlbXMucHVzaC5hcHBseSggY29uc29sZS5faXRlbXMsIGFyZ3VtZW50cyApOwoJfQp9Owpjb25zb2xlLmVycm9yID0gY29uc29sZS5pbmZvID0gY29uc29sZS5kZWJ1ZyA9IGNvbnNvbGUubG9nOwp2YXIgcCA9IGNvbnNvbGUubG9nLmJpbmQoIGNvbnNvbGUgKTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCWdsb2JhbC5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXBvc3RNZXNzYWdlKHsKCQkJZXZlbnQgOiAnc3RhcnQnCgkJfSk7CgoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0OwoKCQl0cnkgewoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgkJfQoJCWNhdGNoICggZSApIHsKCQkJcmVzdWx0ID0gZS50b1N0cmluZygpOwoJCX0KCgkJLypKU09OIGRvZXMgbm90IGxpa2UgYW55IG9mIHRoZSBmb2xsb3dpbmcqLwoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciBzaG91bGRfc3RyaW5nID0gZnVuY3Rpb24gKCB2YWx1ZSApIHsKCQkJdmFyIHR5cGUgPSAoIHt9ICkudG9TdHJpbmcuY2FsbCggdmFsdWUgKS5zbGljZSggOCwgLTEgKTsKCgkJCWlmICggdHlwZSBpbiBzdHJ1bmcgKSB7CgkJCQlyZXR1cm4gdHJ1ZTsKCQkJfQoJCQkvKm5laXRoZXIgZG9lcyBpdCBmZWVsIGNvbXBhc3Npb25hdGUgYWJvdXQgTmFOIG9yIEluZmluaXR5Ki8KCQkJcmV0dXJuIHZhbHVlICE9PSB2YWx1ZSB8fCB2YWx1ZSA9PT0gSW5maW5pdHk7CgkJfTsKCgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciBvdXRwdXQ7CgoJCQlpZiAoIHNob3VsZF9zdHJpbmcodmFsdWUpICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoIDEsIC0xICkKCQl9KTsKCX07Cn0pKCk7Cg==' );
-var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
-	code_url = window.URL.createObjectURL( blob );
-
-function eval ( msg ) {
-	var worker = new Worker( code_url ),
-		timeout;
-
-	worker.onmessage = function ( evt ) {
-		var type = evt.data.event;
-		if ( type === 'start' ) {
-			start();
-		}
-		else {
-			finish( dressUpAnswer(evt.data) );
-		}
-	};
-
-	worker.onerror = function ( error ) {
-		finish( error.toString() );
-	};
-
-	//and it all boils down to this...
-	worker.postMessage( msg.content.replace(/^>/, '') );
-
-	function start () {
-		timeout = window.setTimeout(function() {
-			finish( 'Maximum execution time exceeded' );
-		}, 500 );
-	}
-
-	function finish ( result ) {
-		clearTimeout( timeout );
-		worker.terminate();
-		msg.directreply( result );
-	}
-};
-
-function dressUpAnswer ( answerObj ) {
-	console.log( answerObj, 'eval answerObj' );
-	var answer = answerObj.answer,
-		log = answerObj.log,
-		result;
-
-	result = snipAndCodify( answer );
-
-	if ( log && log.length ) {
-		result += ' Logged: ' + snipAndCodify( log );
-	}
-
-	return result;
-}
-function snipAndCodify ( str ) {
-	var ret;
-
-	if ( str.length > 400 ) {
-		ret = '`' +  str.slice(0, 400) + '` (snip)';
-	}
-	else {
-		ret = '`' + str +'`';
-	}
-
-	return ret;
-}
-
-
-bot.addCommand({
-	name : 'js',
-	fun  : eval,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Executes JS code. `/js code`',
-	async : true
-});
-}());
-;
-(function () {
 "use strict";
 var parse = bot.getCommand( 'parse' );
 var storage = bot.memory.get( 'learn' );
@@ -5145,75 +5002,6 @@ loadCommands();
 
 ;
 (function () {
-var nulls = [
-	'The Google contains no such knowledge',
-	'There are no search results. Run.',
-	'My Google Fu has failed.'];
-
-function google ( args, cb ) {
-	IO.jsonp.google( args.toString() + ' c# site:http://msdn.microsoft.com/en-us/library/', finishCall );
-
-	function finishCall ( resp ) {
-		bot.log( resp, '/google response' );
-		if ( resp.responseStatus !== 200 ) {
-			finish( 'My Google-Fu is on vacation; status ' +
-					resp.responseStatus );
-			return;
-		}
-
-		//TODO: change hard limit to argument
-		var results = resp.responseData.results[0].url;
-		bot.log( results, '/google results' );
-
-		// if ( !results.length ) {
-			// finish( nulls.random() );
-			// return;
-		// }
-		finish( format(args.content, results) );
-	}
-
-	function format ( query, results ) {
-		return formatLink( query ) +
-			' ' +
-			results;
-	}
-
-	function formatResult ( result ) {
-		var title = IO.decodehtmlEntities( result.titleNoFormatting );
-		return args.link( title, result.url );
-	}
-	function formatLink ( query ) {
-		return "";
-		//args.link(
-		//	'*',
-		//	'http://google.com/search?q=' +
-		//		encodeURIComponent( query ) );
-	}
-
-	function finish ( res ) {
-		bot.log( res, '/google final' );
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.reply( res );
-		}
-	}
-}
-
-bot.addCommand({
-	name : 'msdn',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Get/s the MSDN docs. `/msdn query`',
-	async : true
-});
-}());
-
-;
-(function () {
 "use strict";
 
 var unexisto = 'User {0} was not found (if the user is not in room {1}, pass ' +
@@ -5322,6 +5110,8 @@ IO.register( 'userregister', function tracker ( user, room ) {
 })();
 
 ;
+
+;
 (function () {
 
 //collection of nudges; msgObj, time left and the message itself
@@ -5413,7 +5203,7 @@ function nudgeListener ( args ) {
 ;
 (function () {
 "use strict";
-var ownerRoom = 7;
+var ownerRoom = 17;
 
 if ( bot.adapter.roomid !== ownerRoom ) {
 	return;
@@ -5804,33 +5594,6 @@ bot.addCommand({
 });
 
 }());
-
-;
-(function () {
-var hammers = {
-	STOP  : 'HAMMERTIME!',
-	STAHP : 'HAMMAHTIME!',
-	HALT  : 'HAMMERZEIT!',
-	STOY  : 'ZABIVAT\' VREMYA!',
-	CAESUM: 'MALLEUS TEMPUS!'
-};
-
-// /(STOP|STAHP|...)[\.!\?]?$/
-var re = new RegExp(
-	'(' +
-		Object.keys(hammers).map(RegExp.escape).join('|') +
-	')[\\.!?]?$' );
-
-IO.register( 'input', function STOP ( msgObj ) {
-	var sentence = msgObj.content.toUpperCase(),
-		res = re.exec( sentence );
-
-	if ( res ) {
-		bot.adapter.out.add( hammers[res[1]], msgObj.room_id );
-	}
-});
-
-})();
 
 ;
 (function () {
@@ -6538,84 +6301,84 @@ bot.addCommand({
 }());
 
 ;
-// (function () {
-// "use strict";
-// //welcomes new users with a link to the room rules
+(function () {
+"use strict";
+//welcomes new users with a link to the room rules
 
-// var seen = bot.memory.get( 'users' );
+var seen = bot.memory.get( 'users' );
 
-// var message = "Welcome to the JavaScript chat! Please review the " +
-		// bot.adapter.link(
-			// "room pseudo-rules",
-			// "http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
-	// "Please don't ask if you can ask or if anyone's around; just ask " +
-	// "your question, and if anyone's free and interested they'll help.";
+var message = "Welcome to the JavaScript chat! Please review the " +
+		bot.adapter.link(
+			"room pseudo-rules",
+			"http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
+	"Please don't ask if you can ask or if anyone's around; just ask " +
+	"your question, and if anyone's free and interested they'll help.";
 
-// function welcome ( name, room ) {
-	// bot.adapter.out.add(
-		// bot.adapter.reply( name ) + " " + message, room );
-// }
+function welcome ( name, room ) {
+	bot.adapter.out.add(
+		bot.adapter.reply( name ) + " " + message, room );
+}
 
-// IO.register( 'userregister', function ( user, room ) {
-	// var semiLegitUser = bot.isOwner( user.id ) ||
-		// user.reputation > 1000 || user.reputation < 20;
+IO.register( 'userregister', function ( user, room ) {
+	var semiLegitUser = bot.isOwner( user.id ) ||
+		user.reputation > 1000 || user.reputation < 20;
 
-	// if (
-		// Number( room ) !== 17 || semiLegitUser  || seen[ user.id ]
-	// ) {
-		// if ( semiLegitUser ) {
-			// finish( true );
-		// }
-		// return;
-	// }
+	if (
+		Number( room ) !== 17 || semiLegitUser  || seen[ user.id ]
+	) {
+		if ( semiLegitUser ) {
+			finish( true );
+		}
+		return;
+	}
 
-	// IO.xhr({
-		// method : 'GET',
-		// url : '/users/' + user.id,
+	IO.xhr({
+		method : 'GET',
+		url : '/users/' + user.id,
 
-		// complete : complete
-	// });
+		complete : complete
+	});
 
-	// function complete ( resp ) {
-		// //I'm parsing html with regexps. hopefully Cthulu won't eat me.
-		// // <a href="/transcript/17">7</a>
-		// // <a href="/transcript/17">47.1k</a>
-		// var chatMessages = /transcript\/17(?:'|")>([\d\.]+)(k?)/.exec( resp );
+	function complete ( resp ) {
+		//I'm parsing html with regexps. hopefully Cthulu won't eat me.
+		// <a href="/transcript/17">7</a>
+		// <a href="/transcript/17">47.1k</a>
+		var chatMessages = /transcript\/17(?:'|")>([\d\.]+)(k?)/.exec( resp );
 
-		// if ( !chatMessages || (
-			// chatMessages[ 2 ] || parseFloat( chatMessages[1] ) < 2
-		// )) {
-			// welcome( user.name, room );
-		// }
-		// finish();
-	// }
+		if ( !chatMessages || (
+			chatMessages[ 2 ] || parseFloat( chatMessages[1] ) < 2
+		)) {
+			welcome( user.name, room );
+		}
+		finish();
+	}
 
-	// function finish ( unsee ) {
-		// if ( unsee ) {
-			// delete seen[ user.id ];
-		// }
-		// else {
-			// seen[ user.id ] = true;
-		// }
-		// bot.memory.save( 'users' );
-	// }
-// });
+	function finish ( unsee ) {
+		if ( unsee ) {
+			delete seen[ user.id ];
+		}
+		else {
+			seen[ user.id ] = true;
+		}
+		bot.memory.save( 'users' );
+	}
+});
 
-// bot.addCommand({
-	// name : 'welcome',
-	// fun : function ( args ) {
-		// if (!args.length) {
-			// return message;
-		// }
+bot.addCommand({
+	name : 'welcome',
+	fun : function ( args ) {
+		if (!args.length) {
+			return message;
+		}
 
-		// welcome( args, args.get('roomid') );
-	// },
-	// permission : {
-		// del : 'NONE'
-	// },
-	// description : 'Welcomes a user. `/welcome user`'
-// });
-// }());
+		welcome( args, args.get('roomid') );
+	},
+	permission : {
+		del : 'NONE'
+	},
+	description : 'Welcomes a user. `/welcome user`'
+});
+}());
 
 ;
 (function () {

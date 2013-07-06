@@ -1,6 +1,6 @@
 (function () {
 "use strict";
-var ownerRoom = 17;
+var ownerRoom = 7;
 
 if ( bot.adapter.roomid !== ownerRoom ) {
 	return;
