@@ -796,7 +796,7 @@ var bot = window.bot = {
 
 		return (
 			//make sure we don't process our own messages,
-			msgObj.user_id !== bot.adapter.user_id &&
+			//msgObj.user_id !== bot.adapter.user_id &&
 			//and the message begins with the invocationPattern
 			msg.startsWith( this.invocationPattern ) );
 	},
