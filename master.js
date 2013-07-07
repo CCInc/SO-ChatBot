@@ -5544,7 +5544,7 @@ $.ajax({
 
 		if ( res.length > 200 ) {
 			res = results.map(function (r) {
-				return r.unescapedUrl;
+				return "[" + r.titleNoFormatting + "](" + r.unescapedUrl+")";
 			}).join( ' ; ' );
 		}
 
@@ -5571,7 +5571,7 @@ $.ajax({
 			args.reply( res );
 		}
 	}
-			args.send ("Can't find the specified PHP item " + args + " !!!");
+			//args.send ("Can't find the specified PHP item " + args + " !!!");
 		}
     }
 });
