@@ -5447,11 +5447,15 @@ $.ajax({
             console.log(stuff);
 
             var xpath;
-
-               
+			
+            
             if (stuff.startsWith("class") || stuff.startsWith("language.")) {
                 xpath = "(//p[contains(@class, \"para\")])[1]";
             } 
+			else if(stuff.startsWith("book."))
+			{
+				stuff = stuff.replace("book.", "intro.");
+			}
 			else {
                 xpath = "(//div[@class=\"refsect1 description\"])[1]";
             }
@@ -5480,11 +5484,13 @@ $.ajax({
                     console.log((data));
                   //  console.log(StrippedString);
                    // var text = $(data).text().replace("Description", "");
-                    if (text.length > 387) text = text.substr(0, 384) + '...';
+                    if (text.length > 484) text = text.substr(0, 480) + '...';
                     console.log(text);
 					args.send(text);
+					
                 }
             });
+			return;
 					}
 					var text = "["+stuff+"](http://php.net/"+args+") ";
                     if(stuff.startsWith("class.") || stuff.startsWith("language."))
@@ -5498,7 +5504,7 @@ $.ajax({
                     console.log((data));
                   //  console.log(StrippedString);
                    // var text = $(data).text().replace("Description", "");
-                    if (text.length > 387) text = text.substr(0, 384) + '...';
+                    if (text.length > 484) text = text.substr(0, 480) + '...';
                     console.log(text);
 					args.send(text);
                 }
@@ -5523,6 +5529,10 @@ if (typeof String.prototype.startsWith != 'function') {
         return this.slice(0, str.length) == str;
     };
 }
+String.prototype.splice = function( idx, rem, s ) {
+    return (this.slice(0,idx) + s + this.slice(idx + Math.abs(rem)));
+};
+
 }
 
 bot.addCommand({
