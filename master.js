@@ -5516,7 +5516,63 @@ $.ajax({
             //console.log( $(data).text() );
         }
 		else
+		{
+			IO.jsonp.google( args.toString() + ' site:php.net', finishCall );
+
+	function finishCall ( resp ) {
+		bot.log( resp, '/google response' );
+		if ( resp.responseStatus !== 200 ) {
+			finish( 'My Google-Fu is on vacation; status ' +
+					resp.responseStatus );
+			return;
+		}
+
+		//TODO: change hard limit to argument
+		var results = resp.responseData.results.slice( 0, 3 );
+		bot.log( results, '/google results' );
+
+		if ( !results.length ) {
+			args.send("o noes! not found!");
+			return;
+		}
+		finish( format(args.content, results) );
+	}
+
+	function format ( query, results ) {
+		var res = formatLink( query ) + ' ' +
+			results.map( formatResult ).join( ' ; ' );
+
+		if ( res.length > 200 ) {
+			res = results.map(function (r) {
+				return r.unescapedUrl;
+			}).join( ' ; ' );
+		}
+
+		return res;
+	}
+
+	function formatResult ( result ) {
+		var title = IO.decodehtmlEntities( result.titleNoFormatting );
+		return args.link( title, result.unescapedUrl );
+	}
+	function formatLink ( query ) {
+		return args.link(
+			'*',
+			'http://google.com/search?q=' +
+				encodeURIComponent( query ) );
+	}
+
+	function finish ( res ) {
+		bot.log( res, '/google final' );
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
 			args.send ("Can't find the specified PHP item " + args + " !!!");
+		}
     }
 });
 }
