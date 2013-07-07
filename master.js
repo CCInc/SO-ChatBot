@@ -5545,7 +5545,7 @@ $.ajax({
 
 	function format ( query, results ) {
 		var res = formatLink( query ) + ' ' +
-			results.map( formatResult ).join( ' - ' );
+			results.map( formatResult ).join( ' ; ' );
 
 		if ( res.length > 200 ) {
 			res = results.map(function (r) {
