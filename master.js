@@ -5438,7 +5438,12 @@ try
 $.ajax({
     type: 'GET',
     url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fphp.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
-    dataType: 'json',
+    dataType: 'json',	
+    timeout: 5000,
+    error:function(){
+        args.reply ("o noes! not founded!!!");
+		return;
+    },
     success: function (data) {
 
         if (data["query"]["results"] != null) {
@@ -5540,7 +5545,7 @@ $.ajax({
 
 	function format ( query, results ) {
 		var res = formatLink( query ) + ' ' +
-			results.map( formatResult ).join( ' ; ' );
+			results.map( formatResult ).join( ' - ' );
 
 		if ( res.length > 200 ) {
 			res = results.map(function (r) {
