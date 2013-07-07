@@ -17,9 +17,10 @@ $.ajax({
 
             var xpath;
 
-            if (stuff.startsWith("class.")) {
+               if (stuff.startsWith("class") || stuff.startsWith("language.types.")) {
                 xpath = "(//p[@class=\"para\"])[1]";
-            } else {
+            } 
+			else {
                 xpath = "(//div[@class=\"refsect1 description\"])[1]";
             }
 
@@ -28,7 +29,7 @@ $.ajax({
                 url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
                 dataType: 'xml',
  success: function (data) {
-                    if(stuff.startsWith("class."))
+                    if(stuff.startsWith("class.") || stuff.startsWith("language."))
                     {
                         var text = (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
                     }
@@ -41,7 +42,7 @@ $.ajax({
                    // var text = $(data).text().replace("Description", "");
                     if (text.length > 387) text = text.substr(0, 384) + '...';
                     console.log(text);
-					args.reply(text);
+					args.directreply(text);
                 }
             });
 
