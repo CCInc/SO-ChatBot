@@ -10,7 +10,7 @@ $.ajax({
     dataType: 'json',
     success: function (data) {
 
-        if (data) {
+        if (data["query"]["results"] != null) {
             var stuff = data["query"]["results"]["base"]["href"];
             stuff = stuff.substring(stuff.lastIndexOf("/") + 1, stuff.lastIndexOf("."));
             console.log(stuff);
@@ -28,7 +28,7 @@ $.ajax({
                 url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
                 dataType: 'xml',
                 success: function (data) {
-                    var text ="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")) + "` - " + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,""));
+				   var text ="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"") + "` - " + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"");
                   //  console.log((data));
                   //  console.log(StrippedString);
                    // var text = $(data).text().replace("Description", "");
@@ -42,6 +42,8 @@ $.ajax({
             //  console.info('Here is the returned query');
             //console.log( $(data).text() );
         }
+		else
+			args.reply ("Can't find the specified PHP item!!!");
     }
 });
 
