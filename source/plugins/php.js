@@ -9,7 +9,7 @@ try
 			{
 $.ajax({
     type: 'GET',
-    url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fus3.php.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
+    url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fphp.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
     dataType: 'json',
     success: function (data) {
 
