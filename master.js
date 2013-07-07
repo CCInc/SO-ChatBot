@@ -5455,9 +5455,16 @@ $.ajax({
                 type: 'GET',
                 url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
                 dataType: 'xml',
-                success: function (data) {
-				   var text ="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"") + "` - " + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"");
-                  //  console.log((data));
+ success: function (data) {
+                    if(stuff.startsWith("class."))
+                    {
+                        var text = (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
+                    }
+                    else
+                    {
+                    var text ="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() + "` - " + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
+                    }
+                    console.log((data));
                   //  console.log(StrippedString);
                    // var text = $(data).text().replace("Description", "");
                     if (text.length > 387) text = text.substr(0, 384) + '...';
