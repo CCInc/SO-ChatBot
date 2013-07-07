@@ -2,8 +2,11 @@
 
 function google ( args, cb ) {
 
-//var args = 'substr';
+if(args == "") {args.reply("Usage: cc/php <keyword>. Displays help for PHP commands."); return;}
 
+//var args = 'substr'; 
+try
+			{
 $.ajax({
     type: 'GET',
     url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fus3.php.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
@@ -24,8 +27,7 @@ $.ajax({
 			else {
                 xpath = "(//div[@class=\"refsect1 description\"])[1]";
             }
-			try
-			{
+			
             $.ajax({
                 type: 'GET',
                 url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
@@ -47,11 +49,7 @@ $.ajax({
 					args.directreply(text);
                 }
             });
-			}
-			catch(e)
-			{
-				args.reply ("Error finding the specified PHP item!!!");
-			}
+			
 
             // Show in console the jQuery Object.
             //  console.info('Here is the returned query');
@@ -61,7 +59,11 @@ $.ajax({
 			args.reply ("Can't find the specified PHP item!!!");
     }
 });
-
+}
+catch(e)
+{
+	args.reply ("Error finding the specified PHP item!!!");
+}
 if (typeof String.prototype.startsWith != 'function') {
     String.prototype.startsWith = function (str) {
         return this.slice(0, str.length) == str;
@@ -75,7 +77,7 @@ bot.addCommand({
 	permissions : {
 		del : 'NONE'
 	},
-	description : 'Gets the PHP docs for the specified PHP element. /php query',
+	description : 'Usage: php <keyword>. Displays help for PHP commands.',
 	async : true
 });
 }());
