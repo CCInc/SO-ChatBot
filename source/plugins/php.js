@@ -116,7 +116,7 @@ $.ajax({
 
 		if ( res.length > 200 ) {
 			res = results.map(function (r) {
-				return "[" + r.titleNoFormatting + "](" + r.unescapedUrl+")";
+				return "[" + r.titleNoFormatting.replace(" - PHP", "").replace("PHP: ","").replace(" - Manual", "") + "](" + r.unescapedUrl+")";
 			}).join( ' ; ' );
 		}
 
