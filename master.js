@@ -5461,7 +5461,7 @@ $.ajax({
                 url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
                 dataType: 'xml',
  success: function (data) {
-					var text = "[php.net/"+args+"]("+stuff+")";
+					var text = "[php.net/"+args+"]("+stuff+") ";
                     if(stuff.startsWith("class.") || stuff.startsWith("language."))
                     {
                         text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
@@ -5475,7 +5475,7 @@ $.ajax({
                    // var text = $(data).text().replace("Description", "");
                     if (text.length > 387) text = text.substr(0, 384) + '...';
                     console.log(text);
-					args.directreply(text);
+					args.send(text);
                 }
             });
 			
@@ -5485,13 +5485,13 @@ $.ajax({
             //console.log( $(data).text() );
         }
 		else
-			args.reply ("Can't find the specified PHP item!!!");
+			args.send ("Can't find the specified PHP item " + args + " !!!");
     }
 });
 }
 catch(e)
 {
-	args.reply ("Error finding the specified PHP item!!!");
+	args.send ("Error finding the specified PHP item " + args + " !!!");
 }
 if (typeof String.prototype.startsWith != 'function') {
     String.prototype.startsWith = function (str) {
