@@ -89,7 +89,7 @@ $.ajax({
         }
 		else
 		{
-			IO.jsonp.google( args.toString() + ' site:php.net', finishCall );
+			IO.jsonp.google( args.toString() + ' site:php.net/manual/en/', finishCall );
 
 	function finishCall ( resp ) {
 		bot.log( resp, '/google response' );
