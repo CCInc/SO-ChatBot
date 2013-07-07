@@ -5445,13 +5445,15 @@ $.ajax({
 
             var xpath;
 
-               if (stuff.startsWith("class") || stuff.startsWith("language.types.")) {
-                xpath = "(//p[@class=\"para\"])[1]";
+               
+            if (stuff.startsWith("class") || stuff.startsWith("language.types.")) {
+                xpath = "(//p[contains(@class, \"para\")])[1]";
             } 
 			else {
                 xpath = "(//div[@class=\"refsect1 description\"])[1]";
             }
-
+			try
+			{
             $.ajax({
                 type: 'GET',
                 url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
@@ -5473,6 +5475,11 @@ $.ajax({
 					args.directreply(text);
                 }
             });
+			}
+			catch(e)
+			{
+				args.reply ("Error finding the specified PHP item!!!");
+			}
 
             // Show in console the jQuery Object.
             //  console.info('Here is the returned query');
