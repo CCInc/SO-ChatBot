@@ -144,10 +144,11 @@ var bot = window.bot = {
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
 		
-		if( msg.startsWith( "@" + botName))
+		if( msg.startsWith( "@" + this.botName))
 		{
-			console.log("cleverbot time");
-			bot.cleverbot.speak(msgObj);
+		var message = msgObj.slice(("@" + this.botName).length +1);
+			console.log("cleverbot time " + message);
+			bot.cleverbot.speak();
 			return false;
 		}
 
