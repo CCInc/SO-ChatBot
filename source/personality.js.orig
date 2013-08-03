@@ -77,9 +77,16 @@
 	// }
 // };
 
+<<<<<<< HEAD
+//you see the loophole?
+bot.listen( /thank(s| you)/, bot.personality.thank, bot.personality );
+bot.listen( /sorry/, bot.personality.apologize, bot.personality );
+bot.listen( /bitch/i, bot.personality.bitch, bot.personality );
+=======
 // //you see the loophole?
 // bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
 // bot.listen(
 	// /(I('m| am))?\s*sorry/i,
 	// bot.personality.apologize, bot.personality );
 // bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
+>>>>>>> bf2327661c3f26725ba4295baa95be264eb7313e

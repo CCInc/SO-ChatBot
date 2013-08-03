@@ -6,11 +6,19 @@
 //can x y
 // => yes or no
 
+<<<<<<< HEAD
+var chooseRe = /^\s*(choose|should)?.*\sor\s[^$]/i;
+	// questionRe = new RegExp([
+		// "am", "are", "can", "could", "do", "does", "is", "may", "might",
+		// "shall", "should", "will", "would"
+	// ].map(RegExp.escape).join('|'), 'i');
+=======
 var chooseRe = /^\s*(choose|should)?.*\sor\s[^$]/i,
 	questionRe = new RegExp('\\b(' +[
 		"am", "are", "can", "could", "did", "do", "does", "is", "may", "might",
 		"shall", "should", "will", "would"
 	].map(RegExp.escape).join('|') + ')\\b', 'i');
+>>>>>>> bf2327661c3f26725ba4295baa95be264eb7313e
 
 //personal pronouns to capitalize and their mapping
 //TODO: add possessives (should my cat => your cat should)
@@ -116,9 +124,16 @@ bot.listen(chooseRe, function chooseListener ( msg ) {
 	}
 });
 
+<<<<<<< HEAD
+// bot.listen(questionRe, function ( msg ) {
+	// //TODO: same question => same mapping (negative/positive, not specific)
+	// return answers.random();
+// });
+=======
 bot.listen(questionRe, function questionListener () {
 	//TODO: same question => same mapping (negative/positive, not specific)
 	return answers.random();
 });
+>>>>>>> bf2327661c3f26725ba4295baa95be264eb7313e
 
 }());

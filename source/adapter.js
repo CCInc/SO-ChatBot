@@ -9,6 +9,8 @@ bot.adapter = {
 	fkey   : null,
 	//used in commands calling the SO API
 	site   : null,
+	//our user id
+	user_id : null,
 
 	//not a necessary function, used in here to set some variables
 	init : function () {
@@ -18,8 +20,9 @@ bot.adapter = {
 			return;
 		}
 		this.fkey = fkey.value;
-		this.roomid = /\d+/.exec(location)[ 0 ];
+		this.roomid = Number( /\d+/.exec(location)[0] );
 		this.site = /chat\.(\w+)/.exec( location )[ 1 ];
+		this.user_id = CHAT.user.current().id;
 
 		this.in.init();
 		this.out.init();
@@ -90,11 +93,14 @@ var polling = bot.adapter.in = {
 	// while
 	lastTimes : {},
 
+	firstPoll : true,
+
 	interval : 5000,
 
-	init : function () {
+	init : function ( roomid ) {
 		var that = this,
-			roomid = bot.adapter.roomid;
+			providedRoomid = ( roomid !== undefined );
+		roomid = roomid || bot.adapter.roomid;
 
 		IO.xhr({
 			url : '/ws-auth',
@@ -109,25 +115,79 @@ var polling = bot.adapter.in = {
 			resp = JSON.parse( resp );
 			bot.log( resp );
 
-			that.openSocket( resp.url );
+			that.openSocket( resp.url, providedRoomid );
 		}
 	},
 
-	openSocket : function ( url ) {
+	initialPoll : function () {
+		bot.log( 'adapter: initial poll' );
+		var roomid = bot.adapter.roomid,
+		that = this;
+
+		IO.xhr({
+			url : '/chats/' + roomid + '/events/',
+			data : fkey({
+				since : 0,
+				mode : 'Messages',
+				msgCount : 0
+			}),
+			method : 'POST',
+			complete : finish
+		});
+
+		function finish ( resp ) {
+			resp = JSON.parse( resp );
+			bot.log( resp );
+
+			that.times[ 'r' + roomid ] = resp.time;
+			that.firstPoll = false;
+
+			that.loopage();
+		}
+	},
+
+	openSocket : function ( url, discard ) {
 		//chat sends an l query string parameter. seems to be the same as the
 		// since xhr parameter, but I didn't know what that was either so...
 		//putting in 0 got the last shitload of messages, so what does a high
 		// number do? (spoiler: it "works")
 		var socket = this.socket = new WebSocket( url + '?l=99999999999' );
-		socket.onmessage = this.ondata.bind( this );
+
+		if ( discard ) {
+			socket.onmessage = function () {
+				socket.close();
+			};
+		}
+		else {
+			socket.onmessage = this.ondata.bind( this );
+			socket.onclose = this.socketFail.bind( this );
+		}
 	},
 
 	ondata : function ( messageEvent ) {
 		this.pollComplete( messageEvent.data );
 	},
 
+	poll : function () {
+		if ( this.firstPoll ) {
+			this.initialPoll();
+			return;
+		}
+
+		var that = this;
+
+		IO.xhr({
+			url : '/events',
+			data : fkey( that.times ),
+			method : 'POST',
+			complete : that.pollComplete,
+			thisArg : that
+		});
+	},
+
 	pollComplete : function ( resp ) {
 		if ( !resp ) {
+			this.loopage();
 			return;
 		}
 		resp = JSON.parse( resp );
@@ -147,6 +207,8 @@ var polling = bot.adapter.in = {
 
 		//handle all the input
 		IO.in.flush();
+		//and move on with our lives
+		this.loopage();
 	},
 
 	handleMessageObject : function ( msg ) {
@@ -240,55 +302,75 @@ var polling = bot.adapter.in = {
 		else if ( et === 4 ) {
 			IO.fire( 'userleave', msg );
 		}
+	},
+
+	leaveRoom : function ( roomid, cb ) {
+		if ( roomid === bot.adapter.roomid ) {
+			cb( 'base_room' );
+			return;
+		}
+
+		IO.xhr({
+			method : 'POST',
+			url : '/chats/leave/' + roomid,
+			data : fkey({
+				quiet : true
+			}),
+			complete : function () {
+				cb();
+			}
+		});
+	},
+
+	socketFail : function () {
+		bot.log( 'adapter: socket failed', this );
+		this.socket.close();
+		this.socket = null;
+		this.loopage();
+	},
+
+	loopage : function () {
+		if ( this.socket ) {
+			return;
+		}
+
+		var that = this;
+		setTimeout(function () {
+			that.poll();
+		}, this.interval );
 	}
 };
 
 //the output is expected to have only one method: add, which receives a message
 // and the room_id. everything else is up to the implementation.
 var output = bot.adapter.out = {
+	'409' : 0, //count the number of conflicts
+	total : 0, //number of messages sent
 	interval : polling.interval + 500,
-	messages : {},
 
-	init : function () {
-		this.loopage();
-	},
+	init : function () {},
 
 	//add a message to the output queue
 	add : function ( msg, roomid ) {
-		roomid = roomid || bot.adapter.roomid;
 		IO.out.receive({
 			text : msg + '\n',
-			room : roomid
+			room : roomid || bot.adapter.roomid
 		});
-	},
-
-	//build the final output
-	build : function ( obj ) {
-		if ( !this.messages[obj.room] ) {
-			this.messages[ obj.room ] = '';
-		}
-		this.messages[ obj.room ] += obj.text;
+		IO.out.tick();
 	},
 
 	//send output to all the good boys and girls
 	//no messages for naughty kids
 	//...what's red and sits in the corner?
 	//a naughty strawberry
-	send : function () {
+	send : function ( obj ) {
 		//unless the bot's stopped. in which case, it should shut the fudge up
 		// the freezer and never let it out. not until it can talk again. what
 		// was I intending to say?
 		if ( !bot.stopped ) {
-			Object.iterate(this.messages, function ( room, message ) {
-				if ( !message ) {
-					return;
-				}
-
-				this.sendToRoom( message, room );
-			}, this );
+			//ah fuck it
+			this.sendToRoom( obj.text, obj.room );
 		}
-
-		this.messages = {};
 	},
 
 	//what's brown and sticky?
@@ -309,7 +391,8 @@ var output = bot.adapter.out = {
 
 			//conflict, wait for next round to send message
 			if ( xhr.status === 409 ) {
-				output.add( text, roomid );
+				output['409'] += 1;
+				delayAdd( text, roomid );
 			}
 			//server error, usually caused by message being too long
 			else if ( xhr.status === 500 ) {
@@ -325,25 +408,21 @@ var output = bot.adapter.out = {
 					' (@Zirak)' );
 			}
 			else {
+				output.total += 1;
 				IO.fire( 'sendoutput', xhr, text, roomid );
 			}
 		}
-	},
 
-	//what do you call a boomerang which doesn't return?
-	//a stick
-	loopage : function () {
-		var that = this;
-		setTimeout(function () {
-			IO.out.flush();
-			that.loopage();
-		}, this.interval );
+		function delayAdd () {
+			setTimeout(function delayedAdd () {
+				output.add( text, roomid );
+			}, output.interval );
+		}
 	}
 };
 //what's orange and sounds like a parrot?
 //a carrot
-IO.register( 'output', output.build, output );
-IO.register( 'afteroutput', output.send, output );
+IO.register( 'output', output.send, output );
 
 //two guys walk into a bar. the bartender asks them "is this some kind of joke?"
 bot.adapter.init();

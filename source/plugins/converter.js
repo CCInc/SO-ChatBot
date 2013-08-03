@@ -39,6 +39,10 @@ var converters = {
 	km : function ( km ) {
 		return converters.m( km * 1000 );
 	},
+	//centimeter: 1m = 100cm
+	cm : function ( cm ) {
+		return converters.m( cm / 100 );
+	},
 	//millimeters: 1m = 1mm / 1000
 	mm : function ( mm ) {
 		return converters.m( mm / 1000 );
@@ -142,7 +146,7 @@ var rUnits = /(-?\d+\.?\d*)\s*(\S+)(\s+(?:(?:to|in)\s+)?(\S+))?$/;
 // <number><unit> to|in <unit>
 //note that units are case-sensitive: F is the temperature, f is the length
 var convert = function ( inp, cb ) {
-	if ( inp.toString() === 'list' ) {
+	if ( inp.toLowerCase() === 'list' ) {
 		finish( listUnits().join(', ') );
 		return;
 	}
@@ -155,9 +159,9 @@ var convert = function ( inp, cb ) {
 	}
 
 	var num = Number( parts[1] ),
-	    unit = parts[ 2 ],
-	    target = parts[ 4 ] || '',
-	    moneh = false;
+		unit = parts[ 2 ],
+		target = parts[ 4 ] || '',
+		moneh = false;
 	bot.log( num, unit, target, '/convert input' );
 
 	unit   = unalias( unit );
@@ -177,9 +181,15 @@ var convert = function ( inp, cb ) {
 		bot.log( res, '/convert answer' );
 
 		var reply;
-		if ( res.error ) {
+		// list was passed
+		if ( res.substr ) {
+			reply = res;
+		}
+		//an error occured
+		else if ( res.error ) {
 			reply = res.error;
 		}
+		//just a normal result
 		else {
 			reply = format( res );
 		}
@@ -249,7 +259,7 @@ var moneyConverter = {
 
 	getRate : function ( cb ) {
 		var self = this,
-		    rate;
+			rate;
 
 		if ( rate = this.checkCache() ) {
 			cb( rate );

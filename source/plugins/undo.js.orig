@@ -59,7 +59,6 @@ var undo = {
 	},
 
 	update_id : function ( xhr ) {
-		console.log( xhr );
 		this.last_id = JSON.parse( xhr.responseText ).id;
 	}
 };
@@ -71,7 +70,7 @@ bot.addCommand({
 	thisArg : undo,
 	permissions : {
 		del : 'NONE',
-		use : bot.owners
+		use : 'OWNER'
 	},
 	description : 'Undo (delete) specified or last message. `/undo [msgid]`'
 });
@@ -87,7 +86,7 @@ var undo = {
 		bot.log( id, '/undo input' );
 
 		if ( !id ) {
-			id = this.last_id
+			id = this.last_id;
 		}
 
 		if ( !id ) {
@@ -126,7 +125,7 @@ var undo = {
 				msg = 'TimeError: Could not reach 88mph';
 			}
 			else if ( /only delete your own/i.test(resp) ) {
-				 //...I can't think of anything clever
+				//...I can't think of anything clever
 				msg = 'I can only delete my own messages';
 			}
 			else {
@@ -155,4 +154,4 @@ bot.addCommand({
 });
 
 }());
->>>>>>> d3f9428dce8d661e203b4956a0b5ebd78c823745
+>>>>>>> bf2327661c3f26725ba4295baa95be264eb7313e

@@ -5,7 +5,7 @@ var commands = {
 	help : function ( args ) {
 		if ( args && args.length ) {
 
-			var cmd = bot.getCommand( args );
+			var cmd = bot.getCommand( args.toLowerCase() );
 			if ( cmd.error ) {
 				return cmd.error;
 			}
@@ -16,15 +16,23 @@ var commands = {
 		}
 
 		return 'https://github.com/Zirak/SO-ChatBot/wiki/' +
-		       'Interacting-with-the-bot';
+			'Interacting-with-the-bot';
 	},
 
 	listen : function ( msg ) {
-		return bot.callListeners( msg ) || bot.giveUpMessage( msg );
+		var ret = bot.callListeners( msg );
+		if ( !ret ) {
+			return bot.giveUpMessage();
+		}
 	},
 
-	eval : function ( msg ) {
-		return bot.eval( msg );
+	eval : function ( msg, cb ) {
+		return bot.eval( msg, cb );
+	},
+	coffee : function ( msg, cb ) {
+		//yes, this is a bit yucky
+		var arg = bot.Message( 'c> ' + msg, msg.get() );
+		return commands.eval( arg, cb );
 	},
 
 	live : function () {
@@ -120,7 +128,7 @@ var commands = {
 			}
 
 			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.'
+				msg = 'Cannot find user {0}.';
 			}
 			else if ( !bot.banlist.contains(id) ) {
 				msg = 'User {0} isn\'t in mindjail.';
@@ -321,108 +329,59 @@ var commands = {
 		}
 
 		args.directreply( 'http://stackoverflow.com/users/' + id );
-	},
-
-	listcommands : function ( args ) {
-		var commands = Object.keys( bot.commands ),
-
-			valid = /^(\d+|$)/.test( args.content ),
-			page = Number( args.content ) || 0,
-			pageSize = 50,
-
-			total = Math.ceil( Math.max(0, commands.length) / pageSize ) - 1;
-
-		if ( page > total || !valid ) {
-			return [
-				args.codify( 'StackOverflow: Could not access page' ),
-				'This unicorn has killed itself because of you',
-				'Accordion to recent surveys, you suck'
-			].random();
-		}
-
-		var start = page * pageSize,
-			end = start + pageSize,
-
-			ret = commands.slice( start, end ).join( ', ' );
-
-		return ret + ' (page {0}/{1})'.supplant( page, total );;
-	},
-
-	purgecommands : function ( args ) {
-		var id = args.get( 'user_id' );
-		Object.keys( bot.commands ).map( mapper ).forEach( del );
-
-		return 'The deed has been done.';
-
-		function mapper ( cmdName ) {
-			return bot.commands[ cmdName ];
-		}
-		function del ( cmd ) {
-			if ( cmd.learned && cmd.canDel(id) ) {
-				cmd.del();
-			}
-		}
 	}
 };
 
-commands.define = (function () {
-var cache = Object.create( null );
+commands.listcommands = (function () {
+var partition = function ( list, maxSize ) {
+	var size = 0, last = [];
+	maxSize = maxSize || 480; //buffer zone, actual max is 500
 
-//cb is for internal usage by other commands/listeners
-return function ( args, cb ) {
-	//we already defined it, grab from memory
-	//unless you have alzheimer
-	//in which case, you have bigger problems
-	if ( cache[args] ) {
-		return finish( cache[args] );
+	var ret = list.reduce(function partition ( ret, item ) {
+		var len = item.length + 2; //+1 for comma, +1 for space
+
+		if ( size + len > maxSize ) {
+			ret.push( last );
+			last = [];
+			size = 0;
+		}
+		last.push( item );
+		size += len;
+
+		return ret;
+	}, []);
+
+	if ( last.length ) {
+		ret.push( last );
 	}
 
-	IO.jsonp.ddg( 'define ' + args.toString(), finishCall );
-
-	//the duck talked back! either the xhr is complete, or the hallucinations
-	// are back
-	function finishCall ( resp ) {
-		var url = resp.AbstractURL,
-			def = resp.AbstractText;
-
-		bot.log( url, def, '/define finishCall input' );
-
-		//Webster returns the definition as
-		// wordName definition: the actual definition
-		// instead of just the actual definition
-		if ( resp.AbstractSource === 'Merriam-Webster' ) {
-			def = def.replace( args + ' definition: ', '' );
-			bot.log( def, '/define finishCall webster' );
-		}
-
-		if ( !def ) {
-			def = 'Could not find definition for ' + args +
-				'. Trying Urban Dictionary';
-			bot.getCommand( 'urban' ).exec( args );
-		}
-		else {
-			def = args + ': ' + def; //problem?
-			//the chat treats ( as a special character, so we escape!
-			def += ' [\\(source\\)](' + url + ')';
-			//add to cache
-			cache[ args ] = def;
-		}
-		bot.log( def, '/define finishCall output' );
-
-		finish( def );
-	}
-
-	function finish ( def ) {
-		if ( cb && cb.call ) {
-			cb( def );
-		}
-		else {
-			args.directreply( def );
-		}
-	}
+	return ret;
 };
-}());
-commands.define.async = true;
+
+return function ( args ) {
+	var commands = Object.keys( bot.commands ),
+		//TODO: only call this when commands were learned/forgotten since last
+		partitioned = partition( commands ),
+
+		valid = /^(\d+|$)/.test( args.content ),
+		page = Number( args.content ) || 0;
+
+	if ( page >= partitioned.length || !valid ) {
+		return args.codify( [
+			'StackOverflow: Could not access page.',
+			'IndexError: index out of range',
+			'java.lang.IndexOutOfBoundsException',
+			'IndexOutOfRangeException'
+		].random() );
+	}
+
+	var ret = partitioned[ page ].join( ', ' );
+
+	return ret + ' (page {0}/{1})'.supplant( page, partitioned.length-1 );
+};
+})();
+
+commands.eval.async = commands.coffee.async = true;
 
 //cb is for internal usage by other commands/listeners
 commands.norris = function ( args, cb ) {
@@ -480,7 +439,7 @@ return function ( args, cb ) {
 		var msg;
 
 		if ( resp.result_type === 'no_results' ) {
-			msg = 'Y U NO MAEK SENSE!!!???!!?11 No results for ' + args;
+			msg = 'No definition found for ' + args;
 		}
 		else {
 			msg = formatTop( resp.list[0] );
@@ -501,14 +460,14 @@ return function ( args, cb ) {
 
 	function formatTop ( top ) {
 		//replace [tag] in definition with links
-		var def = top.definition.replace( /\[(\w+)\]/g, formatTag );
+		var def = top.definition.replace( /\[([^\]]+)\]/g, formatTag );
 
 		return args.link( top.word, top.permalink ) + ' ' + def;
 	}
 	function formatTag ( $0, $1 ) {
 		var href =
 			'http://urbandictionary.com/define.php?term=' +
-			encodeURIComponent( $1 )
+			encodeURIComponent( $1 );
 
 		return args.link( $0, href );
 	}
@@ -560,7 +519,12 @@ var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
 
 //extraVars is for internal usage via other commands
 return function parse ( args, extraVars ) {
-	var msgObj = ( args.get && args.get() ) || {};
+	var isMsg = !!args.get,
+		//filler objects, solves
+		// https://github.com/Zirak/SO-ChatBot/issues/66
+		msgObj = isMsg ? args.get() : {},
+		user = isMsg ? bot.users[ args.get('user_id') ] : {};
+
 	extraVars = extraVars || {};
 	bot.log( args, extraVars, '/parse input' );
 
@@ -614,13 +578,12 @@ return function parse ( args, extraVars ) {
 	}
 
 	function findMacro ( macro ) {
-		var user = bot.users[ args.get('user_id') ],
-			container = [ macros, msgObj, user, extraVars ].first( hasMacro );
+		var container = [ macros, msgObj, user, extraVars ].first( hasMacro );
 
 		return ( container || {} )[ macro ];
 
 		function hasMacro ( obj ) {
-			return obj.hasOwnProperty( macro );
+			return obj && obj.hasOwnProperty( macro );
 		}
 	}
 };
@@ -630,11 +593,11 @@ commands.tell = (function () {
 var invalidCommands = { tell : true, forget : true };
 
 return function ( args ) {
-	var props = args.parse();
-	bot.log( args.valueOf(), props, '/tell input' );
+	var parts = args.split( ' ');
+	bot.log( args.valueOf(), parts, '/tell input' );
 
-	var replyTo = props[ 0 ],
-		cmdName = props[ 1 ],
+	var replyTo = parts[ 0 ],
+		cmdName = parts[ 1 ],
 		cmd;
 
 	if ( !replyTo || !cmdName ) {
@@ -673,10 +636,17 @@ return function ( args ) {
 
 	var msgObj = Object.merge( args.get(), extended );
 	var cmdArgs = bot.Message(
-		//the + 2 is for the two spaces after each arg
-		// /tell replyTo1cmdName2args
-		args.slice( replyTo.length + cmdName.length + 2 ).trim(),
+		parts.slice( 2 ).join( ' ' ),
 		msgObj );
+
+	//this is an ugly, but functional thing, much like your high-school prom date
+	//to make sure a command's output goes through us, we simply override the
+	// standard ways to do output
+	var reply = cmdArgs.reply.bind( cmdArgs ),
+		directreply = cmdArgs.directreply.bind( cmdArgs );
+
+	cmdArgs.reply = cmdArgs.directreply = cmdArgs.send = callFinished;
+
 	bot.log( cmdArgs, '/tell calling ' + cmdName );
 
 	//if the command is async, it'll accept a callback
@@ -693,10 +663,10 @@ return function ( args ) {
 		}
 
 		if ( direct ) {
-			cmdArgs.directreply( res );
+			directreply( res );
 		}
 		else {
-			cmdArgs.reply( res );
+			reply( res );
 		}
 	}
 };
@@ -732,9 +702,9 @@ var descriptions = {
 	ban : 'Bans user(s) from using me. Lacking arguments, prints the banlist.' +
 		' `/ban [usr_id|usr_name, [...]`',
 	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
-	define : 'Fetches definition for a given word. `/define something`',
 	die  : 'Kills me :(',
 	eval : 'Forwards message to javascript code-eval',
+	coffee : 'Forwards message to coffeescript code-eval',
 	forget : 'Forgets a given command. `/forget cmdName`',
 	get : 'Grabs a question/answer link (see online for thorough explanation)',
 	help : 'Fetches documentation for given command, or general help article.' +
@@ -749,7 +719,6 @@ var descriptions = {
 	norris : 'Random chuck norris joke!',
 	parse : 'Returns result of "parsing" message according to the my mini' +
 		'-macro capabilities (see online docs)',
-	purgecommands : 'Deletes all user-taught commands.',
 	refresh : 'Reloads the browser window I live in',
 	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
@@ -763,7 +732,7 @@ var descriptions = {
 var privilegedCommands = {
 	die : true, live  : true,
 	ban : true, unban : true,
-	refresh : true, purgecommands : true
+	refresh : true
 };
 //voting-based commands for unpriviledged users
 var communal = {

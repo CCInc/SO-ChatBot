@@ -1,11 +1,10 @@
-var i = 0;
-
 (function () {
 "use strict";
 
 var bot = window.bot = {
 	invocationPattern : 'cc',
-	commandRegex : /^\/\s*([\w\-]+)(?:\s(.+))?$/,
+	botName: 'HangBot',
+
 	commands : {}, //will be filled as needed
 	commandDictionary : null, //it's null at this point, won't be for long
 	listeners : [],
@@ -13,38 +12,15 @@ var bot = window.bot = {
 		invoked   : 0,
 		learned   : 0,
 		forgotten : 0,
-		start     : new Date,
+		start     : new Date
 	},
 	users : {}, //will be filled in build
 
 	parseMessage : function ( msgObj ) {
-		// var msg1 = this.prepareMessage( msgObj )
-		// if(msgObj.user_id == 227646)
-		// {
-			// msg1.send(Array(i).join(" ") + '*if you know what he meeeeeeeeeeeeeeeans*');
-			// if(i == 0)
-			// i = 1;
-			// if(i == 1)
-			// i = 0;
-			
-			// }
-				var	msgObj2 = this.adapter.transform( msgObj );
-
-		var msg2 = IO.decodehtmlEntities( msgObj2.content );
-		console.log(msgObj2); console.log(msg2);
-		if(msg2 == ":D") this.prepareMessage(msgObj).send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
-		
-
-		//if( msgObj.user_id != 1834132)
-		//this.callListeners(this.prepareMessageNoSlice( msgObj ));
-	
 		if ( !this.validateMessage(msgObj) ) {
 			bot.log( msgObj, 'parseMessage invalid' );
 			return;
 		}
-		
-				var msg = this.prepareMessage( msgObj ),
-			id = msg.get( 'user_id' );
 
 		var msg = this.prepareMessage( msgObj ),
 			id = msg.get( 'user_id' );
@@ -63,23 +39,11 @@ var bot = window.bot = {
 
 		try {
 			//it wants to execute some code
-			if ( msg.startsWith('>') ) {
+			if ( /^c?>/.test(msg) ) {
 				this.eval( msg );
 			}
-			else if ( msg.startsWith('<') ) {
-				//console.log(this.prepareMessage(msgObj), 'MSG');
-				this.ai( this.prepareMessage(msgObj) );
-			}
-			//it's a command
-			else if ( msg.startsWith('/') ) {
-			
-				this.parseCommand( msg );
-			}
-			//see if some hobo listener wants this
-			else if ( !this.callListeners(msg) ) {
-				//no listener fancied the message. this is the last frontier,
-				// so just give up in a classy, dignified way
-				msg.reply( this.giveUpMessage(msg) );
+			else {
+				this.invokeAction( msg );
 			}
 		}
 		catch ( e ) {
@@ -102,21 +66,70 @@ var bot = window.bot = {
 		}
 	},
 
-	giveUpMessage : function ( msg ) {
-		var reply =
-			'Y U NO MAEK SENSE!? Could not understand ' +
-			this.adapter.codify( msg );
+	//this conditionally calls execCommand or callListeners, depending on what
+	// the input. if the input begins with a command name, it's assumed to be a
+	// command. otherwise, it tries matching against the listener.
+	invokeAction : function ( msg ) {
+		var possibleName = msg.trim().replace( /^\/\s*/, '' ).split( ' ' )[ 0 ],
+			cmd = this.getCommand( possibleName ),
 
-		//check if the user may have intended to execute a command
-		var possibleName = msg.trim().split( ' ' )[ 0 ],
-			cmd = this.getCommand( possibleName );
+			//this is the best name I could come up with
+			//messages beginning with / want to specifically invoke a command
+			coolnessFlag = msg.startsWith('/') ? !cmd.error : true;
 
-		if ( !cmd.error || cmd.guesses.length ) {
-			reply += ' (perhaps you meant to execute a command? If so,' +
-				' prepend the command name with a /)';
+		if ( !cmd.error ) {
+			this.execCommand( cmd, msg );
+		}
+		else if ( coolnessFlag ) {
+			coolnessFlag = this.callListeners( msg );
 		}
 
-		return reply;
+		//nothing to see here, move along
+		if ( coolnessFlag ) {
+			return;
+		}
+
+		msg.reply( this.giveUpMessage(cmd.guesses) );
+	},
+
+	giveUpMessage : function ( guesses ) {
+		//man, I can't believe it worked...room full of nachos for me
+		var errMsg = 'That didn\'t make much sense.';
+		if ( guesses && guesses.length ) {
+			errMsg += ' Maybe you meant: ' + cmd.guesses.join( ', ' );
+		}
+		//mmmm....nachos
+		else {
+			errMsg += ' Use the help command to learn more.';
+		}
+		//wait a minute, these aren't nachos. these are bear cubs.
+		return errMsg;
+		//good mama bear...nice mama bear...tasty mama be---
+	},
+
+	execCommand : function ( cmd, msg ) {
+		bot.log( cmd, 'execCommand calling' );
+
+		if ( !cmd.canUse(msg.get('user_id')) ) {
+			msg.reply([
+				'You do not have permission to use the command ' + cmd.name,
+				"I'm afraid I can't let you do that, " + msg.get('user_name')
+			].random());
+			return;
+		}
+
+		var args = this.Message(
+				msg.replace( /^\/\s*/, '' ).slice( cmd.name.length ).trim(),
+				msg.get()
+			),
+			//it always amazed me how, in dynamic systems, the trigger of the
+			// actions is always a small, nearly unidentifiable line
+			//this line right here activates a command
+			res = cmd.exec( args );
+
+		if ( res ) {
+			msg.reply( res );
+		}
 	},
 
 	prepareMessage : function ( msgObj ) {
@@ -127,66 +140,22 @@ var bot = window.bot = {
 			msg.slice( this.invocationPattern.length ).trim(),
 			msgObj );
 	},
-	
-		prepareMessageNoSlice : function ( msgObj ) {
-		msgObj = this.adapter.transform( msgObj );
-
-		var msg = IO.decodehtmlEntities( msgObj.content );
-		return this.Message(
-			msg,
-			msgObj );
-	},
-
-	parseCommand : function ( msg ) {
-		bot.log( msg, 'parseCommand input' );
-
-		var commandParts = this.commandRegex.exec( msg );
-		if ( !commandParts ) {
-			msg.reply( 'Invalid command ' + msg );
-			return;
-		}
-		bot.log( commandParts, 'parseCommand matched' );
-
-		var commandName = commandParts[ 1 ].toLowerCase(),
-			cmdObj = this.getCommand( commandName );
-
-		if ( this.personality.check(commandName) ) {
-			this.personality.command();
-		}
-		//see if there was some error fetching the command
-		if ( cmdObj.error ) {
-			msg.reply( cmdObj.error );
-			return;
-		}
-
-		if ( !cmdObj.canUse(msg.get('user_id')) ) {
-			msg.reply([
-				'You do not have permission to use the command ' + commandName,
-				"I'm afraid I can't let you do that, " + msg.get('user_name')
-			].random());
-			return;
-		}
-
-		bot.log( cmdObj, 'parseCommand calling' );
-
-		var args = this.Message(
-				msg.replace(/^\/\s*/, '').slice( commandName.length ).trim(),
-				msg.get()
-			),
-			//it always amazed me how, in dynamic systems, the trigger of the
-			// actions is always a small, nearly unidentifiable line
-			//this line right here activates a command
-			res = cmdObj.exec( args );
-
-		if ( res ) {
-			msg.reply( res );
-		}
-	},
 
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
-		//all we really care about
-		return msg.startsWith( this.invocationPattern );
+		
+		if( msg.startsWith( "@" + botName))
+		{
+			console.log("cleverbot time");
+			bot.cleverbot.speak(msgObj);
+			return false;
+		}
+
+		return (
+			//make sure we don't process our own messages,
+			//msgObj.user_id !== bot.adapter.user_id &&
+			//and the message begins with the invocationPattern
+			msg.startsWith( this.invocationPattern ) );
 	},
 
 	addCommand : function ( cmd ) {
@@ -210,12 +179,15 @@ var bot = window.bot = {
 	//if a command named cmdName exists, it returns that command object
 	//otherwise, it returns an object with an error message property
 	getCommand : function ( cmdName ) {
-		if ( this.commandExists(cmdName) ) {
-			return this.commands[ cmdName ];
+		var lowerName = cmdName.toLowerCase();
+
+		if ( this.commandExists(lowerName) ) {
+			return this.commands[ lowerName ];
 		}
+
+		//not found, onto error reporting
 		//set the error margin according to the length
-		this.commandDictionary.maxCost = Math.floor(
-			cmdName.length / 5 + 1 );
+		this.commandDictionary.maxCost = Math.floor( cmdName.length / 5 + 1 );
 
 		var msg = 'Command ' + cmdName + ' does not exist.',
 		//find commands resembling the one the user entered
@@ -246,7 +218,7 @@ var bot = window.bot = {
 	},
 
 	callListeners : function ( msg ) {
-		return this.listeners.some(function ( listener ) {
+		return this.listeners.some(function callListener ( listener ) {
 			var match = msg.exec( listener.pattern ), resp;
 
 			if ( match ) {
@@ -276,14 +248,61 @@ var bot = window.bot = {
 	}
 };
 
-//#build cleverbot.js
-bot.banlist = JSON.parse( localStorage.bot_ban || '{}' );
-if ( Array.isArray(bot.banlist) ) {
-	bot.banlist = bot.banlist.reduce(function ( ret, id ) {
-		ret[ id ] = { told : false };
-		return ret;
-	}, {});
-}
+//a place to hang your coat and remember the past. provides an abstraction over
+// localStorage or whatever data-storage will be used in the future.
+bot.memory = {
+	saveInterval : 900000, //15(min) * 60(sec/min) * 1000(ms/sec) = 900000(ms)
+
+	data : {},
+
+	get : function ( name, defaultVal ) {
+		if ( !this.data[name] ) {
+			this.set( name, defaultVal || {} );
+		}
+
+		return this.data[ name ];
+	},
+
+	set : function ( name, val ) {
+		this.data[ name ] = val;
+	},
+
+	loadAll : function () {
+		var self = this;
+
+		Object.iterate( localStorage, function ( key, val ) {
+			if ( key.startsWith('bot_') ) {
+				console.log( key, val );
+				self.set( key.replace(/^bot_/, ''), JSON.parse(val) );
+			}
+		});
+	},
+
+	save : function ( name ) {
+		if ( name ) {
+			localStorage[ 'bot_' + name ] = JSON.stringify( this.data[name] );
+			return;
+		}
+
+		var self = this;
+		Object.keys( this.data ).forEach(function ( name ) {
+			self.save( name );
+		});
+
+		this.saveLoop();
+	},
+
+	saveLoop : function () {
+		clearTimeout( this.saveIntervalId );
+		setTimeout( this.saveLoop.bind(this), this.saveInterval );
+	}
+};
+
+bot.memory.loadAll();
+window.addEventListener( 'beforeunload', function () { bot.memory.save(); } );
+bot.memory.saveLoop();
+
+bot.banlist = bot.memory.get( 'ban' );
 bot.banlist.contains = function ( id ) {
 	return this.hasOwnProperty( id );
 };
@@ -294,12 +313,7 @@ bot.banlist.add = function ( id ) {
 bot.banlist.remove = function ( id ) {
 	if ( this.contains(id) ) {
 		delete this[ id ];
-		this.save();
 	}
-};
-bot.banlist.save = function () {
-	//JSON.stringify ignores functions
-	localStorage.bot_ban = JSON.stringify( this );
 };
 
 //some sort of pseudo constructor
@@ -320,9 +334,16 @@ bot.Command = function ( cmd ) {
 		cmd[ 'can' + perm ] = function ( usrid ) {
 			var canDo = this.permissions[ low ];
 
-			return canDo === 'ALL' || canDo !== 'NONE' && (
-				( canDo === 'OWNER' && bot.isOwner(usrid) ) ||
-				canDo.indexOf( usrid ) > -1 );
+			if ( canDo === 'ALL' ) {
+				return true;
+			}
+			else if ( canDo === 'NONE' ) {
+				return false;
+			}
+			else if ( canDo === 'OWNER' ) {
+				return bot.isOwner( usrid );
+			}
+			return canDo.indexOf( usrid ) > -1;
 		};
 	});
 
@@ -359,7 +380,7 @@ bot.CommunityCommand = function ( command, req ) {
 	};
 	return cmd;
 
-	//once again, a switched return statement truthy means a message, falsy
+	//once again, a switched return statement: truthy means a message, falsy
 	// means to go on ahead
 	function register ( usrid ) {
 		if ( old_canUse.call(cmd, usrid) ) {
@@ -402,18 +423,19 @@ bot.Message = function ( text, msgObj ) {
 	var ret = Object( text );
 	ret.content = text;
 
+	var rawSend = function ( text ) {
+		bot.adapter.out.add( text, msgObj.room_id );
+	};
 	var deliciousObject = {
-		send : function ( resp ) {
-			bot.adapter.out.add( resp, msgObj.room_id );
-		},
+		send : rawSend,
 
-		reply : function ( resp ) {
-			var prefix = bot.adapter.reply( msgObj.user_name );
-			this.send( prefix + ' ' + resp );
+		reply : function ( resp, user_name ) {
+			var prefix = bot.adapter.reply( user_name || msgObj.user_name );
+			rawSend( prefix + ' ' + resp );
 		},
 		directreply : function ( resp ) {
 			var prefix = bot.adapter.directreply( msgObj.message_id );
-			this.send( prefix + ' ' + resp );
+			rawSend( prefix + ' ' + resp );
 		},
 
 		//parse() parses the original message
@@ -456,6 +478,29 @@ bot.Message = function ( text, msgObj ) {
 			}) || -1;
 		}.memoize(),
 
+		findUsername : (function () {
+			var cache = {};
+
+			return function ( id, cb ) {
+				if ( cache[id] ) {
+					finish( cache[id] );
+				}
+				else if ( bot.users[id] ) {
+					finish( bot.users[id].name );
+				}
+				else {
+					bot.users.request( bot.adapter.roomid, id, reqFinish );
+				}
+
+				function reqFinish ( user ) {
+					finish( user.name );
+				}
+				function finish ( name ) {
+					cb( cache[id] = name );
+				}
+			};
+		})(),
+
 		codify : bot.adapter.codify.bind( bot.adapter ),
 		escape : bot.adapter.escape.bind( bot.adapter ),
 		link   : bot.adapter.link.bind( bot.adapter ),
@@ -469,7 +514,8 @@ bot.Message = function ( text, msgObj ) {
 			return msgObj[ what ];
 		},
 		set : function ( what, val ) {
-			return msgObj[ what ] = val;
+			msgObj[ what ] = val;
+			return msgObj[ what ];
 		}
 	};
 
@@ -480,16 +526,6 @@ bot.Message = function ( text, msgObj ) {
 	return ret;
 };
 
-bot.owners = [
-	// 419970, //Raynos
-	// 342129, //Matt McDonald
-	// 170224, //Ivo Wetzel
-	// 94197,	//Andy E
-	// 617762	//me (Zirak)
-	1482644,
-	1673476
-
-];
 bot.isOwner = function ( usrid ) {
 	var user = this.users[ usrid ];
 	return user && ( user.is_owner || user.is_moderator );
@@ -507,7 +543,6 @@ bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
 
 //#build eval.js
 
-//#build util.js
 //#build parseCommandArgs.js
 //#build suggestionDict.js
 

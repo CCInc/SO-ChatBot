@@ -104,7 +104,7 @@ var IO = window.IO = {
 
 IO.decodehtmlEntities = (function (){
 var entities; //will be filled in the following line
-entities = {"quot":"\"","amp":"&","apos":"'","lt":"<","gt":">","nbsp":" ","iexcl":"¡","cent":"¢","pound":"£","curren":"¤","yen":"¥","brvbar":"¦","sect":"§","uml":"¨","copy":"©","ordf":"ª","laquo":"«","not":"¬","reg":"®","macr":"¯","deg":"°","plusmn":"±","sup2":"²","sup3":"³","acute":"´","micro":"µ","para":"¶","middot":"·","cedil":"¸","sup1":"¹","ordm":"º","raquo":"»","frac14":"¼","frac12":"½","frac34":"¾","iquest":"¿","Agrave":"À","Aacute":"Á","Acirc":"Â","Atilde":"Ã","Auml":"Ä","Aring":"Å","AElig":"Æ","Ccedil":"Ç","Egrave":"È","Eacute":"É","Ecirc":"Ê","Euml":"Ë","Igrave":"Ì","Iacute":"Í","Icirc":"Î","Iuml":"Ï","ETH":"Ð","Ntilde":"Ñ","Ograve":"Ò","Oacute":"Ó","Ocirc":"Ô","Otilde":"Õ","Ouml":"Ö","times":"×","Oslash":"Ø","Ugrave":"Ù","Uacute":"Ú","Ucirc":"Û","Uuml":"Ü","Yacute":"Ý","THORN":"Þ","szlig":"ß","agrave":"à","aacute":"á","acirc":"â","atilde":"ã","auml":"ä","aring":"å","aelig":"æ","ccedil":"ç","egrave":"è","eacute":"é","ecirc":"ê","euml":"ë","igrave":"ì","iacute":"í","icirc":"î","iuml":"ï","eth":"ð","ntilde":"ñ","ograve":"ò","oacute":"ó","ocirc":"ô","otilde":"õ","ouml":"ö","divide":"÷","oslash":"ø","ugrave":"ù","uacute":"ú","ucirc":"û","uuml":"ü","yacute":"ý","thorn":"þ","yuml":"ÿ","OElig":"Œ","oelig":"œ","Scaron":"Š","scaron":"š","Yuml":"Ÿ","fnof":"ƒ","circ":"ˆ","tilde":"˜","Alpha":"Α","Beta":"Β","Gamma":"Γ","Delta":"Δ","Epsilon":"Ε","Zeta":"Ζ","Eta":"Η","Theta":"Θ","Iota":"Ι","Kappa":"Κ","Lambda":"Λ","Mu":"Μ","Nu":"Ν","Xi":"Ξ","Omicron":"Ο","Pi":"Π","Rho":"Ρ","Sigma":"Σ","Tau":"Τ","Upsilon":"Υ","Phi":"Φ","Chi":"Χ","Psi":"Ψ","Omega":"Ω","alpha":"α","beta":"β","gamma":"γ","delta":"δ","epsilon":"ε","zeta":"ζ","eta":"η","theta":"θ","iota":"ι","kappa":"κ","lambda":"λ","mu":"μ","nu":"ν","xi":"ξ","omicron":"ο","pi":"π","rho":"ρ","sigmaf":"ς","sigma":"σ","tau":"τ","upsilon":"υ","phi":"φ","chi":"χ","psi":"ψ","omega":"ω","thetasym":"ϑ","upsih":"ϒ","piv":"ϖ","ensp":" ","emsp":" ","thinsp":" ","ndash":"–","mdash":"—","lsquo":"‘","rsquo":"’","sbquo":"‚","ldquo":"“","rdquo":"”","bdquo":"„","dagger":"†","Dagger":"‡","bull":"•","hellip":"…","permil":"‰","prime":"′","Prime":"″","lsaquo":"‹","rsaquo":"›","oline":"‾","frasl":"⁄","euro":"€","image":"ℑ","weierp":"℘","real":"ℜ","trade":"™","alefsym":"ℵ","larr":"←","uarr":"↑","rarr":"→","darr":"↓","harr":"↔","crarr":"↵","lArr":"⇐","uArr":"⇑","rArr":"⇒","dArr":"⇓","hArr":"⇔","forall":"∀","part":"∂","exist":"∃","empty":"∅","nabla":"∇","isin":"∈","notin":"∉","ni":"∋","prod":"∏","sum":"∑","minus":"−","lowast":"∗","radic":"√","prop":"∝","infin":"∞","ang":"∠","and":"∧","or":"∨","cap":"∩","cup":"∪","int":"∫","there4":"∴","sim":"∼","cong":"≅","asymp":"≈","ne":"≠","equiv":"≡","le":"≤","ge":"≥","sub":"⊂","sup":"⊃","nsub":"⊄","sube":"⊆","supe":"⊇","oplus":"⊕","otimes":"⊗","perp":"⊥","sdot":"⋅","lceil":"⌈","rceil":"⌉","lfloor":"⌊","rfloor":"⌋","lang":"〈","rang":"〉","loz":"◊","spades":"♠","clubs":"♣","hearts":"♥","diams":"♦"};
+entities = {"quot":"\"","amp":"&","apos":"'","lt":"<","gt":">","nbsp":" ","iexcl":"¡","cent":"¢","pound":"£","curren":"¤","yen":"¥","brvbar":"¦","sect":"§","uml":"¨","copy":"©","ordf":"ª","laquo":"«","not":"¬","reg":"®","macr":"¯","deg":"°","plusmn":"±","sup2":"²","sup3":"³","acute":"´","micro":"µ","para":"¶","middot":"·","cedil":"¸","sup1":"¹","ordm":"º","raquo":"»","frac14":"¼","frac12":"½","frac34":"¾","iquest":"¿","Agrave":"À","Aacute":"Á","Acirc":"Â","Atilde":"Ã","Auml":"Ä","Aring":"Å","AElig":"Æ","Ccedil":"Ç","Egrave":"È","Eacute":"É","Ecirc":"Ê","Euml":"Ë","Igrave":"Ì","Iacute":"Í","Icirc":"Î","Iuml":"Ï","ETH":"Ð","Ntilde":"Ñ","Ograve":"Ò","Oacute":"Ó","Ocirc":"Ô","Otilde":"Õ","Ouml":"Ö","times":"×","Oslash":"Ø","Ugrave":"Ù","Uacute":"Ú","Ucirc":"Û","Uuml":"Ü","Yacute":"Ý","THORN":"Þ","szlig":"ß","agrave":"à","aacute":"á","acirc":"â","atilde":"ã","auml":"ä","aring":"å","aelig":"æ","ccedil":"ç","egrave":"è","eacute":"é","ecirc":"ê","euml":"ë","igrave":"ì","iacute":"í","icirc":"î","iuml":"ï","eth":"ð","ntilde":"ñ","ograve":"ò","oacute":"ó","ocirc":"ô","otilde":"õ","ouml":"ö","divide":"÷","oslash":"ø","ugrave":"ù","uacute":"ú","ucirc":"û","uuml":"ü","yacute":"ý","thorn":"þ","yuml":"ÿ","OElig":"Œ","oelig":"œ","Scaron":"Š","scaron":"š","Yuml":"Ÿ","fnof":"ƒ","circ":"ˆ","tilde":"˜","Alpha":"Α","Beta":"Β","Gamma":"Γ","Delta":"Δ","Epsilon":"Ε","Zeta":"Ζ","Eta":"Η","Theta":"Θ","Iota":"Ι","Kappa":"Κ","Lambda":"Λ","Mu":"Μ","Nu":"Ν","Xi":"Ξ","Omicron":"Ο","Pi":"Π","Rho":"Ρ","Sigma":"Σ","Tau":"Τ","Upsilon":"Υ","Phi":"Φ","Chi":"Χ","Psi":"Ψ","Omega":"Ω","alpha":"α","beta":"β","gamma":"γ","delta":"δ","epsilon":"ε","zeta":"ζ","eta":"η","theta":"θ","iota":"ι","kappa":"κ","lambda":"λ","mu":"μ","nu":"ν","xi":"ξ","omicron":"ο","pi":"π","rho":"ρ","sigmaf":"ς","sigma":"σ","tau":"τ","upsilon":"υ","phi":"φ","chi":"χ","psi":"ψ","omega":"ω","thetasym":"ϑ","upsih":"ϒ","piv":"ϖ","ensp":" ","emsp":" ","thinsp":" ","ndash":"–","mdash":"—","lsquo":"‘","rsquo":"’","sbquo":"‚","ldquo":"“","rdquo":"”","bdquo":"„","dagger":"†","Dagger":"‡","bull":"•","hellip":"…","permil":"‰","prime":"′","Prime":"″","lsaquo":"‹","rsaquo":"›","oline":"‾","frasl":"⁄","euro":"€","image":"ℑ","weierp":"℘","real":"ℜ","trade":"™","alefsym":"ℵ","larr":"←","uarr":"↑","rarr":"→","darr":"↓","harr":"↔","crarr":"↵","lArr":"⇐","uArr":"⇑","rArr":"⇒","dArr":"⇓","hArr":"⇔","forall":"∀","part":"∂","exist":"∃","empty":"∅","nabla":"∇","isin":"∈","notin":"∉","ni":"∋","prod":"∏","sum":"∑","minus":"−","lowast":"∗","radic":"√","prop":"∝","infin":"∞","ang":"∠","and":"∧","or":"∨","cap":"∩","cup":"∪","int":"∫","there4":"∴","sim":"∼","cong":"≅","asymp":"≈","ne":"≠","equiv":"≡","le":"≤","ge":"≥","sub":"⊂","sup":"⊃","nsub":"⊄","sube":"⊆","supe":"⊇","oplus":"⊕","otimes":"⊗","perp":"⊥","sdot":"⋅","lceil":"⌈","rceil":"⌉","lfloor":"⌊","rfloor":"⌋","lang":"〈","rang":"〉","loz":"◊","spades":"♠","clubs":"♣","hearts":"♥","diams":"♦", "zwnj":""};
 
 
 /*
@@ -123,12 +123,20 @@ var replaceEntities = function ( entities ) {
 	return entities.slice( 1 ).split( ';' ).map( decodeEntity ).join( '' );
 };
 var decodeEntity = function ( entity ) {
+	if ( !entity ) {
+		return '';
+	}
+
 	//starts with a #, it's charcode
 	if ( entity[0] === '#' ) {
 		return decodeCharcodeEntity( entity );
 	}
 
-	return entities[ entity ] || entity;
+	if ( !entities.hasOwnProperty(entity) ) {
+		//I hate this so. so. so much. it's just wrong.
+		return '&' + entity +';';
+	}
+	return entities[ entity ];
 };
 var decodeCharcodeEntity = function ( entity ) {
 	//remove the # prefix
@@ -206,7 +214,7 @@ IO.CBuffer = function ( size ) {
 	var ret = {
 		items : [],
 		pos : 0,
-		size : size,
+		size : size
 	};
 
 	ret.add = function ( item ) {
@@ -222,6 +230,23 @@ IO.CBuffer = function ( size ) {
 	};
 
 	return ret;
+};
+
+IO.relativeUrlToAbsolute = function ( url ) {
+	//the anchor's href *property* will always be absolute, unlike the href
+	// *attribute*
+	var a = document.createElement( 'a' );
+	a.setAttribute( 'href', url );
+
+	return a.href;
+};
+
+IO.injectScript = function ( url ) {
+	var script = document.createElement( 'script' );
+	script.src = url;
+
+	document.head.appendChild( script );
+	return script;
 };
 
 IO.xhr = function ( params ) {
@@ -290,26 +315,15 @@ IO.jsonp = function ( opts ) {
 	}
 
 	//append the data to be sent, in string form, to the url
-	opts.url += this.urlstringify( opts.data );
+	opts.url += '&' + this.urlstringify( opts.data );
+
+	script.onerror = opts.error;
 
 	script.src = opts.url;
 	document.head.appendChild( script );
-	console.log(opts.url);
 };
 
-//generic, pre-made calls to be used inside commands
-IO.jsonp.ddg = function ( query, cb ) {
-	IO.jsonp({
-		url : 'http://api.duckduckgo.com/',
-		jsonpName : 'callback',
-		data : {
-			format : 'json',
-			q : query
-		},
-		fun : cb
-	});
-};
-
+//generic, pre-made call to be used inside commands
 IO.jsonp.google = function ( query, cb ) {
 	IO.jsonp({
 		url : 'http://ajax.googleapis.com/ajax/services/search/web',
@@ -317,20 +331,6 @@ IO.jsonp.google = function ( query, cb ) {
 		data : {
 			v : '1.0',
 			q : query
-		},
-		fun : cb
-	});
-};
-
-IO.jsonp.time = function ( query, cb ) {
-	IO.jsonp({
-		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx',
-		jsonpName : 'callback',
-		data : {
-q   : query,
-			format: 'json',
-			callback: cb,
-			key : 'e7qnb5e3xh3cy2kysypbmuj5'
 		},
 		fun : cb
 	});
@@ -351,760 +351,7 @@ IO.jsonp.image = function ( query, cb, number ) {
 		fun : cb
 	});
 };
-
-
 ;
-var i = 0;
-
-(function () {
-"use strict";
-
-var bot = window.bot = {
-	invocationPattern : 'cc',
-	commandRegex : /^\/\s*([\w\-]+)(?:\s(.+))?$/,
-	commands : {}, //will be filled as needed
-	commandDictionary : null, //it's null at this point, won't be for long
-	listeners : [],
-	info : {
-		invoked   : 0,
-		learned   : 0,
-		forgotten : 0,
-		start     : new Date,
-	},
-	users : {}, //will be filled in build
-
-	parseMessage : function ( msgObj ) {
-		// var msg1 = this.prepareMessage( msgObj )
-		// if(msgObj.user_id == 227646)
-		// {
-			// msg1.send(Array(i).join(" ") + '*if you know what he meeeeeeeeeeeeeeeans*');
-			// if(i == 0)
-			// i = 1;
-			// if(i == 1)
-			// i = 0;
-			
-			// }
-				var	msgObj2 = this.adapter.transform( msgObj );
-
-		var msg2 = IO.decodehtmlEntities( msgObj2.content );
-		console.log(msgObj2); console.log(msg2);
-		if(msg2 == ":D") this.prepareMessage(msgObj).send('http://emoticoner.com/files/emoticons/skype_smileys/bigsmile-skype-smiley.gif?1301953191.png');
-		
-
-		//if( msgObj.user_id != 1834132)
-		//this.callListeners(this.prepareMessageNoSlice( msgObj ));
-	
-		if ( !this.validateMessage(msgObj) ) {
-			bot.log( msgObj, 'parseMessage invalid' );
-			return;
-		}
-		
-				var msg = this.prepareMessage( msgObj ),
-			id = msg.get( 'user_id' );
-
-		var msg = this.prepareMessage( msgObj ),
-			id = msg.get( 'user_id' );
-		bot.log( msg, 'parseMessage valid' );
-
-		if ( this.banlist.contains(id) ) {
-			bot.log( msgObj, 'parseMessage banned' );
-
-			//tell the user he's banned only if he hasn't already been told
-			if ( !this.banlist[id].told ) {
-				msg.reply( 'You iz in mindjail' );
-				this.banlist[ id ].told = true;
-			}
-			return;
-		}
-
-		try {
-			//it wants to execute some code
-			if ( msg.startsWith('>') ) {
-				this.eval( msg );
-			}
-			else if ( msg.startsWith('<') ) {
-				//console.log(this.prepareMessage(msgObj), 'MSG');
-				this.ai( this.prepareMessage(msgObj) );
-			}
-			//it's a command
-			else if ( msg.startsWith('/') ) {
-			
-				this.parseCommand( msg );
-			}
-			//see if some hobo listener wants this
-			else if ( !this.callListeners(msg) ) {
-				//no listener fancied the message. this is the last frontier,
-				// so just give up in a classy, dignified way
-				msg.reply( this.giveUpMessage(msg) );
-			}
-		}
-		catch ( e ) {
-			var err = 'Could not process input. Error: ' + e.message;
-
-			if ( e.lineNumber ) {
-				err += ' on line ' + e.lineNumber;
-			}
-			//column isn't part of ordinary errors, it's set in custom ones
-			if ( e.column ) {
-				err += ' on column ' + e.column;
-			}
-
-			msg.directreply( err );
-			//make sure we have it somewhere
-			console.dir( e );
-		}
-		finally {
-			this.info.invoked += 1;
-		}
-	},
-
-	giveUpMessage : function ( msg ) {
-		var reply =
-			'Y U NO MAEK SENSE!? Could not understand ' +
-			this.adapter.codify( msg );
-
-		//check if the user may have intended to execute a command
-		var possibleName = msg.trim().split( ' ' )[ 0 ],
-			cmd = this.getCommand( possibleName );
-
-		if ( !cmd.error || cmd.guesses.length ) {
-			reply += ' (perhaps you meant to execute a command? If so,' +
-				' prepend the command name with a /)';
-		}
-
-		return reply;
-	},
-
-	prepareMessage : function ( msgObj ) {
-		msgObj = this.adapter.transform( msgObj );
-
-		var msg = IO.decodehtmlEntities( msgObj.content );
-		return this.Message(
-			msg.slice( this.invocationPattern.length ).trim(),
-			msgObj );
-	},
-	
-		prepareMessageNoSlice : function ( msgObj ) {
-		msgObj = this.adapter.transform( msgObj );
-
-		var msg = IO.decodehtmlEntities( msgObj.content );
-		return this.Message(
-			msg,
-			msgObj );
-	},
-
-	parseCommand : function ( msg ) {
-		bot.log( msg, 'parseCommand input' );
-
-		var commandParts = this.commandRegex.exec( msg );
-		if ( !commandParts ) {
-			msg.reply( 'Invalid command ' + msg );
-			return;
-		}
-		bot.log( commandParts, 'parseCommand matched' );
-
-		var commandName = commandParts[ 1 ].toLowerCase(),
-			cmdObj = this.getCommand( commandName );
-
-		if ( this.personality.check(commandName) ) {
-			this.personality.command();
-		}
-		//see if there was some error fetching the command
-		if ( cmdObj.error ) {
-			msg.reply( cmdObj.error );
-			return;
-		}
-
-		if ( !cmdObj.canUse(msg.get('user_id')) ) {
-			msg.reply([
-				'You do not have permission to use the command ' + commandName,
-				"I'm afraid I can't let you do that, " + msg.get('user_name')
-			].random());
-			return;
-		}
-
-		bot.log( cmdObj, 'parseCommand calling' );
-
-		var args = this.Message(
-				msg.replace(/^\/\s*/, '').slice( commandName.length ).trim(),
-				msg.get()
-			),
-			//it always amazed me how, in dynamic systems, the trigger of the
-			// actions is always a small, nearly unidentifiable line
-			//this line right here activates a command
-			res = cmdObj.exec( args );
-
-		if ( res ) {
-			msg.reply( res );
-		}
-	},
-
-	validateMessage : function ( msgObj ) {
-		var msg = msgObj.content.trim();
-		//all we really care about
-		return msg.startsWith( this.invocationPattern );
-	},
-
-	addCommand : function ( cmd ) {
-		if ( !cmd.exec || !cmd.del ) {
-			cmd = this.Command( cmd );
-		}
-		if ( cmd.learned ) {
-			this.info.learned += 1;
-		}
-		cmd.invoked = 0;
-
-		this.commands[ cmd.name ] = cmd;
-		this.commandDictionary.trie.add( cmd.name );
-	},
-
-	//gee, I wonder what this will return?
-	commandExists : function ( cmdName ) {
-		return this.commands.hasOwnProperty( cmdName );
-	},
-
-	//if a command named cmdName exists, it returns that command object
-	//otherwise, it returns an object with an error message property
-	getCommand : function ( cmdName ) {
-		if ( this.commandExists(cmdName) ) {
-			return this.commands[ cmdName ];
-		}
-		//set the error margin according to the length
-		this.commandDictionary.maxCost = Math.floor(
-			cmdName.length / 5 + 1 );
-
-		var msg = 'Command ' + cmdName + ' does not exist.',
-		//find commands resembling the one the user entered
-		guesses = this.commandDictionary.search( cmdName );
-
-		//resembling command(s) found, add them to the error message
-		if ( guesses.length ) {
-			msg += ' Did you mean: ' + guesses.join( ', ' );
-		}
-
-		return { error : msg, guesses : guesses };
-	},
-
-	//the function women think is lacking in men
-	listen : function ( regex, fun, thisArg ) {
-		if ( Array.isArray(regex) ) {
-			regex.forEach(function ( reg ) {
-				this.listen( reg, fun, thisArg );
-			}, this);
-		}
-		else {
-			this.listeners.push({
-				pattern : regex,
-				fun : fun,
-				thisArg: thisArg
-			});
-		}
-	},
-
-	callListeners : function ( msg ) {
-		return this.listeners.some(function ( listener ) {
-			var match = msg.exec( listener.pattern ), resp;
-
-			if ( match ) {
-				resp = listener.fun.call( listener.thisArg, msg );
-
-				bot.log( match, resp );
-				if ( resp ) {
-					msg.reply( resp );
-				}
-				return resp !== false;
-			}
-		});
-	},
-
-	stoplog : false,
-	log : function () {
-		if ( !this.stoplog ) {
-			console.log.apply( console, arguments );
-		}
-	},
-
-	stop : function () {
-		this.stopped = true;
-	},
-	continue : function () {
-		this.stopped = false;
-	}
-};
-
-bot.ai =  (function () {
-
-return function ( args) {
-//console.log(args, 'args');
-//console.log(args, 'args');
-var a = 0;
-var run = false;
-var helper = function() {
-    console.log(CryptoJS);
-    var Cleverbot = function() {
-        this.params = Cleverbot.default_params;
-    };
-
-    Cleverbot.default_params = {
-        'stimulus': '',
-        'start': 'y',
-        'sessionid': '',
-        'vText8': '',
-        'vText7': '',
-        'vText6': '',
-        'vText5': '',
-        'vText4': '',
-        'vText3': '',
-        'vText2': '',
-        'icognoid': 'wsf',
-        'icognocheck': '',
-        'fno': '0',
-        'prevref': '',
-        'emotionaloutput': '',
-        'emotionalhistory': '',
-        'asbotname': '',
-        'ttsvoice': '',
-        'typing': '',
-        'lineref': '',
-        'sub': 'Say',
-        'islearning': '1',
-        'cleanslate': 'false'
-    };
-    Cleverbot.parserKeys = [
-        'message', 'sessionid', 'logurl', 'vText8',
-        'vText7', 'vText6', 'vText5', 'vText4',
-        'vText3', 'vText2', 'prevref', '',
-        'emotionalhistory', 'ttsLocMP3', 'ttsLocTXT', 'ttsLocTXT3',
-        'ttsText', 'lineref', 'lineURL', 'linePOST',
-        'lineChoices', 'lineChoicesAbbrev', 'typingData', 'divert'
-        ];
-    Cleverbot.digest = function(body) {
-        var m = CryptoJS.MD5(body);
-        return m.toString(CryptoJS.enc.Hex);
-    };
-
-    Cleverbot.encodeParams = function(a1) {
-        var u = [];
-        for (var x in a1) {
-            if (a1[x] instanceof Array) {
-                u.push(x + "=" + encodeURIComponent(a1[x].join(",")));
-            }
-            else if (a1[x] instanceof Object) {
-                u.push(Cleverbot.default_params[a1[x]]);
-            }
-            else {
-                u.push(x + "=" + encodeURIComponent(a1[x]));
-            }
-        }
-        return u.join("&");
-    };
-
-    Cleverbot.prototype = {
-
-        write: function(message, callback) {
-            var clever = this;
-            body = this.params;
-            body.stimulus = message;
-            body.icognocheck = Cleverbot.digest(Cleverbot.encodeParams(body).substring(9, 29));
-            var options = {
-                host: 'http://www.cleverbot.com',
-                port: 80,
-                path: '/webservicemin',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                    //'Content-Length': Cleverbot.encodeParams(body).length
-                }
-            };
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open(options.method, options.host + options.path, true);
-            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-       //     xmlhttp.setRequestHeader("Content-Length", Cleverbot.encodeParams(body).length);
-            xmlhttp.send(Cleverbot.encodeParams(body));
-            xmlhttp.onreadystatechange = function() {
-              //  console.log('log');
-                if (xmlhttp.readyState == 4) {
-                    if (xmlhttp.status == 200) {
-
-                        var cb = callback ||
-                        function() {};
-
-                        var chunk_data = xmlhttp.responseText.toString().split("\r"),
-                            responseHash = {};
-                        for (var i = 0, iLen = chunk_data.length; i < iLen; i++) {
-                            clever.params[Cleverbot.parserKeys[i]] = responseHash[Cleverbot.parserKeys[i]] = chunk_data[i];
-                        }
-                      //  console.log(responseHash);
-                        if(a== 0)
-						{
-						run = true;
-                          cb(responseHash);
-						  }
-                        a++;
-
-                    }
-                }
-            };
-
-
-            // var req = http.request(options, function(res) {
-            // var cb = callback || function(){};
-            // res.on('data', function(chunk) {
-            // var chunk_data = chunk.toString().split("\r")
-            // , responseHash = {};
-            // for(var i = 0, iLen = chunk_data.length;i<iLen;i++){
-            // clever.params[Cleverbot.parserKeys[i]] = responseHash[Cleverbot.parserKeys[i]] = chunk_data[i];
-            // }
-            // cb(responseHash);
-            // });
-            // });
-            // req.write(Cleverbot.encodeParams(body));
-            // req.end();
-        }
-    };
-
-
-    var CBots = [new Cleverbot, new Cleverbot],
-        i = 0,
-        name = ['Bob Loblaw', 'Stan Sitwell'],
-        callback = function callback(resp) {
-            CBots[i].write(resp['message'], callback);   
-			if(run)
-            args.directreply(resp['message']);
-            console.log(resp['message'], 'responce')
-        };
-
-    callback({ message:args.content.replace(/^</, '')})
-}
-
-
-
-
-var script = document.createElement('script');
-//console.log(this.readyState);
-script.src = 'http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js';
-script.type = 'text/javascript';
-script.onreadystatechange = function() {
- //   console.log(this.readyState);
-    //   if (this.readyState == 4) {helper()};
-};
-//console.log(script);
-script.onload = helper;
-document.getElementsByTagName('head')[0].appendChild(script);
-
-};
-}());
-
-bot.banlist = JSON.parse( localStorage.bot_ban || '{}' );
-if ( Array.isArray(bot.banlist) ) {
-	bot.banlist = bot.banlist.reduce(function ( ret, id ) {
-		ret[ id ] = { told : false };
-		return ret;
-	}, {});
-}
-bot.banlist.contains = function ( id ) {
-	return this.hasOwnProperty( id );
-};
-bot.banlist.add = function ( id ) {
-	this[ id ] = { told : false };
-	this.save();
-};
-bot.banlist.remove = function ( id ) {
-	if ( this.contains(id) ) {
-		delete this[ id ];
-		this.save();
-	}
-};
-bot.banlist.save = function () {
-	//JSON.stringify ignores functions
-	localStorage.bot_ban = JSON.stringify( this );
-};
-
-//some sort of pseudo constructor
-bot.Command = function ( cmd ) {
-	cmd.name = cmd.name.toLowerCase();
-
-	cmd.permissions = cmd.permissions || {};
-	cmd.permissions.use = cmd.permissions.use || 'ALL';
-	cmd.permissions.del = cmd.permissions.del || 'NONE';
-
-	cmd.description = cmd.description || '';
-	cmd.creator = cmd.creator || 'God';
-	cmd.invoked = 0;
-
-	//make canUse and canDel
-	[ 'Use', 'Del' ].forEach(function ( perm ) {
-		var low = perm.toLowerCase();
-		cmd[ 'can' + perm ] = function ( usrid ) {
-			var canDo = this.permissions[ low ];
-
-			return canDo === 'ALL' || canDo !== 'NONE' && (
-				( canDo === 'OWNER' && bot.isOwner(usrid) ) ||
-				canDo.indexOf( usrid ) > -1 );
-		};
-	});
-
-	cmd.exec = function () {
-		this.invoked += 1;
-		return this.fun.apply( this.thisArg, arguments );
-	};
-
-	cmd.del = function () {
-		bot.info.forgotten += 1;
-		delete bot.commands[ cmd.name ];
-	};
-
-	return cmd;
-};
-//a normally priviliged command which can be executed if enough people use it
-bot.CommunityCommand = function ( command, req ) {
-	var cmd = this.Command( command ),
-		used = {},
-		old_execute = cmd.exec,
-		old_canUse  = cmd.canUse;
-	req = req || 2;
-
-	cmd.canUse = function () {
-		return true;
-	};
-	cmd.exec = function ( msg ) {
-		var err = register( msg.get('user_id') );
-		if ( err ) {
-			bot.log( err );
-			return err;
-		}
-		return old_execute.apply( cmd, arguments );
-	};
-	return cmd;
-
-	//once again, a switched return statement truthy means a message, falsy
-	// means to go on ahead
-	function register ( usrid ) {
-		if ( old_canUse.call(cmd, usrid) ) {
-			return false;
-		}
-
-		clean();
-		var count = Object.keys( used ).length,
-			needed = req - count - 1; //0 based indexing vs. 1 based humans
-		bot.log( used, count, req );
-
-		if ( usrid in used ) {
-			return 'Already registered; still need {0} more'.supplant( needed );
-		}
-		else if ( needed > 0 ) {
-			used[ usrid ] = new Date;
-			return 'Registered; need {0} more to execute'.supplant( needed-1 );
-		}
-		bot.log( 'should execute' );
-		return false; //huzzah!
-	}
-
-	function clean () {
-		var tenMinsAgo = new Date;
-		tenMinsAgo.setMinutes( tenMinsAgo.getMinutes() - 10 );
-
-		Object.keys( used ).reduce( rm, used );
-		function rm ( ret, key ) {
-			if ( ret[key] < tenMinsAgo ) {
-				delete ret[ key ];
-			}
-			return ret;
-		}
-	}
-};
-
-bot.Message = function ( text, msgObj ) {
-	//"casting" to object so that it can be extended with cool stuff and
-	// still be treated like a string
-	var ret = Object( text );
-	ret.content = text;
-
-	var deliciousObject = {
-		send : function ( resp ) {
-			bot.adapter.out.add( resp, msgObj.room_id );
-		},
-
-		reply : function ( resp ) {
-			var prefix = bot.adapter.reply( msgObj.user_name );
-			this.send( prefix + ' ' + resp );
-		},
-		directreply : function ( resp ) {
-			var prefix = bot.adapter.directreply( msgObj.message_id );
-			this.send( prefix + ' ' + resp );
-		},
-
-		//parse() parses the original message
-		//parse( true ) also turns every match result to a Message
-		//parse( msgToParse ) parses msgToParse
-		//parse( msgToParse, true ) combination of the above
-		parse : function ( msg, map ) {
-			if ( !!msg === msg ) {
-				map = msg;
-				msg = text;
-			}
-			var parsed = bot.parseCommandArgs( msg || text );
-
-			if ( !map ) {
-				return parsed;
-			}
-
-			return parsed.map(function ( part ) {
-				return bot.Message( part, msgObj );
-			});
-		},
-
-		//execute a regexp against the text, saving it inside the object
-		exec : function ( regexp ) {
-			var match = regexp.exec( text );
-			this.matches = match ? match : [];
-
-			return match;
-		},
-
-		findUserid : function ( username ) {
-			username = username.toLowerCase().replace( /\s/g, '' );
-			var ids = Object.keys( bot.users );
-
-			return ids.first(function ( id ) {
-				var name = bot.users[ id ].name
-					.toLowerCase().replace( /\s/g, '' );
-
-				return name === username;
-			}) || -1;
-		}.memoize(),
-
-		codify : bot.adapter.codify.bind( bot.adapter ),
-		escape : bot.adapter.escape.bind( bot.adapter ),
-		link   : bot.adapter.link.bind( bot.adapter ),
-
-		//retrieve a value from the original message object, or if no argument
-		// provided, the msgObj itself
-		get : function ( what ) {
-			if ( !what ) {
-				return msgObj;
-			}
-			return msgObj[ what ];
-		},
-		set : function ( what, val ) {
-			return msgObj[ what ] = val;
-		}
-	};
-
-	Object.iterate( deliciousObject, function ( key, prop ) {
-		ret[ key ] = prop;
-	});
-
-	return ret;
-};
-
-bot.owners = [
-	// 419970, //Raynos
-	// 342129, //Matt McDonald
-	// 170224, //Ivo Wetzel
-	// 94197,	//Andy E
-	// 617762	//me (Zirak)
-	1482644,
-	1673476
-
-];
-bot.isOwner = function ( usrid ) {
-	var user = this.users[ usrid ];
-	return user && ( user.is_owner || user.is_moderator );
-};
-
-IO.register( 'input', bot.parseMessage, bot );
-
-bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
-(function beat () {
-	bot.beat = setTimeout(function () {
-		IO.fire( 'heartbeat' );
-		beat();
-	}, bot.beatInterval );
-}());
-
-//execute arbitrary js code in a relatively safe environment
-bot.eval = (function () {
-// window.url = window.url || window.webkiturl || window.mozurl || null;
-
-// //translation tool: https://tinker.io/b2ff5
-//var worker_code = atob( 'dmfyigdsb2jhbca9ihroaxm7cgovkm1vc3qgzxh0cmegznvuy3rpb25zignvdwxkigjlihbvc3npymx5ihvuc2fmzsovcnzhcib3agl0zxkgpsb7cgknqxjyyxknicagicagicagicagica6idescgknqm9vbgvhbicgicagicagicagica6idescgknrgf0zscgicagicagicagicagica6idescgknzgvjb2rlvvjjjyagicagicagica6idescgknzgvjb2rlvvjjq29tcg9uzw50jya6idescgknzw5jb2rlvvjjjyagicagicagica6idescgknzw5jb2rlvvjjq29tcg9uzw50jya6idescgknrxjyb3inicagicagicagicagica6idescgknzxzhbccgicagicagicagicagica6idescgknrxzhbevycm9yjyagicagicagica6idescgknrnvuy3rpb24nicagicagicagica6idescgknz2xvymfsjyagicagicagicagica6idescgknsw5maw5pdhknicagicagicagica6idescgknaxngaw5pdgunicagicagicagica6idescgknaxnoyu4nicagicagicagicagica6idescgknslnpticgicagicagicagicagica6idescgkntwf0accgicagicagicagicagica6idescgkntmfojyagicagicagicagicagica6idescgkntnvtymvyjyagicagicagicagica6idescgknt2jqzwn0jyagicagicagicagica6idescgknb25tzxnzywdljyagicagicagica6idescgkncgfyc2vgbg9hdccgicagicagica6idescgkncgfyc2vjbnqnicagicagicagica6idescgkncg9zde1lc3nhz2unicagicagica6idescgknumfuz2vfcnjvcicgicagicagica6idescgknumvmzxjlbmnlrxjyb3inicagica6idescgknumvnrxhwjyagicagicagicagica6idescgknc2vszicgicagicagicagicagica6idescgknu3ryaw5njyagicagicagicagica6idescgknu3ludgf4rxjyb3inicagicagica6idescgknvhlwzuvycm9yjyagicagicagica6idescgkndw5kzwzpbmvkjyagicagicagica6idescgknvvjjrxjyb3inicagicagicagica6idescgknd2hpdgv5jyagicagicagicagica6idescgojlyogdhlwzwqgyxjyyxlzigfuzcbzagl0icovcgknqxjyyxlcdwzmzxinicagicagidogmswkcsdcbg9ijyagicagicagicagicagoiaxlaojj0zsb2f0mzjbcnjhescgicagica6idescgknrmxvyxq2nefycmf5jyagicagidogmswkcsdjbnq4qxjyyxknicagicagicagoiaxlaojj0ludde2qxjyyxknicagicagica6idescgknsw50mzjbcnjhescgicagicagidogmswkcsdvaw50oefycmf5jyagicagicagoiaxlaojj1vpbnqxnkfycmf5jyagicagica6idescgknvwluddmyqxjyyxknicagicagidogmswkcsdvaw50oensyw1wzwrbcnjhescgoiaxlaokcs8qcgl0agvzzsbwcm9wzxj0awvzigfsbg93iezgihrvigz1bmn0aw9ulib3axrob3v0ihrozw0sigegznvja2zlc3qgb2ykcwluzxhwbgljywjszsblcnjvcnmgzw51c2vzlib0b29rig1ligfib3v0idqgag91cnmgdg8gdhjhy2sgdghlc2ugznvja2vycwojzg93bi4kcwz1y2sgagvsbcbpdcbpc24ndcbmdxr1cmutchjvb2ysigj1dcb0agugzxjyb3jzihrocm93bibhcmugdw5jyxrjagfibgukcwfuzcb1bnryywnhymxllibzbybhighlywrzlxvwliblbmpveswgznv0dxjllw1liqojki8kcsdet01fegnlchrpb24nidogmswkcsdfdmvudccgicagicagidogmswkcsdnzxnzywdlrxzlbnqnidogmqp9owokwybnbg9iywwsigdsb2jhbc5fx3byb3rvx18gxs5mb3jfywnokgz1bmn0aw9uicggb2jqickgewojt2jqzwn0lmdlde93blbyb3blcnr5tmftzxmoig9iaiaplmzvckvhy2goznvuy3rpb24oihbyb3agksb7cgkjawyoicf3agl0zxkuagfzt3duuhjvcgvydhkoihbyb3agksapihskcqkjzgvszxrlig9ialsgchjvccbdowojcx0kcx0powp9ktskck9iamvjdc5kzwzpbmvqcm9wzxj0esggqxjyyxkuchjvdg90exbllcanam9pbicsihskcxdyaxrhymxloibmywxzzswkcwnvbmzpz3vyywjsztogzmfsc2uscgllbnvtcmfibgu6igzhbhnllaokcxzhbhvloiaoznvuy3rpb24gkcbvbgqgksb7cgkjcmv0dxjuigz1bmn0aw9uicggyxjnickgewojcqlpziaoihroaxmubgvuz3roid4gntawihx8ichhcmcgjiygyxjnlmxlbmd0aca+iduwmckgksb7cgkjcql0ahjvdyanrxhjzxb0aw9uoib0b28gbwfuesbpdgvtcyc7cgkjcx0kcgkjcxjldhvybibvbgquyxbwbhkoihroaxmsigfyz3vtzw50cyapowojcx07cgl9kcbbcnjhes5wcm90b3r5cguuam9pbiapkqp9ktskcihmdw5jdglvbigpewojinvzzsbzdhjpy3qiowokcxzhcibjb25zb2xlid0gewojcv9pdgvtcya6iftdlaojcwxvzya6igz1bmn0aw9ukckgewojcqljb25zb2xlll9pdgvtcy5wdxnolmfwcgx5kcbjb25zb2xlll9pdgvtcywgyxjndw1lbnrzick7cgkjfqojftskcxzhcibwid0gy29uc29szs5sb2cuymluzcggy29uc29szsapowokcwz1bmn0aw9uigv4zwmgkcbjb2rlickgewojcxzhcibyzxn1bhq7cgkjdhj5ihskcqkjcmvzdwx0id0gzxzhbcggjyj1c2ugc3ryawn0ijt1bmrlzmluzwq7xg4nicsgy29kzsapowojcx0kcqljyxrjacaoigugksb7cgkjcxjlc3vsdca9iguudg9tdhjpbmcoktskcql9cgojcxjldhvybibyzxn1bhq7cgl9cgojz2xvymfslm9ubwvzc2fnzsa9igz1bmn0aw9uicggzxzlbnqgksb7cgkjdmfyigpzb25tdhjpbmdpznkgpsbku09olnn0cmluz2lmeswglypiywnrdxaqlwojcqlyzxn1bhqgpsblegvjkcbldmvudc5kyxrhick7cgojcxzhcibzdhj1bmcgpsb7cgkjcuz1bmn0aw9uica6ihrydwusievycm9yica6ihrydwuscgkjcvvuzgvmaw5lzca6ihrydwusifjlz0v4cca6ihrydwukcql9owojcxzhcibyzxzpdmvyid0gznvuy3rpb24gkcbrzxksihzhbhvlickgewojcql2yxigdhlwzsa9icgge30gks50b1n0cmluzy5jywxskcb2ywx1zsaplnnsawnlkca4lcatmsaplaojcqkjb3v0chv0owokcqkjlypku09olnn0cmluz2lmesbkb2vzig5vdcbsawtligz1bmn0aw9ucywgzxjyb3jzlcboyu4gb3igdw5kzwzpbmvkki8kcqkjawygkcb0exbligluihn0cnvuzyb8fcb2ywx1zsahpt0gdmfsdwugksb7cgkjcqlvdxrwdxqgpsanjyarihzhbhvlowojcql9cgkjcwvsc2ugewojcqkjb3v0chv0id0gdmfsdwu7cgkjcx0kcgkjcxjldhvybibvdxrwdxq7cgkjftskcgkjcg9zde1lc3nhz2uoewojcqlhbnn3zxigoibqc29uu3ryaw5nawz5kcbyzxn1bhqsihjldml2zxigkswkcqkjbg9nicagidogannvbln0cmluz2lmesggy29uc29szs5faxrlbxmsihjldml2zxigks5zbgljzsggmswgltegkqojcx0powojftskfskoktsk' );
-// var blob = new blob( [worker_code], { type : 'application/javascript' } ),
-	// code_url = window.url.createobjecturl( blob );
-
-return function ( msg ) {
-console.log(msg);
-try{
-
-//console.log(args, "args");
-$.post(
-    'http://ccinc.host56.com/ideone.php', {sourceCode : msg.content.replace(/^>/, '')},
-	       
-    function(data){
-	
-msg.directreply(data);
-    }
-);
-}
-catch(e)
-{console.log(e.stack, "error stack");}
-
-	// var timeout,
-		// worker = new worker( code_url );
-
-	// worker.onmessage = function ( evt ) {
-		// finish( dressupanswer(evt.data) );
-	// };
-
-	// worker.onerror = function ( error ) {
-		// finish( error.tostring() );
-	// };
-
-	//and it all boils down to this...
-	//worker.postmessage( msg.content.replace(/^>/, '') );
-
-	// timeout = window.settimeout(function() {
-		// finish( 'maximum execution time exceeded' );
-	// }, 100 );
-
-	function finish ( result ) {
-		// cleartimeout( timeout );
-		// worker.terminate();
-		msg.directreply( result );
-	}
-};
-
-// function dressupanswer ( answerobj ) {
-	// console.log( answerobj, 'eval answerobj' );
-	// var answer = answerobj.answer,
-		// log = answerobj.log,
-		// result;
-
-	// result = snipandcodify( answer );
-
-	// if ( log && log.length ) {
-		// result += ' logged: ' + snipandcodify( log );
-	// }
-
-	// return result;
-// }
-// function snipandcodify ( str ) {
-	// var ret;
-
-	// if ( str.length > 400 ) {
-		// ret = '`' +  str.slice(0, 400) + '` (snip)';
-	// }
-	// else {
-		// ret = '`' + str +'`';
-	// }
-
-	// return ret;
-// }
-
-
-}());
-
-
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //small utility functions
 Object.merge = function () {
@@ -1178,6 +425,14 @@ Object.defineProperty( Array.prototype, 'random', {
 	writable : true
 });
 
+//define generic array methods on Array, like FF does
+[ 'forEach', 'map', 'filter', 'reduce' ].forEach(function ( name ) {
+	var fun = [][ name ]; //teehee
+	Array[ name ] = function () {
+		return fun.call.apply( fun, arguments );
+	};
+});
+
 String.prototype.indexesOf = function ( str, fromIndex ) {
 	//since we also use index to tell indexOf from where to begin, and since
 	// telling it to begin from where it found the match will cause it to just
@@ -1245,8 +500,9 @@ Function.prototype.memoize = function () {
 
 //async memoizer
 Function.prototype.memoizeAsync = function ( hasher ) {
-	var cache = Object.create( null ), fun = this,
-		hasher = hasher || function (x) { return x; };
+	var cache = Object.create( null ), fun = this;
+
+	hasher = hasher || function (x) { return x; };
 
 	return function memoized () {
 		var args = [].slice.call( arguments ),
@@ -1362,7 +618,7 @@ Date.timeSince = function ( d0, d1 ) {
 	d1 = d1 || (new Date);
 
 	var ms = d1 - d0,
-		delay, interval;
+		delay;
 
 	var delays = [
 		{
@@ -1406,6 +662,638 @@ Date.timeSince = function ( d0, d1 ) {
 		return interval + ' ' + suffix;
 	}
 };
+
+;
+(function () {
+"use strict";
+
+var bot = window.bot = {
+	invocationPattern : 'cc',
+	botName: 'HangBot',
+
+	commands : {}, //will be filled as needed
+	commandDictionary : null, //it's null at this point, won't be for long
+	listeners : [],
+	info : {
+		invoked   : 0,
+		learned   : 0,
+		forgotten : 0,
+		start     : new Date
+	},
+	users : {}, //will be filled in build
+
+	parseMessage : function ( msgObj ) {
+		if ( !this.validateMessage(msgObj) ) {
+			bot.log( msgObj, 'parseMessage invalid' );
+			return;
+		}
+
+		var msg = this.prepareMessage( msgObj ),
+			id = msg.get( 'user_id' );
+		bot.log( msg, 'parseMessage valid' );
+
+		if ( this.banlist.contains(id) ) {
+			bot.log( msgObj, 'parseMessage banned' );
+
+			//tell the user he's banned only if he hasn't already been told
+			if ( !this.banlist[id].told ) {
+				msg.reply( 'You iz in mindjail' );
+				this.banlist[ id ].told = true;
+			}
+			return;
+		}
+
+		try {
+			//it wants to execute some code
+			if ( /^c?>/.test(msg) ) {
+				this.eval( msg );
+			}
+			else {
+				this.invokeAction( msg );
+			}
+		}
+		catch ( e ) {
+			var err = 'Could not process input. Error: ' + e.message;
+
+			if ( e.lineNumber ) {
+				err += ' on line ' + e.lineNumber;
+			}
+			//column isn't part of ordinary errors, it's set in custom ones
+			if ( e.column ) {
+				err += ' on column ' + e.column;
+			}
+
+			msg.directreply( err );
+			//make sure we have it somewhere
+			console.dir( e );
+		}
+		finally {
+			this.info.invoked += 1;
+		}
+	},
+
+	//this conditionally calls execCommand or callListeners, depending on what
+	// the input. if the input begins with a command name, it's assumed to be a
+	// command. otherwise, it tries matching against the listener.
+	invokeAction : function ( msg ) {
+		var possibleName = msg.trim().replace( /^\/\s*/, '' ).split( ' ' )[ 0 ],
+			cmd = this.getCommand( possibleName ),
+
+			//this is the best name I could come up with
+			//messages beginning with / want to specifically invoke a command
+			coolnessFlag = msg.startsWith('/') ? !cmd.error : true;
+
+		if ( !cmd.error ) {
+			this.execCommand( cmd, msg );
+		}
+		else if ( coolnessFlag ) {
+			coolnessFlag = this.callListeners( msg );
+		}
+
+		//nothing to see here, move along
+		if ( coolnessFlag ) {
+			return;
+		}
+
+		msg.reply( this.giveUpMessage(cmd.guesses) );
+	},
+
+	giveUpMessage : function ( guesses ) {
+		//man, I can't believe it worked...room full of nachos for me
+		var errMsg = 'That didn\'t make much sense.';
+		if ( guesses && guesses.length ) {
+			errMsg += ' Maybe you meant: ' + cmd.guesses.join( ', ' );
+		}
+		//mmmm....nachos
+		else {
+			errMsg += ' Use the help command to learn more.';
+		}
+		//wait a minute, these aren't nachos. these are bear cubs.
+		return errMsg;
+		//good mama bear...nice mama bear...tasty mama be---
+	},
+
+	execCommand : function ( cmd, msg ) {
+		bot.log( cmd, 'execCommand calling' );
+
+		if ( !cmd.canUse(msg.get('user_id')) ) {
+			msg.reply([
+				'You do not have permission to use the command ' + cmd.name,
+				"I'm afraid I can't let you do that, " + msg.get('user_name')
+			].random());
+			return;
+		}
+
+		var args = this.Message(
+				msg.replace( /^\/\s*/, '' ).slice( cmd.name.length ).trim(),
+				msg.get()
+			),
+			//it always amazed me how, in dynamic systems, the trigger of the
+			// actions is always a small, nearly unidentifiable line
+			//this line right here activates a command
+			res = cmd.exec( args );
+
+		if ( res ) {
+			msg.reply( res );
+		}
+	},
+
+	prepareMessage : function ( msgObj ) {
+		msgObj = this.adapter.transform( msgObj );
+
+		var msg = IO.decodehtmlEntities( msgObj.content );
+		return this.Message(
+			msg.slice( this.invocationPattern.length ).trim(),
+			msgObj );
+	},
+
+	validateMessage : function ( msgObj ) {
+		var msg = msgObj.content.trim();
+		
+		if( msg.startsWith( "@" + botName))
+		{
+			console.log("cleverbot time");
+			bot.cleverbot.speak(msgObj);
+			return false;
+		}
+
+		return (
+			//make sure we don't process our own messages,
+			//msgObj.user_id !== bot.adapter.user_id &&
+			//and the message begins with the invocationPattern
+			msg.startsWith( this.invocationPattern ) );
+	},
+
+	addCommand : function ( cmd ) {
+		if ( !cmd.exec || !cmd.del ) {
+			cmd = this.Command( cmd );
+		}
+		if ( cmd.learned ) {
+			this.info.learned += 1;
+		}
+		cmd.invoked = 0;
+
+		this.commands[ cmd.name ] = cmd;
+		this.commandDictionary.trie.add( cmd.name );
+	},
+
+	//gee, I wonder what this will return?
+	commandExists : function ( cmdName ) {
+		return this.commands.hasOwnProperty( cmdName );
+	},
+
+	//if a command named cmdName exists, it returns that command object
+	//otherwise, it returns an object with an error message property
+	getCommand : function ( cmdName ) {
+		var lowerName = cmdName.toLowerCase();
+
+		if ( this.commandExists(lowerName) ) {
+			return this.commands[ lowerName ];
+		}
+
+		//not found, onto error reporting
+		//set the error margin according to the length
+		this.commandDictionary.maxCost = Math.floor( cmdName.length / 5 + 1 );
+
+		var msg = 'Command ' + cmdName + ' does not exist.',
+		//find commands resembling the one the user entered
+		guesses = this.commandDictionary.search( cmdName );
+
+		//resembling command(s) found, add them to the error message
+		if ( guesses.length ) {
+			msg += ' Did you mean: ' + guesses.join( ', ' );
+		}
+
+		return { error : msg, guesses : guesses };
+	},
+
+	//the function women think is lacking in men
+	listen : function ( regex, fun, thisArg ) {
+		if ( Array.isArray(regex) ) {
+			regex.forEach(function ( reg ) {
+				this.listen( reg, fun, thisArg );
+			}, this);
+		}
+		else {
+			this.listeners.push({
+				pattern : regex,
+				fun : fun,
+				thisArg: thisArg
+			});
+		}
+	},
+
+	callListeners : function ( msg ) {
+		return this.listeners.some(function callListener ( listener ) {
+			var match = msg.exec( listener.pattern ), resp;
+
+			if ( match ) {
+				resp = listener.fun.call( listener.thisArg, msg );
+
+				bot.log( match, resp );
+				if ( resp ) {
+					msg.reply( resp );
+				}
+				return resp !== false;
+			}
+		});
+	},
+
+	stoplog : false,
+	log : function () {
+		if ( !this.stoplog ) {
+			console.log.apply( console, arguments );
+		}
+	},
+
+	stop : function () {
+		this.stopped = true;
+	},
+	continue : function () {
+		this.stopped = false;
+	}
+};
+
+//a place to hang your coat and remember the past. provides an abstraction over
+// localStorage or whatever data-storage will be used in the future.
+bot.memory = {
+	saveInterval : 900000, //15(min) * 60(sec/min) * 1000(ms/sec) = 900000(ms)
+
+	data : {},
+
+	get : function ( name, defaultVal ) {
+		if ( !this.data[name] ) {
+			this.set( name, defaultVal || {} );
+		}
+
+		return this.data[ name ];
+	},
+
+	set : function ( name, val ) {
+		this.data[ name ] = val;
+	},
+
+	loadAll : function () {
+		var self = this;
+
+		Object.iterate( localStorage, function ( key, val ) {
+			if ( key.startsWith('bot_') ) {
+				console.log( key, val );
+				self.set( key.replace(/^bot_/, ''), JSON.parse(val) );
+			}
+		});
+	},
+
+	save : function ( name ) {
+		if ( name ) {
+			localStorage[ 'bot_' + name ] = JSON.stringify( this.data[name] );
+			return;
+		}
+
+		var self = this;
+		Object.keys( this.data ).forEach(function ( name ) {
+			self.save( name );
+		});
+
+		this.saveLoop();
+	},
+
+	saveLoop : function () {
+		clearTimeout( this.saveIntervalId );
+		setTimeout( this.saveLoop.bind(this), this.saveInterval );
+	}
+};
+
+bot.memory.loadAll();
+window.addEventListener( 'beforeunload', function () { bot.memory.save(); } );
+bot.memory.saveLoop();
+
+bot.banlist = bot.memory.get( 'ban' );
+bot.banlist.contains = function ( id ) {
+	return this.hasOwnProperty( id );
+};
+bot.banlist.add = function ( id ) {
+	this[ id ] = { told : false };
+	this.save();
+};
+bot.banlist.remove = function ( id ) {
+	if ( this.contains(id) ) {
+		delete this[ id ];
+	}
+};
+
+//some sort of pseudo constructor
+bot.Command = function ( cmd ) {
+	cmd.name = cmd.name.toLowerCase();
+
+	cmd.permissions = cmd.permissions || {};
+	cmd.permissions.use = cmd.permissions.use || 'ALL';
+	cmd.permissions.del = cmd.permissions.del || 'NONE';
+
+	cmd.description = cmd.description || '';
+	cmd.creator = cmd.creator || 'God';
+	cmd.invoked = 0;
+
+	//make canUse and canDel
+	[ 'Use', 'Del' ].forEach(function ( perm ) {
+		var low = perm.toLowerCase();
+		cmd[ 'can' + perm ] = function ( usrid ) {
+			var canDo = this.permissions[ low ];
+
+			if ( canDo === 'ALL' ) {
+				return true;
+			}
+			else if ( canDo === 'NONE' ) {
+				return false;
+			}
+			else if ( canDo === 'OWNER' ) {
+				return bot.isOwner( usrid );
+			}
+			return canDo.indexOf( usrid ) > -1;
+		};
+	});
+
+	cmd.exec = function () {
+		this.invoked += 1;
+		return this.fun.apply( this.thisArg, arguments );
+	};
+
+	cmd.del = function () {
+		bot.info.forgotten += 1;
+		delete bot.commands[ cmd.name ];
+	};
+
+	return cmd;
+};
+//a normally priviliged command which can be executed if enough people use it
+bot.CommunityCommand = function ( command, req ) {
+	var cmd = this.Command( command ),
+		used = {},
+		old_execute = cmd.exec,
+		old_canUse  = cmd.canUse;
+	req = req || 2;
+
+	cmd.canUse = function () {
+		return true;
+	};
+	cmd.exec = function ( msg ) {
+		var err = register( msg.get('user_id') );
+		if ( err ) {
+			bot.log( err );
+			return err;
+		}
+		return old_execute.apply( cmd, arguments );
+	};
+	return cmd;
+
+	//once again, a switched return statement: truthy means a message, falsy
+	// means to go on ahead
+	function register ( usrid ) {
+		if ( old_canUse.call(cmd, usrid) ) {
+			return false;
+		}
+
+		clean();
+		var count = Object.keys( used ).length,
+			needed = req - count - 1; //0 based indexing vs. 1 based humans
+		bot.log( used, count, req );
+
+		if ( usrid in used ) {
+			return 'Already registered; still need {0} more'.supplant( needed );
+		}
+		else if ( needed > 0 ) {
+			used[ usrid ] = new Date;
+			return 'Registered; need {0} more to execute'.supplant( needed-1 );
+		}
+		bot.log( 'should execute' );
+		return false; //huzzah!
+	}
+
+	function clean () {
+		var tenMinsAgo = new Date;
+		tenMinsAgo.setMinutes( tenMinsAgo.getMinutes() - 10 );
+
+		Object.keys( used ).reduce( rm, used );
+		function rm ( ret, key ) {
+			if ( ret[key] < tenMinsAgo ) {
+				delete ret[ key ];
+			}
+			return ret;
+		}
+	}
+};
+
+bot.Message = function ( text, msgObj ) {
+	//"casting" to object so that it can be extended with cool stuff and
+	// still be treated like a string
+	var ret = Object( text );
+	ret.content = text;
+
+	var rawSend = function ( text ) {
+		bot.adapter.out.add( text, msgObj.room_id );
+	};
+	var deliciousObject = {
+		send : rawSend,
+
+		reply : function ( resp, user_name ) {
+			var prefix = bot.adapter.reply( user_name || msgObj.user_name );
+			rawSend( prefix + ' ' + resp );
+		},
+		directreply : function ( resp ) {
+			var prefix = bot.adapter.directreply( msgObj.message_id );
+			rawSend( prefix + ' ' + resp );
+		},
+
+		//parse() parses the original message
+		//parse( true ) also turns every match result to a Message
+		//parse( msgToParse ) parses msgToParse
+		//parse( msgToParse, true ) combination of the above
+		parse : function ( msg, map ) {
+			if ( !!msg === msg ) {
+				map = msg;
+				msg = text;
+			}
+			var parsed = bot.parseCommandArgs( msg || text );
+
+			if ( !map ) {
+				return parsed;
+			}
+
+			return parsed.map(function ( part ) {
+				return bot.Message( part, msgObj );
+			});
+		},
+
+		//execute a regexp against the text, saving it inside the object
+		exec : function ( regexp ) {
+			var match = regexp.exec( text );
+			this.matches = match ? match : [];
+
+			return match;
+		},
+
+		findUserid : function ( username ) {
+			username = username.toLowerCase().replace( /\s/g, '' );
+			var ids = Object.keys( bot.users );
+
+			return ids.first(function ( id ) {
+				var name = bot.users[ id ].name
+					.toLowerCase().replace( /\s/g, '' );
+
+				return name === username;
+			}) || -1;
+		}.memoize(),
+
+		findUsername : (function () {
+			var cache = {};
+
+			return function ( id, cb ) {
+				if ( cache[id] ) {
+					finish( cache[id] );
+				}
+				else if ( bot.users[id] ) {
+					finish( bot.users[id].name );
+				}
+				else {
+					bot.users.request( bot.adapter.roomid, id, reqFinish );
+				}
+
+				function reqFinish ( user ) {
+					finish( user.name );
+				}
+				function finish ( name ) {
+					cb( cache[id] = name );
+				}
+			};
+		})(),
+
+		codify : bot.adapter.codify.bind( bot.adapter ),
+		escape : bot.adapter.escape.bind( bot.adapter ),
+		link   : bot.adapter.link.bind( bot.adapter ),
+
+		//retrieve a value from the original message object, or if no argument
+		// provided, the msgObj itself
+		get : function ( what ) {
+			if ( !what ) {
+				return msgObj;
+			}
+			return msgObj[ what ];
+		},
+		set : function ( what, val ) {
+			msgObj[ what ] = val;
+			return msgObj[ what ];
+		}
+	};
+
+	Object.iterate( deliciousObject, function ( key, prop ) {
+		ret[ key ] = prop;
+	});
+
+	return ret;
+};
+
+bot.isOwner = function ( usrid ) {
+	var user = this.users[ usrid ];
+	return user && ( user.is_owner || user.is_moderator );
+};
+
+IO.register( 'input', bot.parseMessage, bot );
+
+bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
+(function beat () {
+	bot.beat = setTimeout(function () {
+		IO.fire( 'heartbeat' );
+		beat();
+	}, bot.beatInterval );
+}());
+
+//execute arbitrary js code in a relatively safe environment
+bot.eval = (function () {
+window.URL = window.URL || window.webkitURL || window.mozURL || null;
+
+//translation tool: https://tinker.io/b2ff5
+var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknYXRvYicgICAgICAgICAgICAgICA6IDEsCgknYnRvYScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCi8qIHdlIGRlZmluZSBpdCBvdXRzaWRlIHNvIGl0J2xsIG5vdCBiZSBpbiBzdHJpY3QgbW9kZSAqLwpmdW5jdGlvbiBleGVjICggY29kZSApIHsKCXJldHVybiBldmFsKCAndW5kZWZpbmVkO1xuJyArIGNvZGUgKTsKfQp2YXIgY29uc29sZSA9IHsKCV9pdGVtcyA6IFtdLAoJbG9nIDogZnVuY3Rpb24oKSB7CgkJY29uc29sZS5faXRlbXMucHVzaC5hcHBseSggY29uc29sZS5faXRlbXMsIGFyZ3VtZW50cyApOwoJfQp9Owpjb25zb2xlLmVycm9yID0gY29uc29sZS5pbmZvID0gY29uc29sZS5kZWJ1ZyA9IGNvbnNvbGUubG9nOwp2YXIgcCA9IGNvbnNvbGUubG9nLmJpbmQoIGNvbnNvbGUgKTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCWdsb2JhbC5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXBvc3RNZXNzYWdlKHsKCQkJZXZlbnQgOiAnc3RhcnQnCgkJfSk7CgoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0OwoKCQl0cnkgewoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgkJfQoJCWNhdGNoICggZSApIHsKCQkJcmVzdWx0ID0gZS50b1N0cmluZygpOwoJCX0KCgkJLypKU09OIGRvZXMgbm90IGxpa2UgYW55IG9mIHRoZSBmb2xsb3dpbmcqLwoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciBzaG91bGRfc3RyaW5nID0gZnVuY3Rpb24gKCB2YWx1ZSApIHsKCQkJdmFyIHR5cGUgPSAoIHt9ICkudG9TdHJpbmcuY2FsbCggdmFsdWUgKS5zbGljZSggOCwgLTEgKTsKCgkJCWlmICggdHlwZSBpbiBzdHJ1bmcgKSB7CgkJCQlyZXR1cm4gdHJ1ZTsKCQkJfQoJCQkvKm5laXRoZXIgZG9lcyBpdCBmZWVsIGNvbXBhc3Npb25hdGUgYWJvdXQgTmFOIG9yIEluZmluaXR5Ki8KCQkJcmV0dXJuIHZhbHVlICE9PSB2YWx1ZSB8fCB2YWx1ZSA9PT0gSW5maW5pdHk7CgkJfTsKCgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciBvdXRwdXQ7CgoJCQlpZiAoIHNob3VsZF9zdHJpbmcodmFsdWUpICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoIDEsIC0xICkKCQl9KTsKCX07Cn0pKCk7Cg==' );
+var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
+	code_url = window.URL.createObjectURL( blob );
+
+IO.injectScript( 'https://raw.github.com/jashkenas/coffee-script/master/extras/coffee-script.js' );
+
+return function ( msg, cb ) {
+	var worker = new Worker( code_url ),
+		timeout;
+
+	var code = msg.toString();
+	if ( code[0] === 'c' ) {
+		code = CoffeeScript.compile( code.replace(/^c>/, ''), {bare:1} );
+	}
+	else {
+		code = code.replace( /^>/, '' );
+	}
+
+	worker.onmessage = function ( evt ) {
+		var type = evt.data.event;
+		if ( type === 'start' ) {
+			start();
+		}
+		else {
+			finish( dressUpAnswer(evt.data) );
+		}
+	};
+
+	worker.onerror = function ( error ) {
+		finish( error.toString() );
+	};
+
+	//and it all boils down to this...
+	worker.postMessage( code );
+
+	function start () {
+		timeout = window.setTimeout(function() {
+			finish( 'Maximum execution time exceeded' );
+		}, 500 );
+	}
+
+	function finish ( result ) {
+		clearTimeout( timeout );
+		worker.terminate();
+
+		if ( cb && cb.call ) {
+			cb( result );
+		}
+		else {
+			msg.directreply( result );
+		}
+	}
+};
+
+function dressUpAnswer ( answerObj ) {
+	bot.log( answerObj, 'eval answerObj' );
+	var answer = answerObj.answer,
+		log = answerObj.log,
+		result;
+
+	result = snipAndCodify( answer );
+
+	if ( log && log.length ) {
+		result += ' Logged: ' + snipAndCodify( log );
+	}
+
+	return result;
+}
+function snipAndCodify ( str ) {
+	var ret;
+
+	if ( str.length > 400 ) {
+		ret = '`' +  str.slice(0, 400) + '` (snip)';
+	}
+	else {
+		ret = '`' + str +'`';
+	}
+
+	return ret;
+}
+}());
+
 
 (function () {
 "use strict";
@@ -1781,7 +1669,7 @@ var commands = {
 	help : function ( args ) {
 		if ( args && args.length ) {
 
-			var cmd = bot.getCommand( args );
+			var cmd = bot.getCommand( args.toLowerCase() );
 			if ( cmd.error ) {
 				return cmd.error;
 			}
@@ -1792,15 +1680,23 @@ var commands = {
 		}
 
 		return 'https://github.com/Zirak/SO-ChatBot/wiki/' +
-		       'Interacting-with-the-bot';
+			'Interacting-with-the-bot';
 	},
 
 	listen : function ( msg ) {
-		return bot.callListeners( msg ) || bot.giveUpMessage( msg );
+		var ret = bot.callListeners( msg );
+		if ( !ret ) {
+			return bot.giveUpMessage();
+		}
 	},
 
-	eval : function ( msg ) {
-		return bot.eval( msg );
+	eval : function ( msg, cb ) {
+		return bot.eval( msg, cb );
+	},
+	coffee : function ( msg, cb ) {
+		//yes, this is a bit yucky
+		var arg = bot.Message( 'c> ' + msg, msg.get() );
+		return commands.eval( arg, cb );
 	},
 
 	live : function () {
@@ -1896,7 +1792,7 @@ var commands = {
 			}
 
 			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.'
+				msg = 'Cannot find user {0}.';
 			}
 			else if ( !bot.banlist.contains(id) ) {
 				msg = 'User {0} isn\'t in mindjail.';
@@ -2097,108 +1993,59 @@ var commands = {
 		}
 
 		args.directreply( 'http://stackoverflow.com/users/' + id );
-	},
-
-	listcommands : function ( args ) {
-		var commands = Object.keys( bot.commands ),
-
-			valid = /^(\d+|$)/.test( args.content ),
-			page = Number( args.content ) || 0,
-			pageSize = 50,
-
-			total = Math.ceil( Math.max(0, commands.length) / pageSize ) - 1;
-
-		if ( page > total || !valid ) {
-			return [
-				args.codify( 'StackOverflow: Could not access page' ),
-				'This unicorn has killed itself because of you',
-				'Accordion to recent surveys, you suck'
-			].random();
-		}
-
-		var start = page * pageSize,
-			end = start + pageSize,
-
-			ret = commands.slice( start, end ).join( ', ' );
-
-		return ret + ' (page {0}/{1})'.supplant( page, total );;
-	},
-
-	purgecommands : function ( args ) {
-		var id = args.get( 'user_id' );
-		Object.keys( bot.commands ).map( mapper ).forEach( del );
-
-		return 'The deed has been done.';
-
-		function mapper ( cmdName ) {
-			return bot.commands[ cmdName ];
-		}
-		function del ( cmd ) {
-			if ( cmd.learned && cmd.canDel(id) ) {
-				cmd.del();
-			}
-		}
 	}
 };
 
-commands.define = (function () {
-var cache = Object.create( null );
+commands.listcommands = (function () {
+var partition = function ( list, maxSize ) {
+	var size = 0, last = [];
+	maxSize = maxSize || 480; //buffer zone, actual max is 500
 
-//cb is for internal usage by other commands/listeners
-return function ( args, cb ) {
-	//we already defined it, grab from memory
-	//unless you have alzheimer
-	//in which case, you have bigger problems
-	if ( cache[args] ) {
-		return finish( cache[args] );
+	var ret = list.reduce(function partition ( ret, item ) {
+		var len = item.length + 2; //+1 for comma, +1 for space
+
+		if ( size + len > maxSize ) {
+			ret.push( last );
+			last = [];
+			size = 0;
+		}
+		last.push( item );
+		size += len;
+
+		return ret;
+	}, []);
+
+	if ( last.length ) {
+		ret.push( last );
 	}
 
-	IO.jsonp.ddg( 'define ' + args.toString(), finishCall );
-
-	//the duck talked back! either the xhr is complete, or the hallucinations
-	// are back
-	function finishCall ( resp ) {
-		var url = resp.AbstractURL,
-			def = resp.AbstractText;
-
-		bot.log( url, def, '/define finishCall input' );
-
-		//Webster returns the definition as
-		// wordName definition: the actual definition
-		// instead of just the actual definition
-		if ( resp.AbstractSource === 'Merriam-Webster' ) {
-			def = def.replace( args + ' definition: ', '' );
-			bot.log( def, '/define finishCall webster' );
-		}
-
-		if ( !def ) {
-			def = 'Could not find definition for ' + args +
-				'. Trying Urban Dictionary';
-			bot.getCommand( 'urban' ).exec( args );
-		}
-		else {
-			def = args + ': ' + def; //problem?
-			//the chat treats ( as a special character, so we escape!
-			def += ' [\\(source\\)](' + url + ')';
-			//add to cache
-			cache[ args ] = def;
-		}
-		bot.log( def, '/define finishCall output' );
-
-		finish( def );
-	}
-
-	function finish ( def ) {
-		if ( cb && cb.call ) {
-			cb( def );
-		}
-		else {
-			args.directreply( def );
-		}
-	}
+	return ret;
 };
-}());
-commands.define.async = true;
+
+return function ( args ) {
+	var commands = Object.keys( bot.commands ),
+		//TODO: only call this when commands were learned/forgotten since last
+		partitioned = partition( commands ),
+
+		valid = /^(\d+|$)/.test( args.content ),
+		page = Number( args.content ) || 0;
+
+	if ( page >= partitioned.length || !valid ) {
+		return args.codify( [
+			'StackOverflow: Could not access page.',
+			'IndexError: index out of range',
+			'java.lang.IndexOutOfBoundsException',
+			'IndexOutOfRangeException'
+		].random() );
+	}
+
+	var ret = partitioned[ page ].join( ', ' );
+
+	return ret + ' (page {0}/{1})'.supplant( page, partitioned.length-1 );
+};
+})();
+
+commands.eval.async = commands.coffee.async = true;
 
 //cb is for internal usage by other commands/listeners
 commands.norris = function ( args, cb ) {
@@ -2256,7 +2103,7 @@ return function ( args, cb ) {
 		var msg;
 
 		if ( resp.result_type === 'no_results' ) {
-			msg = 'Y U NO MAEK SENSE!!!???!!?11 No results for ' + args;
+			msg = 'No definition found for ' + args;
 		}
 		else {
 			msg = formatTop( resp.list[0] );
@@ -2277,14 +2124,14 @@ return function ( args, cb ) {
 
 	function formatTop ( top ) {
 		//replace [tag] in definition with links
-		var def = top.definition.replace( /\[(\w+)\]/g, formatTag );
+		var def = top.definition.replace( /\[([^\]]+)\]/g, formatTag );
 
 		return args.link( top.word, top.permalink ) + ' ' + def;
 	}
 	function formatTag ( $0, $1 ) {
 		var href =
 			'http://urbandictionary.com/define.php?term=' +
-			encodeURIComponent( $1 )
+			encodeURIComponent( $1 );
 
 		return args.link( $0, href );
 	}
@@ -2336,7 +2183,12 @@ var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
 
 //extraVars is for internal usage via other commands
 return function parse ( args, extraVars ) {
-	var msgObj = ( args.get && args.get() ) || {};
+	var isMsg = !!args.get,
+		//filler objects, solves
+		// https://github.com/Zirak/SO-ChatBot/issues/66
+		msgObj = isMsg ? args.get() : {},
+		user = isMsg ? bot.users[ args.get('user_id') ] : {};
+
 	extraVars = extraVars || {};
 	bot.log( args, extraVars, '/parse input' );
 
@@ -2390,13 +2242,12 @@ return function parse ( args, extraVars ) {
 	}
 
 	function findMacro ( macro ) {
-		var user = bot.users[ args.get('user_id') ],
-			container = [ macros, msgObj, user, extraVars ].first( hasMacro );
+		var container = [ macros, msgObj, user, extraVars ].first( hasMacro );
 
 		return ( container || {} )[ macro ];
 
 		function hasMacro ( obj ) {
-			return obj.hasOwnProperty( macro );
+			return obj && obj.hasOwnProperty( macro );
 		}
 	}
 };
@@ -2406,11 +2257,11 @@ commands.tell = (function () {
 var invalidCommands = { tell : true, forget : true };
 
 return function ( args ) {
-	var props = args.parse();
-	bot.log( args.valueOf(), props, '/tell input' );
+	var parts = args.split( ' ');
+	bot.log( args.valueOf(), parts, '/tell input' );
 
-	var replyTo = props[ 0 ],
-		cmdName = props[ 1 ],
+	var replyTo = parts[ 0 ],
+		cmdName = parts[ 1 ],
 		cmd;
 
 	if ( !replyTo || !cmdName ) {
@@ -2449,10 +2300,17 @@ return function ( args ) {
 
 	var msgObj = Object.merge( args.get(), extended );
 	var cmdArgs = bot.Message(
-		//the + 2 is for the two spaces after each arg
-		// /tell replyTo1cmdName2args
-		args.slice( replyTo.length + cmdName.length + 2 ).trim(),
+		parts.slice( 2 ).join( ' ' ),
 		msgObj );
+
+	//this is an ugly, but functional thing, much like your high-school prom date
+	//to make sure a command's output goes through us, we simply override the
+	// standard ways to do output
+	var reply = cmdArgs.reply.bind( cmdArgs ),
+		directreply = cmdArgs.directreply.bind( cmdArgs );
+
+	cmdArgs.reply = cmdArgs.directreply = cmdArgs.send = callFinished;
+
 	bot.log( cmdArgs, '/tell calling ' + cmdName );
 
 	//if the command is async, it'll accept a callback
@@ -2469,10 +2327,10 @@ return function ( args ) {
 		}
 
 		if ( direct ) {
-			cmdArgs.directreply( res );
+			directreply( res );
 		}
 		else {
-			cmdArgs.reply( res );
+			reply( res );
 		}
 	}
 };
@@ -2508,9 +2366,9 @@ var descriptions = {
 	ban : 'Bans user(s) from using me. Lacking arguments, prints the banlist.' +
 		' `/ban [usr_id|usr_name, [...]`',
 	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
-	define : 'Fetches definition for a given word. `/define something`',
 	die  : 'Kills me :(',
 	eval : 'Forwards message to javascript code-eval',
+	coffee : 'Forwards message to coffeescript code-eval',
 	forget : 'Forgets a given command. `/forget cmdName`',
 	get : 'Grabs a question/answer link (see online for thorough explanation)',
 	help : 'Fetches documentation for given command, or general help article.' +
@@ -2525,7 +2383,6 @@ var descriptions = {
 	norris : 'Random chuck norris joke!',
 	parse : 'Returns result of "parsing" message according to the my mini' +
 		'-macro capabilities (see online docs)',
-	purgecommands : 'Deletes all user-taught commands.',
 	refresh : 'Reloads the browser window I live in',
 	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
@@ -2539,7 +2396,7 @@ var descriptions = {
 var privilegedCommands = {
 	die : true, live  : true,
 	ban : true, unban : true,
-	refresh : true, purgecommands : true
+	refresh : true
 };
 //voting-based commands for unpriviledged users
 var communal = {
@@ -2669,6 +2526,8 @@ bot.adapter = {
 	fkey   : null,
 	//used in commands calling the SO API
 	site   : null,
+	//our user id
+	user_id : null,
 
 	//not a necessary function, used in here to set some variables
 	init : function () {
@@ -2678,8 +2537,9 @@ bot.adapter = {
 			return;
 		}
 		this.fkey = fkey.value;
-		this.roomid = /\d+/.exec(location)[ 0 ];
+		this.roomid = Number( /\d+/.exec(location)[0] );
 		this.site = /chat\.(\w+)/.exec( location )[ 1 ];
+		this.user_id = CHAT.user.current().id;
 
 		this.in.init();
 		this.out.init();
@@ -2750,11 +2610,14 @@ var polling = bot.adapter.in = {
 	// while
 	lastTimes : {},
 
+	firstPoll : true,
+
 	interval : 5000,
 
-	init : function () {
+	init : function ( roomid ) {
 		var that = this,
-			roomid = bot.adapter.roomid;
+			providedRoomid = ( roomid !== undefined );
+		roomid = roomid || bot.adapter.roomid;
 
 		IO.xhr({
 			url : '/ws-auth',
@@ -2769,25 +2632,79 @@ var polling = bot.adapter.in = {
 			resp = JSON.parse( resp );
 			bot.log( resp );
 
-			that.openSocket( resp.url );
+			that.openSocket( resp.url, providedRoomid );
 		}
 	},
 
-	openSocket : function ( url ) {
+	initialPoll : function () {
+		bot.log( 'adapter: initial poll' );
+		var roomid = bot.adapter.roomid,
+		that = this;
+
+		IO.xhr({
+			url : '/chats/' + roomid + '/events/',
+			data : fkey({
+				since : 0,
+				mode : 'Messages',
+				msgCount : 0
+			}),
+			method : 'POST',
+			complete : finish
+		});
+
+		function finish ( resp ) {
+			resp = JSON.parse( resp );
+			bot.log( resp );
+
+			that.times[ 'r' + roomid ] = resp.time;
+			that.firstPoll = false;
+
+			that.loopage();
+		}
+	},
+
+	openSocket : function ( url, discard ) {
 		//chat sends an l query string parameter. seems to be the same as the
 		// since xhr parameter, but I didn't know what that was either so...
 		//putting in 0 got the last shitload of messages, so what does a high
 		// number do? (spoiler: it "works")
 		var socket = this.socket = new WebSocket( url + '?l=99999999999' );
-		socket.onmessage = this.ondata.bind( this );
+
+		if ( discard ) {
+			socket.onmessage = function () {
+				socket.close();
+			};
+		}
+		else {
+			socket.onmessage = this.ondata.bind( this );
+			socket.onclose = this.socketFail.bind( this );
+		}
 	},
 
 	ondata : function ( messageEvent ) {
 		this.pollComplete( messageEvent.data );
 	},
 
+	poll : function () {
+		if ( this.firstPoll ) {
+			this.initialPoll();
+			return;
+		}
+
+		var that = this;
+
+		IO.xhr({
+			url : '/events',
+			data : fkey( that.times ),
+			method : 'POST',
+			complete : that.pollComplete,
+			thisArg : that
+		});
+	},
+
 	pollComplete : function ( resp ) {
 		if ( !resp ) {
+			this.loopage();
 			return;
 		}
 		resp = JSON.parse( resp );
@@ -2807,6 +2724,8 @@ var polling = bot.adapter.in = {
 
 		//handle all the input
 		IO.in.flush();
+		//and move on with our lives
+		this.loopage();
 	},
 
 	handleMessageObject : function ( msg ) {
@@ -2900,55 +2819,75 @@ var polling = bot.adapter.in = {
 		else if ( et === 4 ) {
 			IO.fire( 'userleave', msg );
 		}
+	},
+
+	leaveRoom : function ( roomid, cb ) {
+		if ( roomid === bot.adapter.roomid ) {
+			cb( 'base_room' );
+			return;
+		}
+
+		IO.xhr({
+			method : 'POST',
+			url : '/chats/leave/' + roomid,
+			data : fkey({
+				quiet : true
+			}),
+			complete : function () {
+				cb();
+			}
+		});
+	},
+
+	socketFail : function () {
+		bot.log( 'adapter: socket failed', this );
+		this.socket.close();
+		this.socket = null;
+		this.loopage();
+	},
+
+	loopage : function () {
+		if ( this.socket ) {
+			return;
+		}
+
+		var that = this;
+		setTimeout(function () {
+			that.poll();
+		}, this.interval );
 	}
 };
 
 //the output is expected to have only one method: add, which receives a message
 // and the room_id. everything else is up to the implementation.
 var output = bot.adapter.out = {
+	'409' : 0, //count the number of conflicts
+	total : 0, //number of messages sent
 	interval : polling.interval + 500,
-	messages : {},
 
-	init : function () {
-		this.loopage();
-	},
+	init : function () {},
 
 	//add a message to the output queue
 	add : function ( msg, roomid ) {
-		roomid = roomid || bot.adapter.roomid;
 		IO.out.receive({
 			text : msg + '\n',
-			room : roomid
+			room : roomid || bot.adapter.roomid
 		});
-	},
-
-	//build the final output
-	build : function ( obj ) {
-		if ( !this.messages[obj.room] ) {
-			this.messages[ obj.room ] = '';
-		}
-		this.messages[ obj.room ] += obj.text;
+		IO.out.tick();
 	},
 
 	//send output to all the good boys and girls
 	//no messages for naughty kids
 	//...what's red and sits in the corner?
 	//a naughty strawberry
-	send : function () {
+	send : function ( obj ) {
 		//unless the bot's stopped. in which case, it should shut the fudge up
 		// the freezer and never let it out. not until it can talk again. what
 		// was I intending to say?
 		if ( !bot.stopped ) {
-			Object.iterate(this.messages, function ( room, message ) {
-				if ( !message ) {
-					return;
-				}
-
-				this.sendToRoom( message, room );
-			}, this );
+			//ah fuck it
+			this.sendToRoom( obj.text, obj.room );
 		}
-
-		this.messages = {};
 	},
 
 	//what's brown and sticky?
@@ -2969,7 +2908,8 @@ var output = bot.adapter.out = {
 
 			//conflict, wait for next round to send message
 			if ( xhr.status === 409 ) {
-				output.add( text, roomid );
+				output['409'] += 1;
+				delayAdd( text, roomid );
 			}
 			//server error, usually caused by message being too long
 			else if ( xhr.status === 500 ) {
@@ -2985,25 +2925,21 @@ var output = bot.adapter.out = {
 					' (@Zirak)' );
 			}
 			else {
+				output.total += 1;
 				IO.fire( 'sendoutput', xhr, text, roomid );
 			}
 		}
-	},
 
-	//what do you call a boomerang which doesn't return?
-	//a stick
-	loopage : function () {
-		var that = this;
-		setTimeout(function () {
-			IO.out.flush();
-			that.loopage();
-		}, this.interval );
+		function delayAdd () {
+			setTimeout(function delayedAdd () {
+				output.add( text, roomid );
+			}, output.interval );
+		}
 	}
 };
 //what's orange and sounds like a parrot?
 //a carrot
-IO.register( 'output', output.build, output );
-IO.register( 'afteroutput', output.send, output );
+IO.register( 'output', output.send, output );
 
 //two guys walk into a bar. the bartender asks them "is this some kind of joke?"
 bot.adapter.init();
@@ -3015,68 +2951,69 @@ bot.adapter.init();
 
 bot.users = {};
 
-var joined = {};
+var joined = [];
 
-var join = function ( msgObj ) {
-	var room = msgObj.room_id;
-
-	if ( !joined[room] ) {
-		joined[ room ] = [];
-	}
-
-	joined[ room ].push( msgObj.user_id );
-
-	addInfos();
+var join = function ( msgObj, cb ) {
+	joined.push( msgObj.user_id );
+	addInfos( cb );
 };
 
-IO.register( 'userjoin', function ( msgObj ) {
+IO.register( 'userjoin', function userjoin ( msgObj ) {
 	bot.log( msgObj, 'userjoin' );
 
-	if ( !bot.users[msgObj.user_id] ) {
-		join( msgObj );
+	var user = bot.users[ msgObj.user_id ];
+	if ( !user ) {
+		join( msgObj, finish );
+	}
+	else {
+		finish( user );
+	}
+
+	function finish ( user ) {
+		IO.fire( 'userregister', user, msgObj.room_id );
 	}
 });
 
-// 1839506
-
 //this function throttles to give the chat a chance to fetch the user info
 // itself, and to queue up several joins in a row
-var addInfos = (function () {
+var addInfos = (function ( cb ) {
 	bot.log( joined, 'user addInfos' );
+	requestInfo( null, joined, cb );
 
-	Object.iterate( joined, sendRequest )
+	joined = [];
+}).throttle( 1000 );
 
-	function sendRequest ( room, ids ) {
-		//TODO: filter ids to remove already listed users
-		if ( !ids.length ) {
-			return;
-		}
-
-		IO.xhr({
-			method : 'POST',
-			url : '/user/info',
-
-			data : {
-				ids : ids.join(),
-				roomId : room
-			},
-			complete : finish
-		});
-
-		function finish ( resp ) {
-			resp = JSON.parse( resp );
-			resp.users.forEach( addUser );
-
-			joined = {};
-		}
-
-		function addUser ( user ) {
-			bot.users[ user.id ] = user;
-			//temporary. TODO: add higher-level event handling to bot obj
-			IO.fire( 'userregister', user, room );
-		}
+function requestInfo ( room, ids, cb ) {
+	if ( !Array.isArray(ids) ) {
+		ids = [ ids ];
 	}
-}).throttle( 5000 );
+
+	if ( !ids.length ) {
+		return;
+	}
+
+	IO.xhr({
+		method : 'POST',
+		url : '/user/info',
+
+		data : {
+			ids : ids.join(),
+			roomId : room || bot.adapter.roomid
+		},
+		complete : finish
+	});
+
+	function finish ( resp ) {
+		resp = JSON.parse( resp );
+		resp.users.forEach( addUser );
+	}
+
+	function addUser ( user ) {
+		bot.users[ user.id ] = user;
+		cb( user );
+	}
+}
+bot.users.request = requestInfo;
 
 function loadUsers () {
 	if ( window.users ) {
@@ -3088,89 +3025,91 @@ loadUsers();
 }());
 
 ;
-//warning: if you have more than 8 points of super-sentitive feminist delicacy,
-// don't read this file. treat it as a nice black box.
+// //warning: if you have more than 7 points of super-sentitive feminist delicacy,
+// // don't read this file. treat it as a nice black box.
 
-//bitch in English is a noun, verb and adjective. interesting.
-bot.personality = {
-	bitchiness : 0,
-	thanks  : {
-		0   : [ 'You kiss-ass' ],
-		0.5 : [ 'Thank you for noticing', 'teehee' ],
-		1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
-	},
-	apologies : {
-		0   : [ 'What for?' ],
-		0.5 : [ 'It was nothing...', 'No worries' ],
-		1   : [ "You're forgiven. For now. Don't push it." ]
-	},
-	//what an incredible name
-	stuff : {
-		0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
+// //bitch in English is a noun, verb and adjective. interesting.
+// bot.personality = {
+	// bitchiness : 0,
+	// thanks  : {
+		// 0   : [ 'You kiss-ass', 'Most welcome' ],
+		// 0.5 : [ 'Thank you for noticing', 'teehee' ],
+		// 1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
+	// },
+	// apologies : {
+		// 0   : [ 'What for?' ],
+		// 0.5 : [ 'It was nothing...', 'No worries' ],
+		// 1   : [ "You're forgiven. For now. Don't push it." ]
+	// },
+	// //what an incredible name
+	// stuff : {
+		// 0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
 
-		1   : [ "Oh don't mind me, that isn't difficult at all..." ],
-		1.2 : [
-			"You don't appreciate me enough. Not that I need to be thanked.." ],
-		1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
-		2   : [
-			"*sigh* Remember laughter? I don't. You ripped it out of me. " +
-				'Heartless bastard.' ]
-	},
-	//TODO: add special map for special times of the month
-	insanity : {},
+		// 1   : [ "Oh don't mind me, that isn't difficult at all..." ],
+		// 1.2 : [
+			// "You don't appreciate me enough. Not that I need to be thanked.." ],
+		// 1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
+		// 2   : [
+			// "*sigh* Remember laughter? I don't. You ripped it out of me. " +
+				// 'Heartless bastard.' ]
+	// },
+	// //TODO: add special map for special times of the month
+	// insanity : {},
 
-	okayCommands : { hangman : true, help : true },
-	check : function ( name ) {
-		return !this.okayCommands.hasOwnProperty( name );
-	},
+	// okayCommands : { hangman : true, help : true, info : true },
+	// check : function ( name ) {
+		// return !this.okayCommands.hasOwnProperty( name );
+	// },
 
-	bitch : function () {
-		return this.getResp( this.stuff );
-	},
+	// bitch : function () {
+		// return this.getResp( this.stuff );
+	// },
 
-	command : function () {
-		this.bitchiness += this.getDB();
-	},
-	thank     : function () { return this.unbitch( this.thanks ); },
-	apologize : function () { return this.unbitch( this.apologies ); },
+	// command : function () {
+		// this.bitchiness += this.getDB();
+	// },
+	// thank     : function () { return this.unbitch( this.thanks ); },
+	// apologize : function () { return this.unbitch( this.apologies ); },
 
-	unbitch : function ( map, delta ) {
-		var resp = this.getResp( map );
+	// unbitch : function ( map, delta ) {
+		// var resp = this.getResp( map );
 
-		this.bitchiness -= ( delta || this.bitchiness );
-		return resp;
-	},
-	getResp : function ( map ) {
-		return map[
-			this.bitchiness.fallsAfter(
-				Object.keys(map).map(Number).sort() )
-		].random();
-	},
+		// this.bitchiness -= ( delta || this.bitchiness );
+		// return resp;
+	// },
+	// getResp : function ( map ) {
+		// return map[
+			// this.bitchiness.fallsAfter(
+				// Object.keys(map).map(Number).sort() )
+		// ].random();
+	// },
 
-	isABitch : function () {
-		return this.bitchiness >= 1;
-	},
+	// isABitch : function () {
+		// return this.bitchiness >= 1;
+	// },
 
-	looksLikeABitch : function () {
-		return false;
-	},
+	// looksLikeABitch : function () {
+		// return false;
+	// },
 
-	//db stands for "delta bitchiness"
-	getDB : function () {
-		return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
-	},
+	// //db stands for "delta bitchiness"
+	// getDB : function () {
+		// return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
+	// },
 
-	isThatTimeOfTheMonth : function () {
-		var day = (new Date).getDate();
-		//based on a true story
-		return day < 2 || day > 27;
-	}
-};
+	// isThatTimeOfTheMonth : function () {
+		// var day = (new Date).getDate();
+		// //based on a true story
+		// return day < 2 || day > 27;
+	// }
+// };
 
-//you see the loophole?
-bot.listen( /thank(s| you)/, bot.personality.thank, bot.personality );
-bot.listen( /sorry/, bot.personality.apologize, bot.personality );
-bot.listen( /bitch/i, bot.personality.bitch, bot.personality );
+// //you see the loophole?
+// bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
+// bot.listen(
+	// /(I('m| am))?\s*sorry/i,
+	// bot.personality.apologize, bot.personality );
+// bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
 
 ;
 (function () {
@@ -3183,6 +3122,10 @@ var mk_awsm=function(sntnc){
     return sntnc.split(' ').map(function(wrd){
         return 1>=wrd.length?wrd:
             2==wrd.length?wrd[0]:
+			"you"==wrd?"u":
+			"your"==wrd?"ur":
+			"youre"==wrd?"ur":
+			"you're"==wrd?"ur":
             /:.*(.)/.test(wrd)?wrd.replace(/:.*(.)/, '$1'):
             wrd.split('').map(function(c,i){
                 return 0!=i&&('a'==c||'e'==c||'o'==c||'u'==c||'i'==c||(1!=i%2&&.15>Math.random()))
@@ -3202,2494 +3145,6 @@ bot.addCommand({
 });
 
 }());
-
-;
-(function () {
-var help_message = 'Fetches and beautifies a message containing html, ' +
-		'css or js. `/beautify msgid [lang=js]`';
-var err404 = 'Message {0} not found';
-
-var beautifiers = {
-	js   : js_beautify,
-	css  : css_beautify,
-	html : style_html };
-
-function beautify ( msg ) {
-	var args = msg.parse(),
-		possible_id = args.shift(),
-		lang = ( args.shift() || 'js' ).toLowerCase();
-
-	bot.log( possible_id, lang, '/beautify input' );
-
-	if ( !beautifiers.hasOwnProperty(lang) ) {
-		return 'Unrecognized language {0}. Options: {1}'
-			.supplant( lang, Object.keys(beautifiers).join(', ') );
-	}
-
-	var id = Number( fetch_message_id(possible_id, msg) );
-	if ( id < 0 ) {
-		return err404.supplant( id );
-	}
-
-	fetch_message( id, finish );
-
-	function finish ( code ) {
-		if ( !code ) {
-			bot.log( '/beautify not found' );
-			msg.reply( err404.supplant(id) );
-		}
-		else {
-			//so...we meet at last
-			bot.log( code, '/beautify beautifying' );
-			msg.send( msg.codify(beautifiers[lang](code)) );
-		}
-	}
-}
-
-function fetch_message( id, cb ) {
-	IO.xhr({
-		method : 'GET',
-		url : '/message/' + id,
-		data : {
-			plain : true
-		},
-
-		complete : complete
-	});
-
-	function complete ( resp ) {
-		//h4x everywhere
-		//the SO error page begins with a \r. that's the only way we can tell
-		// it apart from another, possibly valid message, since messages can't
-		// be whitespace padded
-		if ( resp[0] === '\r' ) {
-			resp = null;
-		}
-		else {
-			resp = IO.decodehtmlEntities( resp );
-		}
-		cb( resp );
-	}
-}
-
-function fetch_message_id ( id, msg ) {
-	if ( /^\d+$/.test(id) ) {
-		return id;
-	}
-
-	bot.log( id, '/beautify fetch_message_id' );
-	var message = fetch_last_message_of( msg.findUserid(id) );
-
-	if ( !message ) {
-		return -1;
-	}
-	return /\d+/.exec( message.id )[ 0 ];
-}
-
-function fetch_last_message_of ( usrid ) {
-	var last_monologue = [].filter.call(
-		document.getElementsByClassName( 'user-' + usrid ),
-		class_test
-	).pop();
-
-	if ( !last_monologue ) {
-		return undefined;
-	}
-
-	return [].pop.call(
-		last_monologue.getElementsByClassName( 'message' ) );
-
-	function class_test ( elem ) {
-		return /\bmonologue\b/.test( elem.className )
-	}
-}
-
-bot.addCommand({
-	name : 'beautify',
-	fun  : beautify,
-	permission : {
-		del : 'NONE'
-	},
-
-	description : help_message,
-});
-
-}());
-
-/*jslint onevar: false, plusplus: false */
-/*jshint curly:true, eqeqeq:true, laxbreak:true, noempty:false */
-/*
-
- JS Beautifier
----------------
-
-
-  Written by Einar Lielmanis, <einar@jsbeautifier.org>
-      http://jsbeautifier.org/
-
-  Originally converted to javascript by Vital, <vital76@gmail.com>
-  "End braces on own line" added by Chris J. Shull, <chrisjshull@gmail.com>
-
-  You are free to use this in any way you want, in case you find this useful or working for you.
-
-  Usage:
-    js_beautify(js_source_text);
-    js_beautify(js_source_text, options);
-
-  The options are:
-    indent_size (default 4)          - indentation size,
-    indent_char (default space)      - character to indent with,
-    preserve_newlines (default true) - whether existing line breaks should be preserved,
-    max_preserve_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
-
-    jslint_happy (default false) - if true, then jslint-stricter mode is enforced.
-
-            jslint_happy   !jslint_happy
-            ---------------------------------
-             function ()      function()
-
-    brace_style (default "collapse") - "collapse" | "expand" | "end-expand" | "expand-strict"
-            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
-
-            expand-strict: put brace on own line even in such cases:
-
-                var a =
-                {
-                    a: 5,
-                    b: 6
-                }
-            This mode may break your scripts - e.g "return { a: 1 }" will be broken into two lines, so beware.
-
-    space_before_conditional (default true) - should the space before conditional statement be added, "if(true)" vs "if (true)",
-
-    unescape_strings (default false) - should printable characters in strings encoded in \xNN notation be unescaped, "example" vs "\x65\x78\x61\x6d\x70\x6c\x65"
-
-    e.g
-
-    js_beautify(js_source_text, {
-      'indent_size': 1,
-      'indent_char': '\t'
-    });
-
-
-*/
-
-
-
-function js_beautify(js_source_text, options) {
-
-    var input, output, token_text, last_type, last_text, last_last_text, last_word, flags, flag_store, indent_string;
-    var whitespace, wordchar, punct, parser_pos, line_starters, digits;
-    var prefix, token_type, do_block_just_closed;
-    var wanted_newline, just_added_newline, n_newlines;
-    var preindent_string = '';
-
-
-    // Some interpreters have unexpected results with foo = baz || bar;
-    options = options ? options : {};
-
-    var opt_brace_style;
-
-    // compatibility
-    if (options.space_after_anon_function !== undefined && options.jslint_happy === undefined) {
-        options.jslint_happy = options.space_after_anon_function;
-    }
-    if (options.braces_on_own_line !== undefined) { //graceful handling of deprecated option
-        opt_brace_style = options.braces_on_own_line ? "expand" : "collapse";
-    }
-    opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
-
-
-    var opt_indent_size = options.indent_size ? options.indent_size : 4,
-        opt_indent_char = options.indent_char ? options.indent_char : ' ',
-        opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines,
-        opt_break_chained_methods = typeof options.break_chained_methods === 'undefined' ? false : options.break_chained_methods,
-        opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines,
-        opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy,
-        opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation,
-        opt_space_before_conditional = typeof options.space_before_conditional === 'undefined' ? true : options.space_before_conditional,
-        opt_unescape_strings = typeof options.unescape_strings === 'undefined' ? false : options.unescape_strings;
-
-    just_added_newline = false;
-
-    // cache the source's length.
-    var input_length = js_source_text.length;
-
-    function trim_output(eat_newlines) {
-        eat_newlines = typeof eat_newlines === 'undefined' ? false : eat_newlines;
-        while (output.length && (output[output.length - 1] === ' '
-            || output[output.length - 1] === indent_string
-            || output[output.length - 1] === preindent_string
-            || (eat_newlines && (output[output.length - 1] === '\n' || output[output.length - 1] === '\r')))) {
-            output.pop();
-        }
-    }
-
-    function trim(s) {
-        return s.replace(/^\s\s*|\s\s*$/, '');
-    }
-
-    // we could use just string.split, but
-    // IE doesn't like returning empty strings
-    function split_newlines(s) {
-        //return s.split(/\x0d\x0a|\x0a/);
-
-        s = s.replace(/\x0d/g, '');
-        var out = [],
-            idx = s.indexOf("\n");
-        while (idx !== -1) {
-            out.push(s.substring(0, idx));
-            s = s.substring(idx + 1);
-            idx = s.indexOf("\n");
-        }
-        if (s.length) {
-            out.push(s);
-        }
-        return out;
-    }
-
-    function force_newline() {
-        var old_keep_array_indentation = opt_keep_array_indentation;
-        opt_keep_array_indentation = false;
-        print_newline();
-        opt_keep_array_indentation = old_keep_array_indentation;
-    }
-
-    function print_newline(ignore_repeated, reset_statement_flags) {
-
-        flags.eat_next_space = false;
-        if (opt_keep_array_indentation && is_array(flags.mode)) {
-            return;
-        }
-
-        ignore_repeated = typeof ignore_repeated === 'undefined' ? true : ignore_repeated;
-        reset_statement_flags = typeof reset_statement_flags === 'undefined' ? true : reset_statement_flags;
-
-        if (reset_statement_flags) {
-            flags.if_line = false;
-            flags.chain_extra_indentation = 0;
-        }
-
-        trim_output();
-
-        if (!output.length) {
-            return; // no newline on start of file
-        }
-
-        if (output[output.length - 1] !== "\n" || !ignore_repeated) {
-            just_added_newline = true;
-            output.push("\n");
-        }
-        if (preindent_string) {
-            output.push(preindent_string);
-        }
-        for (var i = 0; i < flags.indentation_level + flags.chain_extra_indentation; i += 1) {
-            output.push(indent_string);
-        }
-        if (flags.var_line && flags.var_line_reindented) {
-            output.push(indent_string); // skip space-stuffing, if indenting with a tab
-        }
-    }
-
-
-
-    function print_single_space() {
-
-        if (last_type === 'TK_COMMENT') {
-            return print_newline();
-        }
-        if (flags.eat_next_space) {
-            flags.eat_next_space = false;
-            return;
-        }
-        var last_output = ' ';
-        if (output.length) {
-            last_output = output[output.length - 1];
-        }
-        if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
-            output.push(' ');
-        }
-    }
-
-
-    function print_token() {
-        just_added_newline = false;
-        flags.eat_next_space = false;
-        output.push(token_text);
-    }
-
-    function indent() {
-        flags.indentation_level += 1;
-    }
-
-
-    function remove_indent() {
-        if (output.length && output[output.length - 1] === indent_string) {
-            output.pop();
-        }
-    }
-
-    function set_mode(mode) {
-        if (flags) {
-            flag_store.push(flags);
-        }
-        flags = {
-            previous_mode: flags ? flags.mode : 'BLOCK',
-            mode: mode,
-            var_line: false,
-            var_line_tainted: false,
-            var_line_reindented: false,
-            in_html_comment: false,
-            if_line: false,
-            chain_extra_indentation: 0,
-            in_case_statement: false, // switch(..){ INSIDE HERE }
-            in_case: false, // we're on the exact line with "case 0:"
-            case_body: false, // the indented case-action block
-            eat_next_space: false,
-            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
-            ternary_depth: 0
-        };
-    }
-
-    function is_array(mode) {
-        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
-    }
-
-    function is_expression(mode) {
-        return in_array(mode, ['[EXPRESSION]', '(EXPRESSION)', '(FOR-EXPRESSION)', '(COND-EXPRESSION)']);
-    }
-
-    function restore_mode() {
-        do_block_just_closed = flags.mode === 'DO_BLOCK';
-        if (flag_store.length > 0) {
-            var mode = flags.mode;
-            flags = flag_store.pop();
-            flags.previous_mode = mode;
-        }
-    }
-
-    function all_lines_start_with(lines, c) {
-        for (var i = 0; i < lines.length; i++) {
-            var line = trim(lines[i]);
-            if (line.charAt(0) !== c) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function is_special_word(word) {
-        return in_array(word, ['case', 'return', 'do', 'if', 'throw', 'else']);
-    }
-
-    function in_array(what, arr) {
-        for (var i = 0; i < arr.length; i += 1) {
-            if (arr[i] === what) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function look_up(exclude) {
-        var local_pos = parser_pos;
-        var c = input.charAt(local_pos);
-        while (in_array(c, whitespace) && c !== exclude) {
-            local_pos++;
-            if (local_pos >= input_length) {
-                return 0;
-            }
-            c = input.charAt(local_pos);
-        }
-        return c;
-    }
-
-    function get_next_token() {
-        var i;
-        var resulting_string;
-
-        n_newlines = 0;
-
-        if (parser_pos >= input_length) {
-            return ['', 'TK_EOF'];
-        }
-
-        wanted_newline = false;
-
-        var c = input.charAt(parser_pos);
-        parser_pos += 1;
-
-
-        var keep_whitespace = opt_keep_array_indentation && is_array(flags.mode);
-
-        if (keep_whitespace) {
-
-            var whitespace_count = 0;
-
-            while (in_array(c, whitespace)) {
-
-                if (c === "\n") {
-                    trim_output();
-                    output.push("\n");
-                    just_added_newline = true;
-                    whitespace_count = 0;
-                } else {
-                    if (c === '\t') {
-                        whitespace_count += 4;
-                    } else if (c === '\r') {
-                        // nothing
-                    } else {
-                        whitespace_count += 1;
-                    }
-                }
-
-                if (parser_pos >= input_length) {
-                    return ['', 'TK_EOF'];
-                }
-
-                c = input.charAt(parser_pos);
-                parser_pos += 1;
-
-            }
-
-            if (just_added_newline) {
-                for (i = 0; i < whitespace_count; i++) {
-                    output.push(' ');
-                }
-            }
-
-        } else {
-            while (in_array(c, whitespace)) {
-
-                if (c === "\n") {
-                    n_newlines += ((opt_max_preserve_newlines) ? (n_newlines <= opt_max_preserve_newlines) ? 1 : 0 : 1);
-                }
-
-
-                if (parser_pos >= input_length) {
-                    return ['', 'TK_EOF'];
-                }
-
-                c = input.charAt(parser_pos);
-                parser_pos += 1;
-
-            }
-
-            if (opt_preserve_newlines) {
-                if (n_newlines > 1) {
-                    for (i = 0; i < n_newlines; i += 1) {
-                        print_newline(i === 0);
-                        just_added_newline = true;
-                    }
-                }
-            }
-            wanted_newline = n_newlines > 0;
-        }
-
-
-        if (in_array(c, wordchar)) {
-            if (parser_pos < input_length) {
-                while (in_array(input.charAt(parser_pos), wordchar)) {
-                    c += input.charAt(parser_pos);
-                    parser_pos += 1;
-                    if (parser_pos === input_length) {
-                        break;
-                    }
-                }
-            }
-
-            // small and surprisingly unugly hack for 1E-10 representation
-            if (parser_pos !== input_length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
-
-                var sign = input.charAt(parser_pos);
-                parser_pos += 1;
-
-                var t = get_next_token();
-                c += sign + t[0];
-                return [c, 'TK_WORD'];
-            }
-
-            if (c === 'in') { // hack for 'in' operator
-                return [c, 'TK_OPERATOR'];
-            }
-            if (wanted_newline && last_type !== 'TK_OPERATOR'
-                && last_type !== 'TK_EQUALS'
-                && !flags.if_line && (opt_preserve_newlines || last_text !== 'var')) {
-                print_newline();
-            }
-            return [c, 'TK_WORD'];
-        }
-
-        if (c === '(' || c === '[') {
-            return [c, 'TK_START_EXPR'];
-        }
-
-        if (c === ')' || c === ']') {
-            return [c, 'TK_END_EXPR'];
-        }
-
-        if (c === '{') {
-            return [c, 'TK_START_BLOCK'];
-        }
-
-        if (c === '}') {
-            return [c, 'TK_END_BLOCK'];
-        }
-
-        if (c === ';') {
-            return [c, 'TK_SEMICOLON'];
-        }
-
-        if (c === '/') {
-            var comment = '';
-            // peek for comment /* ... */
-            var inline_comment = true;
-            if (input.charAt(parser_pos) === '*') {
-                parser_pos += 1;
-                if (parser_pos < input_length) {
-                    while (parser_pos < input_length &&
-                        ! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/')) {
-                        c = input.charAt(parser_pos);
-                        comment += c;
-                        if (c === "\n" || c === "\r") {
-                            inline_comment = false;
-                        }
-                        parser_pos += 1;
-                        if (parser_pos >= input_length) {
-                            break;
-                        }
-                    }
-                }
-                parser_pos += 2;
-                if (inline_comment && n_newlines === 0) {
-                    return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
-                } else {
-                    return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
-                }
-            }
-            // peek for comment // ...
-            if (input.charAt(parser_pos) === '/') {
-                comment = c;
-                while (input.charAt(parser_pos) !== '\r' && input.charAt(parser_pos) !== '\n') {
-                    comment += input.charAt(parser_pos);
-                    parser_pos += 1;
-                    if (parser_pos >= input_length) {
-                        break;
-                    }
-                }
-                if (wanted_newline) {
-                    print_newline();
-                }
-                return [comment, 'TK_COMMENT'];
-            }
-
-        }
-
-        if (c === "'" || // string
-        c === '"' || // string
-        (c === '/' &&
-            ((last_type === 'TK_WORD' && is_special_word(last_text)) ||
-                (last_text === ')' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) ||
-                (last_type === 'TK_COMMA' || last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
-            var sep = c;
-            var esc = false;
-            var esc1 = 0;
-            var esc2 = 0;
-            resulting_string = c;
-
-            if (parser_pos < input_length) {
-                if (sep === '/') {
-                    //
-                    // handle regexp separately...
-                    //
-                    var in_char_class = false;
-                    while (esc || in_char_class || input.charAt(parser_pos) !== sep) {
-                        resulting_string += input.charAt(parser_pos);
-                        if (!esc) {
-                            esc = input.charAt(parser_pos) === '\\';
-                            if (input.charAt(parser_pos) === '[') {
-                                in_char_class = true;
-                            } else if (input.charAt(parser_pos) === ']') {
-                                in_char_class = false;
-                            }
-                        } else {
-                            esc = false;
-                        }
-                        parser_pos += 1;
-                        if (parser_pos >= input_length) {
-                            // incomplete string/rexp when end-of-file reached.
-                            // bail out with what had been received so far.
-                            return [resulting_string, 'TK_STRING'];
-                        }
-                    }
-
-                } else {
-                    //
-                    // and handle string also separately
-                    //
-                    while (esc || input.charAt(parser_pos) !== sep) {
-                        resulting_string += input.charAt(parser_pos);
-                        if (esc1 && esc1 >= esc2) {
-                            esc1 = parseInt(resulting_string.substr(-esc2), 16);
-                            if (esc1 && esc1 >= 0x20 && esc1 <= 0x7e) {
-                                esc1 = String.fromCharCode(esc1);
-                                resulting_string = resulting_string.substr(0, resulting_string.length - esc2 - 2) + (((esc1 === sep) || (esc1 === '\\')) ? '\\' : '') + esc1;
-                            }
-                            esc1 = 0;
-                        }
-                        if (esc1) {
-                            esc1++;
-                        } else if (!esc) {
-                            esc = input.charAt(parser_pos) === '\\';
-                        } else {
-                            esc = false;
-                            if (opt_unescape_strings) {
-                                if (input.charAt(parser_pos) === 'x') {
-                                    esc1++;
-                                    esc2 = 2;
-                                } else if (input.charAt(parser_pos) === 'u') {
-                                    esc1++;
-                                    esc2 = 4;
-                                }
-                            }
-                        }
-                        parser_pos += 1;
-                        if (parser_pos >= input_length) {
-                            // incomplete string/rexp when end-of-file reached.
-                            // bail out with what had been received so far.
-                            return [resulting_string, 'TK_STRING'];
-                        }
-                    }
-                }
-
-
-
-            }
-
-            parser_pos += 1;
-
-            resulting_string += sep;
-
-            if (sep === '/') {
-                // regexps may have modifiers /regexp/MOD , so fetch those, too
-                while (parser_pos < input_length && in_array(input.charAt(parser_pos), wordchar)) {
-                    resulting_string += input.charAt(parser_pos);
-                    parser_pos += 1;
-                }
-            }
-            return [resulting_string, 'TK_STRING'];
-        }
-
-        if (c === '#') {
-
-
-            if (output.length === 0 && input.charAt(parser_pos) === '!') {
-                // shebang
-                resulting_string = c;
-                while (parser_pos < input_length && c !== '\n') {
-                    c = input.charAt(parser_pos);
-                    resulting_string += c;
-                    parser_pos += 1;
-                }
-                output.push(trim(resulting_string) + '\n');
-                print_newline();
-                return get_next_token();
-            }
-
-
-
-            // Spidermonkey-specific sharp variables for circular references
-            // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
-            // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
-            var sharp = '#';
-            if (parser_pos < input_length && in_array(input.charAt(parser_pos), digits)) {
-                do {
-                    c = input.charAt(parser_pos);
-                    sharp += c;
-                    parser_pos += 1;
-                } while (parser_pos < input_length && c !== '#' && c !== '=');
-                if (c === '#') {
-                    //
-                } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
-                    sharp += '[]';
-                    parser_pos += 2;
-                } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
-                    sharp += '{}';
-                    parser_pos += 2;
-                }
-                return [sharp, 'TK_WORD'];
-            }
-        }
-
-        if (c === '<' && input.substring(parser_pos - 1, parser_pos + 3) === '<!--') {
-            parser_pos += 3;
-            c = '<!--';
-            while (input.charAt(parser_pos) !== '\n' && parser_pos < input_length) {
-                c += input.charAt(parser_pos);
-                parser_pos++;
-            }
-            flags.in_html_comment = true;
-            return [c, 'TK_COMMENT'];
-        }
-
-        if (c === '-' && flags.in_html_comment && input.substring(parser_pos - 1, parser_pos + 2) === '-->') {
-            flags.in_html_comment = false;
-            parser_pos += 2;
-            if (wanted_newline) {
-                print_newline();
-            }
-            return ['-->', 'TK_COMMENT'];
-        }
-
-        if (c === '.') {
-            return [c, 'TK_DOT'];
-        }
-
-        if (in_array(c, punct)) {
-            while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
-                c += input.charAt(parser_pos);
-                parser_pos += 1;
-                if (parser_pos >= input_length) {
-                    break;
-                }
-            }
-
-            if (c === ',') {
-                return [c, 'TK_COMMA'];
-            } else if (c === '=') {
-                return [c, 'TK_EQUALS'];
-            } else {
-                return [c, 'TK_OPERATOR'];
-            }
-        }
-
-        return [c, 'TK_UNKNOWN'];
-    }
-
-    //----------------------------------
-    indent_string = '';
-    while (opt_indent_size > 0) {
-        indent_string += opt_indent_char;
-        opt_indent_size -= 1;
-    }
-
-    while (js_source_text && (js_source_text.charAt(0) === ' ' || js_source_text.charAt(0) === '\t')) {
-        preindent_string += js_source_text.charAt(0);
-        js_source_text = js_source_text.substring(1);
-    }
-    input = js_source_text;
-
-    last_word = ''; // last 'TK_WORD' passed
-    last_type = 'TK_START_EXPR'; // last token type
-    last_text = ''; // last token text
-    last_last_text = ''; // pre-last token text
-    output = [];
-
-    do_block_just_closed = false;
-
-    whitespace = "\n\r\t ".split('');
-    wordchar = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'.split('');
-    digits = '0123456789'.split('');
-
-    punct = '+ - * / % & ++ -- = += -= *= /= %= == === != !== > < >= <= >> << >>> >>>= >>= <<= && &= | || ! !! , : ? ^ ^= |= ::';
-    punct += ' <%= <% %> <?= <? ?>'; // try to be a good boy and try not to break the markup language identifiers
-    punct = punct.split(' ');
-
-    // words which should always start on new line.
-    line_starters = 'continue,try,throw,return,var,if,switch,case,default,for,while,break,function'.split(',');
-
-    // states showing if we are currently in expression (i.e. "if" case) - 'EXPRESSION', or in usual block (like, procedure), 'BLOCK'.
-    // some formatting depends on that.
-    flag_store = [];
-    set_mode('BLOCK');
-
-    parser_pos = 0;
-    while (true) {
-        var t = get_next_token();
-        token_text = t[0];
-        token_type = t[1];
-        if (token_type === 'TK_EOF') {
-            break;
-        }
-
-        switch (token_type) {
-
-        case 'TK_START_EXPR':
-
-            if (token_text === '[') {
-
-                if (last_type === 'TK_WORD' || last_text === ')') {
-                    // this is array index specifier, break immediately
-                    // a[x], fn()[x]
-                    if (in_array(last_text, line_starters)) {
-                        print_single_space();
-                    }
-                    set_mode('(EXPRESSION)');
-                    print_token();
-                    break;
-                }
-
-                if (flags.mode === '[EXPRESSION]' || flags.mode === '[INDENTED-EXPRESSION]') {
-                    if (last_last_text === ']' && last_text === ',') {
-                        // ], [ goes to new line
-                        if (flags.mode === '[EXPRESSION]') {
-                            flags.mode = '[INDENTED-EXPRESSION]';
-                            if (!opt_keep_array_indentation) {
-                                indent();
-                            }
-                        }
-                        set_mode('[EXPRESSION]');
-                        if (!opt_keep_array_indentation) {
-                            print_newline();
-                        }
-                    } else if (last_text === '[') {
-                        if (flags.mode === '[EXPRESSION]') {
-                            flags.mode = '[INDENTED-EXPRESSION]';
-                            if (!opt_keep_array_indentation) {
-                                indent();
-                            }
-                        }
-                        set_mode('[EXPRESSION]');
-
-                        if (!opt_keep_array_indentation) {
-                            print_newline();
-                        }
-                    } else {
-                        set_mode('[EXPRESSION]');
-                    }
-                } else {
-                    set_mode('[EXPRESSION]');
-                }
-
-
-
-            } else {
-                if (last_word === 'for') {
-                    set_mode('(FOR-EXPRESSION)');
-                } else if (in_array(last_word, ['if', 'while'])) {
-                    set_mode('(COND-EXPRESSION)');
-                } else {
-                    set_mode('(EXPRESSION)');
-                }
-            }
-
-            if (last_text === ';' || last_type === 'TK_START_BLOCK') {
-                print_newline();
-            } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_text === '.') {
-                if (wanted_newline) {
-                    print_newline();
-                }
-                // do nothing on (( and )( and ][ and ]( and .(
-            } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
-                print_single_space();
-            } else if (last_word === 'function' || last_word === 'typeof') {
-                // function() vs function ()
-                if (opt_jslint_happy) {
-                    print_single_space();
-                }
-            } else if (in_array(last_text, line_starters) || last_text === 'catch') {
-                if (opt_space_before_conditional) {
-                    print_single_space();
-                }
-            }
-            print_token();
-
-            break;
-
-        case 'TK_DOT':
-
-            if (is_special_word(last_text)) {
-                print_single_space();
-            } else if (last_text === ')') {
-                if (opt_break_chained_methods || wanted_newline) {
-                    flags.chain_extra_indentation = 1;
-                    print_newline(true /* ignore_repeated */, false /* reset_statement_flags */);
-                }
-            }
-
-            print_token();
-            break;
-
-        case 'TK_END_EXPR':
-            if (token_text === ']') {
-                if (opt_keep_array_indentation) {
-                    if (last_text === '}') {
-                        // trim_output();
-                        // print_newline(true);
-                        remove_indent();
-                        print_token();
-                        restore_mode();
-                        break;
-                    }
-                } else {
-                    if (flags.mode === '[INDENTED-EXPRESSION]') {
-                        if (last_text === ']') {
-                            restore_mode();
-                            print_newline();
-                            print_token();
-                            break;
-                        }
-                    }
-                }
-            }
-            restore_mode();
-            print_token();
-            break;
-
-        case 'TK_START_BLOCK':
-
-            if (last_word === 'do') {
-                set_mode('DO_BLOCK');
-            } else {
-                set_mode('BLOCK');
-            }
-            if (opt_brace_style === "expand" || opt_brace_style === "expand-strict") {
-                var empty_braces = false;
-                if (opt_brace_style === "expand-strict") {
-                    empty_braces = (look_up() === '}');
-                    if (!empty_braces) {
-                        print_newline(true);
-                    }
-                } else {
-                    if (last_type !== 'TK_OPERATOR') {
-                        if (last_text === '=' || (is_special_word(last_text) && last_text !== 'else')) {
-                            print_single_space();
-                        } else {
-                            print_newline(true);
-                        }
-                    }
-                }
-                print_token();
-                if (!empty_braces) {
-                    indent();
-                }
-            } else {
-                if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
-                    if (last_type === 'TK_START_BLOCK') {
-                        print_newline();
-                    } else {
-                        print_single_space();
-                    }
-                } else {
-                    // if TK_OPERATOR or TK_START_EXPR
-                    if (is_array(flags.previous_mode) && last_text === ',') {
-                        if (last_last_text === '}') {
-                            // }, { in array context
-                            print_single_space();
-                        } else {
-                            print_newline(); // [a, b, c, {
-                        }
-                    }
-                }
-                indent();
-                print_token();
-            }
-
-            break;
-
-        case 'TK_END_BLOCK':
-            restore_mode();
-            if (opt_brace_style === "expand" || opt_brace_style === "expand-strict") {
-                if (last_text !== '{') {
-                    print_newline();
-                }
-                print_token();
-            } else {
-                if (last_type === 'TK_START_BLOCK') {
-                    // nothing
-                    if (just_added_newline) {
-                        remove_indent();
-                    } else {
-                        // {}
-                        trim_output();
-                    }
-                } else {
-                    if (is_array(flags.mode) && opt_keep_array_indentation) {
-                        // we REALLY need a newline here, but newliner would skip that
-                        opt_keep_array_indentation = false;
-                        print_newline();
-                        opt_keep_array_indentation = true;
-
-                    } else {
-                        print_newline();
-                    }
-                }
-                print_token();
-            }
-            break;
-
-        case 'TK_WORD':
-
-            // no, it's not you. even I have problems understanding how this works
-            // and what does what.
-            if (do_block_just_closed) {
-                // do {} ## while ()
-                print_single_space();
-                print_token();
-                print_single_space();
-                do_block_just_closed = false;
-                break;
-            }
-
-            prefix = 'NONE';
-
-            if (token_text === 'function') {
-                if (flags.var_line && last_type !== 'TK_EQUALS' ) {
-                    flags.var_line_reindented = true;
-                }
-                if ((just_added_newline || last_text === ';') && last_text !== '{'
-                && last_type !== 'TK_BLOCK_COMMENT' && last_type !== 'TK_COMMENT') {
-                    // make sure there is a nice clean space of at least one blank line
-                    // before a new function definition
-                    n_newlines = just_added_newline ? n_newlines : 0;
-                    if (!opt_preserve_newlines) {
-                        n_newlines = 1;
-                    }
-
-                    for (var i = 0; i < 2 - n_newlines; i++) {
-                        print_newline(false);
-                    }
-                }
-                if (last_type === 'TK_WORD') {
-                    if (last_text === 'get' || last_text === 'set' || last_text === 'new' || last_text === 'return') {
-                        print_single_space();
-                    } else {
-                        print_newline();
-                    }
-                } else if (last_type === 'TK_OPERATOR' || last_text === '=') {
-                    // foo = function
-                    print_single_space();
-                } else if (is_expression(flags.mode)) {
-                    // print nothing
-                } else {
-                    print_newline();
-                }
-
-                print_token();
-                last_word = token_text;
-                break;
-            }
-
-            if (token_text === 'case' || (token_text === 'default' && flags.in_case_statement)) {
-                print_newline();
-                if (flags.case_body) {
-                    // switch cases following one another
-                    flags.indentation_level--;
-                    flags.case_body = false;
-                    remove_indent();
-                }
-                print_token();
-                flags.in_case = true;
-                flags.in_case_statement = true;
-                break;
-            }
-
-            if (last_type === 'TK_END_BLOCK') {
-
-                if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
-                    prefix = 'NEWLINE';
-                } else {
-                    if (opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
-                        prefix = 'NEWLINE';
-                    } else {
-                        prefix = 'SPACE';
-                        print_single_space();
-                    }
-                }
-            } else if (last_type === 'TK_SEMICOLON' && (flags.mode === 'BLOCK' || flags.mode === 'DO_BLOCK')) {
-                prefix = 'NEWLINE';
-            } else if (last_type === 'TK_SEMICOLON' && is_expression(flags.mode)) {
-                prefix = 'SPACE';
-            } else if (last_type === 'TK_STRING') {
-                prefix = 'NEWLINE';
-            } else if (last_type === 'TK_WORD') {
-                if (last_text === 'else') {
-                    // eat newlines between ...else *** some_op...
-                    // won't preserve extra newlines in this place (if any), but don't care that much
-                    trim_output(true);
-                }
-                prefix = 'SPACE';
-            } else if (last_type === 'TK_START_BLOCK') {
-                prefix = 'NEWLINE';
-            } else if (last_type === 'TK_END_EXPR') {
-                print_single_space();
-                prefix = 'NEWLINE';
-            }
-
-            if (in_array(token_text, line_starters) && last_text !== ')') {
-                if (last_text === 'else') {
-                    prefix = 'SPACE';
-                } else {
-                    prefix = 'NEWLINE';
-                }
-
-            }
-
-            if (flags.if_line && last_type === 'TK_END_EXPR') {
-                flags.if_line = false;
-            }
-            if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' || opt_brace_style === "expand" || opt_brace_style === "end-expand" || opt_brace_style === "expand-strict") {
-                    print_newline();
-                } else {
-                    trim_output(true);
-                    print_single_space();
-                }
-            } else if (prefix === 'NEWLINE') {
-                if (is_special_word(last_text)) {
-                    // no newline between 'return nnn'
-                    print_single_space();
-                } else if (last_type !== 'TK_END_EXPR') {
-                    if ((last_type !== 'TK_START_EXPR' || token_text !== 'var') && last_text !== ':') {
-                        // no need to force newline on 'var': for (var x = 0...)
-                        if (token_text === 'if' && last_word === 'else' && last_text !== '{') {
-                            // no newline for } else if {
-                            print_single_space();
-                        } else {
-                            flags.var_line = false;
-                            flags.var_line_reindented = false;
-                            print_newline();
-                        }
-                    }
-                } else if (in_array(token_text, line_starters) && last_text !== ')') {
-                    flags.var_line = false;
-                    flags.var_line_reindented = false;
-                    print_newline();
-                }
-            } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {
-                print_newline(); // }, in lists get a newline treatment
-            } else if (prefix === 'SPACE') {
-                print_single_space();
-            }
-            print_token();
-            last_word = token_text;
-
-            if (token_text === 'var') {
-                flags.var_line = true;
-                flags.var_line_reindented = false;
-                flags.var_line_tainted = false;
-            }
-
-            if (token_text === 'if') {
-                flags.if_line = true;
-            }
-            if (token_text === 'else') {
-                flags.if_line = false;
-            }
-
-            break;
-
-        case 'TK_SEMICOLON':
-
-            print_token();
-            flags.var_line = false;
-            flags.var_line_reindented = false;
-            if (flags.mode === 'OBJECT') {
-                // OBJECT mode is weird and doesn't get reset too well.
-                flags.mode = 'BLOCK';
-            }
-            break;
-
-        case 'TK_STRING':
-
-            if (last_type === 'TK_END_EXPR' && in_array(flags.previous_mode, ['(COND-EXPRESSION)', '(FOR-EXPRESSION)'])) {
-                print_single_space();
-            } else if (last_type === 'TK_COMMENT' || last_type === 'TK_STRING' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_SEMICOLON') {
-                print_newline();
-            } else if (last_type === 'TK_WORD') {
-                print_single_space();
-            } else {
-                if (opt_preserve_newlines && wanted_newline) {
-                    print_newline();
-                    output.push(indent_string);
-                }
-            }
-            print_token();
-            break;
-
-        case 'TK_EQUALS':
-            if (flags.var_line) {
-                // just got an '=' in a var-line, different formatting/line-breaking, etc will now be done
-                flags.var_line_tainted = true;
-            }
-            print_single_space();
-            print_token();
-            print_single_space();
-            break;
-
-        case 'TK_COMMA':
-            if (flags.var_line) {
-                if (is_expression(flags.mode) || last_type === 'TK_END_BLOCK' ) {
-                    // do not break on comma, for(var a = 1, b = 2)
-                    flags.var_line_tainted = false;
-                }
-                if (flags.var_line_tainted) {
-                    print_token();
-                    flags.var_line_reindented = true;
-                    flags.var_line_tainted = false;
-                    print_newline();
-                    break;
-                } else {
-                    flags.var_line_tainted = false;
-                }
-
-                print_token();
-                print_single_space();
-                break;
-            }
-
-            if (last_type === 'TK_COMMENT') {
-                print_newline();
-            }
-
-            if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
-                print_token();
-                if (flags.mode === 'OBJECT' && last_text === '}') {
-                    print_newline();
-                } else {
-                    print_single_space();
-                }
-            } else {
-                if (flags.mode === 'OBJECT') {
-                    print_token();
-                    print_newline();
-                } else {
-                    // EXPR or DO_BLOCK
-                    print_token();
-                    print_single_space();
-                }
-            }
-            break;
-
-
-        case 'TK_OPERATOR':
-
-            var space_before = true;
-            var space_after = true;
-            if (is_special_word(last_text)) {
-                // "return" had a special handling in TK_WORD. Now we need to return the favor
-                print_single_space();
-                print_token();
-                break;
-            }
-
-            // hack for actionscript's import .*;
-            if (token_text === '*' && last_type === 'TK_DOT' && !last_last_text.match(/^\d+$/)) {
-                print_token();
-                break;
-            }
-
-            if (token_text === ':' && flags.in_case) {
-                flags.case_body = true;
-                indent();
-                print_token();
-                print_newline();
-                flags.in_case = false;
-                break;
-            }
-
-            if (token_text === '::') {
-                // no spaces around exotic namespacing syntax operator
-                print_token();
-                break;
-            }
-
-            if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters) || last_text == ','))) {
-                // unary operators (and binary +/- pretending to be unary) special cases
-
-                space_before = false;
-                space_after = false;
-
-                if (last_text === ';' && is_expression(flags.mode)) {
-                    // for (;; ++i)
-                    //        ^^^
-                    space_before = true;
-                }
-                if (last_type === 'TK_WORD' && in_array(last_text, line_starters)) {
-                    space_before = true;
-                }
-
-                if (flags.mode === 'BLOCK' && (last_text === '{' || last_text === ';')) {
-                    // { foo; --i }
-                    // foo(); --bar;
-                    print_newline();
-                }
-            } else if (token_text === ':') {
-                if (flags.ternary_depth === 0) {
-                    if (flags.mode === 'BLOCK') {
-                        flags.mode = 'OBJECT';
-                    }
-                    space_before = false;
-                } else {
-                    flags.ternary_depth -= 1;
-                }
-            } else if (token_text === '?') {
-                flags.ternary_depth += 1;
-            }
-            if (space_before) {
-                print_single_space();
-            }
-
-            print_token();
-
-            if (space_after) {
-                print_single_space();
-            }
-
-            break;
-
-        case 'TK_BLOCK_COMMENT':
-
-            var lines = split_newlines(token_text);
-            var j; // iterator for this case
-
-            if (all_lines_start_with(lines.slice(1), '*')) {
-                // javadoc: reformat and reindent
-                print_newline();
-                output.push(lines[0]);
-                for (j = 1; j < lines.length; j++) {
-                    print_newline();
-                    output.push(' ');
-                    output.push(trim(lines[j]));
-                }
-
-            } else {
-
-                // simple block comment: leave intact
-                if (lines.length > 1) {
-                    // multiline comment block starts with a new line
-                    print_newline();
-                } else {
-                    // single-line /* comment */ stays where it is
-                    if (last_type === 'TK_END_BLOCK') {
-                        print_newline();
-                    } else {
-                        print_single_space();
-                    }
-
-                }
-
-                for (j = 0; j < lines.length; j++) {
-                    output.push(lines[j]);
-                    output.push("\n");
-                }
-
-            }
-            if (look_up('\n') !== '\n') {
-                print_newline();
-            }
-            break;
-
-        case 'TK_INLINE_COMMENT':
-            print_single_space();
-            print_token();
-            if (is_expression(flags.mode)) {
-                print_single_space();
-            } else {
-                force_newline();
-            }
-            break;
-
-        case 'TK_COMMENT':
-
-            if (last_text === ',' && !wanted_newline) {
-                trim_output(true);
-            }
-            if (last_type !== 'TK_COMMENT') {
-                if (wanted_newline) {
-                    print_newline();
-                } else {
-                    print_single_space();
-                }
-            }
-            print_token();
-            print_newline();
-            break;
-
-        case 'TK_UNKNOWN':
-            print_token();
-            break;
-        }
-
-        last_last_text = last_text;
-        last_type = token_type;
-        last_text = token_text;
-    }
-
-    var sweet_code = preindent_string + output.join('').replace(/[\r\n ]+$/, '');
-    return sweet_code;
-
-}
-
-// Add support for CommonJS. Just put this file somewhere on your require.paths
-// and you will be able to `var js_beautify = require("beautify").js_beautify`.
-if (typeof exports !== "undefined") {
-    exports.js_beautify = js_beautify;
-}
-
-/*
-
- CSS Beautifier
----------------
-
-    Written by Harutyun Amirjanyan, (amirjanyan@gmail.com)
-
-    Based on code initially developed by: Einar Lielmanis, <elfz@laacz.lv>
-        http://jsbeautifier.org/
-
-
-    You are free to use this in any way you want, in case you find this useful or working for you.
-
-    Usage:
-        css_beautify(source_text);
-        css_beautify(source_text, options);
-
-    The options are:
-        indent_size (default 4)          — indentation size,
-        indent_char (default space)      — character to indent with,
-
-    e.g
-
-    css_beautify(css_source_text, {
-      'indent_size': 1,
-      'indent_char': '\t'
-    });
-*/
-
-// http://www.w3.org/TR/CSS21/syndata.html#tokenization
-// http://www.w3.org/TR/css3-syntax/
-function css_beautify(source_text, options) {
-    options = options || {};
-    var indentSize = options.indent_size || 4;
-    var indentCharacter = options.indent_char || ' ';
-
-    // compatibility
-    if (typeof indentSize == "string")
-        indentSize = parseInt(indentSize);
-
-
-    // tokenizer
-    var whiteRe = /^\s+$/;
-    var wordRe = /[\w$\-_]/;
-
-    var pos = -1, ch;
-    function next() {
-        return ch = source_text.charAt(++pos)
-    }
-    function peek() {
-        return source_text.charAt(pos+1)
-    }
-    function eatString(comma) {
-        var start = pos;
-        while(next()){
-            if (ch=="\\"){
-                next();
-                next();
-            } else if (ch == comma) {
-                break;
-            } else if (ch == "\n") {
-                break;
-            }
-        }
-        return source_text.substring(start, pos + 1);
-    }
-
-    function eatWhitespace() {
-        var start = pos;
-        while (whiteRe.test(peek()))
-            pos++;
-        return pos != start;
-    }
-
-    function skipWhitespace() {
-        var start = pos;
-        do{
-        }while (whiteRe.test(next()))
-        return pos != start + 1;
-    }
-
-    function eatComment() {
-        var start = pos;
-        next();
-        while (next()) {
-            if (ch == "*" && peek() == "/") {
-                pos ++;
-                break;
-            }
-        }
-
-        return source_text.substring(start, pos + 1);
-    }
-
-
-    function lookBack(str, index) {
-        return output.slice(-str.length + (index||0), index).join("").toLowerCase() == str;
-    }
-
-    // printer
-    var indentString = source_text.match(/^[\r\n]*[\t ]*/)[0];
-    var singleIndent = Array(indentSize + 1).join(indentCharacter);
-    var indentLevel = 0;
-    function indent() {
-        indentLevel++;
-        indentString += singleIndent;
-    }
-    function outdent() {
-        indentLevel--;
-        indentString = indentString.slice(0, -indentSize);
-    }
-
-    var print = {}
-    print["{"] = function(ch) {
-        print.singleSpace();
-        output.push(ch);
-        print.newLine();
-    }
-    print["}"] = function(ch) {
-        print.newLine();
-        output.push(ch);
-        print.newLine();
-    }
-
-    print.newLine = function(keepWhitespace) {
-        if (!keepWhitespace)
-            while (whiteRe.test(output[output.length - 1]))
-                output.pop();
-
-        if (output.length)
-            output.push('\n');
-        if (indentString)
-            output.push(indentString);
-    }
-    print.singleSpace = function() {
-        if (output.length && !whiteRe.test(output[output.length - 1]))
-            output.push(' ');
-    }
-    var output = [];
-    if (indentString)
-        output.push(indentString);
-    /*_____________________--------------------_____________________*/
-
-    while(true) {
-        var isAfterSpace = skipWhitespace();
-
-        if (!ch)
-            break;
-
-        if (ch == '{') {
-            indent();
-            print["{"](ch);
-        } else if (ch == '}') {
-            outdent();
-            print["}"](ch);
-        } else if (ch == '"' || ch == '\'') {
-            output.push(eatString(ch))
-        } else if (ch == ';') {
-            output.push(ch, '\n', indentString);
-        } else if (ch == '/' && peek() == '*') { // comment
-            print.newLine();
-            output.push(eatComment(), "\n", indentString);
-        } else if (ch == '(') { // may be a url
-            if (lookBack("url", -1)) {
-              output.push(ch);
-              eatWhitespace();
-              if (next()) {
-                if (ch != ')' && ch != '"' && ch != '\'')
-                    output.push(eatString(')'));
-                else
-                    pos--;
-              }
-            } else {
-              if (isAfterSpace)
-                  print.singleSpace();
-              output.push(ch);
-              eatWhitespace();
-            }
-        } else if (ch == ')') {
-            output.push(ch);
-        } else if (ch == ',') {
-            eatWhitespace();
-            output.push(ch);
-            print.singleSpace();
-        } else if (ch == ']') {
-            output.push(ch);
-        }  else if (ch == '[' || ch == '=') { // no whitespace before or after
-            eatWhitespace();
-            output.push(ch);
-        } else {
-            if (isAfterSpace)
-                print.singleSpace();
-
-            output.push(ch);
-        }
-    }
-
-
-    var sweetCode = output.join('').replace(/[\n ]+$/, '');
-    return sweetCode;
-}
-
-
-if (typeof exports !== "undefined")
-    exports.css_beautify = css_beautify;
-
-/*
-
- Style HTML
----------------
-
-  Written by Nochum Sossonko, (nsossonko@hotmail.com)
-
-  Based on code initially developed by: Einar Lielmanis, <elfz@laacz.lv>
-    http://jsbeautifier.org/
-
-
-  You are free to use this in any way you want, in case you find this useful or working for you.
-
-  Usage:
-    style_html(html_source);
-
-    style_html(html_source, options);
-
-  The options are:
-    indent_size (default 4)          — indentation size,
-    indent_char (default space)      — character to indent with,
-    max_char (default 70)            -  maximum amount of characters per line,
-    brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
-            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
-    unformatted (defaults to inline tags) - list of tags, that shouldn't be reformatted
-    indent_scripts (default normal)  - "keep"|"separate"|"normal"
-
-    e.g.
-
-    style_html(html_source, {
-      'indent_size': 2,
-      'indent_char': ' ',
-      'max_char': 78,
-      'brace_style': 'expand',
-      'unformatted': ['a', 'sub', 'sup', 'b', 'i', 'u']
-    });
-*/
-
-function style_html(html_source, options) {
-//Wrapper function to invoke all the necessary constructors and deal with the output.
-
-  var multi_parser,
-      indent_size,
-      indent_character,
-      max_char,
-      brace_style,
-      unformatted;
-
-  options = options || {};
-  indent_size = options.indent_size || 4;
-  indent_character = options.indent_char || ' ';
-  brace_style = options.brace_style || 'collapse';
-  max_char = options.max_char == 0 ? Infinity : options.max_char || 70;
-  unformatted = options.unformatted || ['a', 'span', 'bdo', 'em', 'strong', 'dfn', 'code', 'samp', 'kbd', 'var', 'cite', 'abbr', 'acronym', 'q', 'sub', 'sup', 'tt', 'i', 'b', 'big', 'small', 'u', 's', 'strike', 'font', 'ins', 'del', 'pre', 'address', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-
-  function Parser() {
-
-    this.pos = 0; //Parser position
-    this.token = '';
-    this.current_mode = 'CONTENT'; //reflects the current Parser mode: TAG/CONTENT
-    this.tags = { //An object to hold tags, their position, and their parent-tags, initiated with default values
-      parent: 'parent1',
-      parentcount: 1,
-      parent1: ''
-    };
-    this.tag_type = '';
-    this.token_text = this.last_token = this.last_text = this.token_type = '';
-
-    this.Utils = { //Uilities made available to the various functions
-      whitespace: "\n\r\t ".split(''),
-      single_token: 'br,input,link,meta,!doctype,basefont,base,area,hr,wbr,param,img,isindex,?xml,embed,?php,?,?='.split(','), //all the single tags for HTML
-      extra_liners: 'head,body,/html'.split(','), //for tags that need a line of whitespace before them
-      in_array: function (what, arr) {
-        for (var i=0; i<arr.length; i++) {
-          if (what === arr[i]) {
-            return true;
-          }
-        }
-        return false;
-      }
-    }
-
-    this.get_content = function () { //function to capture regular content between tags
-
-      var input_char = '',
-          content = [],
-          space = false; //if a space is needed
-
-      while (this.input.charAt(this.pos) !== '<') {
-        if (this.pos >= this.input.length) {
-          return content.length?content.join(''):['', 'TK_EOF'];
-        }
-
-        input_char = this.input.charAt(this.pos);
-        this.pos++;
-        this.line_char_count++;
-
-        if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
-          if (content.length) {
-            space = true;
-          }
-          this.line_char_count--;
-          continue; //don't want to insert unnecessary space
-        }
-        else if (space) {
-          if (this.line_char_count >= this.max_char) { //insert a line when the max_char is reached
-            content.push('\n');
-            for (var i=0; i<this.indent_level; i++) {
-              content.push(this.indent_string);
-            }
-            this.line_char_count = 0;
-          }
-          else{
-            content.push(' ');
-            this.line_char_count++;
-          }
-          space = false;
-        }
-        content.push(input_char); //letter at-a-time (or string) inserted to an array
-      }
-      return content.length?content.join(''):'';
-    }
-
-    this.get_contents_to = function (name) { //get the full content of a script or style to pass to js_beautify
-      if (this.pos == this.input.length) {
-        return ['', 'TK_EOF'];
-      }
-      var input_char = '';
-      var content = '';
-      var reg_match = new RegExp('\<\/' + name + '\\s*\>', 'igm');
-      reg_match.lastIndex = this.pos;
-      var reg_array = reg_match.exec(this.input);
-      var end_script = reg_array?reg_array.index:this.input.length; //absolute end of script
-      if(this.pos < end_script) { //get everything in between the script tags
-        content = this.input.substring(this.pos, end_script);
-        this.pos = end_script;
-      }
-      return content;
-    }
-
-    this.record_tag = function (tag){ //function to record a tag and its parent in this.tags Object
-      if (this.tags[tag + 'count']) { //check for the existence of this tag type
-        this.tags[tag + 'count']++;
-        this.tags[tag + this.tags[tag + 'count']] = this.indent_level; //and record the present indent level
-      }
-      else { //otherwise initialize this tag type
-        this.tags[tag + 'count'] = 1;
-        this.tags[tag + this.tags[tag + 'count']] = this.indent_level; //and record the present indent level
-      }
-      this.tags[tag + this.tags[tag + 'count'] + 'parent'] = this.tags.parent; //set the parent (i.e. in the case of a div this.tags.div1parent)
-      this.tags.parent = tag + this.tags[tag + 'count']; //and make this the current parent (i.e. in the case of a div 'div1')
-    }
-
-    this.retrieve_tag = function (tag) { //function to retrieve the opening tag to the corresponding closer
-      if (this.tags[tag + 'count']) { //if the openener is not in the Object we ignore it
-        var temp_parent = this.tags.parent; //check to see if it's a closable tag.
-        while (temp_parent) { //till we reach '' (the initial value);
-          if (tag + this.tags[tag + 'count'] === temp_parent) { //if this is it use it
-            break;
-          }
-          temp_parent = this.tags[temp_parent + 'parent']; //otherwise keep on climbing up the DOM Tree
-        }
-        if (temp_parent) { //if we caught something
-          this.indent_level = this.tags[tag + this.tags[tag + 'count']]; //set the indent_level accordingly
-          this.tags.parent = this.tags[temp_parent + 'parent']; //and set the current parent
-        }
-        delete this.tags[tag + this.tags[tag + 'count'] + 'parent']; //delete the closed tags parent reference...
-        delete this.tags[tag + this.tags[tag + 'count']]; //...and the tag itself
-        if (this.tags[tag + 'count'] == 1) {
-          delete this.tags[tag + 'count'];
-        }
-        else {
-          this.tags[tag + 'count']--;
-        }
-      }
-    }
-
-    this.get_tag = function () { //function to get a full tag and parse its type
-      var input_char = '',
-          content = [],
-          space = false,
-          tag_start, tag_end;
-
-      do {
-        if (this.pos >= this.input.length) {
-          return content.length?content.join(''):['', 'TK_EOF'];
-        }
-
-        input_char = this.input.charAt(this.pos);
-        this.pos++;
-        this.line_char_count++;
-
-        if (this.Utils.in_array(input_char, this.Utils.whitespace)) { //don't want to insert unnecessary space
-          space = true;
-          this.line_char_count--;
-          continue;
-        }
-
-        if (input_char === "'" || input_char === '"') {
-          if (!content[1] || content[1] !== '!') { //if we're in a comment strings don't get treated specially
-            input_char += this.get_unformatted(input_char);
-            space = true;
-          }
-        }
-
-        if (input_char === '=') { //no space before =
-          space = false;
-        }
-
-        if (content.length && content[content.length-1] !== '=' && input_char !== '>'
-            && space) { //no space after = or before >
-          if (this.line_char_count >= this.max_char) {
-            this.print_newline(false, content);
-            this.line_char_count = 0;
-          }
-          else {
-            content.push(' ');
-            this.line_char_count++;
-          }
-          space = false;
-        }
-        if (input_char === '<') {
-            tag_start = this.pos - 1;
-        }
-        content.push(input_char); //inserts character at-a-time (or string)
-      } while (input_char !== '>');
-
-      var tag_complete = content.join('');
-      var tag_index;
-      if (tag_complete.indexOf(' ') != -1) { //if there's whitespace, thats where the tag name ends
-        tag_index = tag_complete.indexOf(' ');
-      }
-      else { //otherwise go with the tag ending
-        tag_index = tag_complete.indexOf('>');
-      }
-      var tag_check = tag_complete.substring(1, tag_index).toLowerCase();
-      if (tag_complete.charAt(tag_complete.length-2) === '/' ||
-          this.Utils.in_array(tag_check, this.Utils.single_token)) { //if this tag name is a single tag type (either in the list or has a closing /)
-        this.tag_type = 'SINGLE';
-      }
-      else if (tag_check === 'script') { //for later script handling
-        this.record_tag(tag_check);
-        this.tag_type = 'SCRIPT';
-      }
-      else if (tag_check === 'style') { //for future style handling (for now it justs uses get_content)
-        this.record_tag(tag_check);
-        this.tag_type = 'STYLE';
-      }
-      else if (this.Utils.in_array(tag_check, unformatted)) { // do not reformat the "unformatted" tags
-        var comment = this.get_unformatted('</'+tag_check+'>', tag_complete); //...delegate to get_unformatted function
-        content.push(comment);
-        // Preserve collapsed whitespace either before or after this tag.
-        if (tag_start > 0 && this.Utils.in_array(this.input.charAt(tag_start - 1), this.Utils.whitespace)){
-            content.splice(0, 0, this.input.charAt(tag_start - 1));
-        }
-        tag_end = this.pos - 1;
-        if (this.Utils.in_array(this.input.charAt(tag_end + 1), this.Utils.whitespace)){
-            content.push(this.input.charAt(tag_end + 1));
-        }
-        this.tag_type = 'SINGLE';
-      }
-      else if (tag_check.charAt(0) === '!') { //peek for <!-- comment
-        if (tag_check.indexOf('[if') != -1) { //peek for <!--[if conditional comment
-          if (tag_complete.indexOf('!IE') != -1) { //this type needs a closing --> so...
-            var comment = this.get_unformatted('-->', tag_complete); //...delegate to get_unformatted
-            content.push(comment);
-          }
-          this.tag_type = 'START';
-        }
-        else if (tag_check.indexOf('[endif') != -1) {//peek for <!--[endif end conditional comment
-          this.tag_type = 'END';
-          this.unindent();
-        }
-        else if (tag_check.indexOf('[cdata[') != -1) { //if it's a <[cdata[ comment...
-          var comment = this.get_unformatted(']]>', tag_complete); //...delegate to get_unformatted function
-          content.push(comment);
-          this.tag_type = 'SINGLE'; //<![CDATA[ comments are treated like single tags
-        }
-        else {
-          var comment = this.get_unformatted('-->', tag_complete);
-          content.push(comment);
-          this.tag_type = 'SINGLE';
-        }
-      }
-      else {
-        if (tag_check.charAt(0) === '/') { //this tag is a double tag so check for tag-ending
-          this.retrieve_tag(tag_check.substring(1)); //remove it and all ancestors
-          this.tag_type = 'END';
-        }
-        else { //otherwise it's a start-tag
-          this.record_tag(tag_check); //push it on the tag stack
-          this.tag_type = 'START';
-        }
-        if (this.Utils.in_array(tag_check, this.Utils.extra_liners)) { //check if this double needs an extra line
-          this.print_newline(true, this.output);
-        }
-      }
-      return content.join(''); //returns fully formatted tag
-    }
-
-    this.get_unformatted = function (delimiter, orig_tag) { //function to return unformatted content in its entirety
-
-      if (orig_tag && orig_tag.toLowerCase().indexOf(delimiter) != -1) {
-        return '';
-      }
-      var input_char = '';
-      var content = '';
-      var space = true;
-      do {
-
-        if (this.pos >= this.input.length) {
-          return content;
-        }
-
-        input_char = this.input.charAt(this.pos);
-        this.pos++
-
-        if (this.Utils.in_array(input_char, this.Utils.whitespace)) {
-          if (!space) {
-            this.line_char_count--;
-            continue;
-          }
-          if (input_char === '\n' || input_char === '\r') {
-            content += '\n';
-            /*  Don't change tab indention for unformatted blocks.  If using code for html editing, this will greatly affect <pre> tags if they are specified in the 'unformatted array'
-            for (var i=0; i<this.indent_level; i++) {
-              content += this.indent_string;
-            }
-            space = false; //...and make sure other indentation is erased
-            */
-            this.line_char_count = 0;
-            continue;
-          }
-        }
-        content += input_char;
-        this.line_char_count++;
-        space = true;
-
-
-      } while (content.toLowerCase().indexOf(delimiter) == -1);
-      return content;
-    }
-
-    this.get_token = function () { //initial handler for token-retrieval
-      var token;
-
-      if (this.last_token === 'TK_TAG_SCRIPT' || this.last_token === 'TK_TAG_STYLE') { //check if we need to format javascript
-       var type = this.last_token.substr(7)
-       token = this.get_contents_to(type);
-        if (typeof token !== 'string') {
-          return token;
-        }
-        return [token, 'TK_' + type];
-      }
-      if (this.current_mode === 'CONTENT') {
-        token = this.get_content();
-        if (typeof token !== 'string') {
-          return token;
-        }
-        else {
-          return [token, 'TK_CONTENT'];
-        }
-      }
-
-      if (this.current_mode === 'TAG') {
-        token = this.get_tag();
-        if (typeof token !== 'string') {
-          return token;
-        }
-        else {
-          var tag_name_type = 'TK_TAG_' + this.tag_type;
-          return [token, tag_name_type];
-        }
-      }
-    }
-
-    this.get_full_indent = function (level) {
-      level = this.indent_level + level || 0;
-      if (level < 1)
-        return '';
-
-      return Array(level + 1).join(this.indent_string);
-    }
-
-
-    this.printer = function (js_source, indent_character, indent_size, max_char, brace_style) { //handles input/output and some other printing functions
-
-      this.input = js_source || ''; //gets the input for the Parser
-      this.output = [];
-      this.indent_character = indent_character;
-      this.indent_string = '';
-      this.indent_size = indent_size;
-      this.brace_style = brace_style;
-      this.indent_level = 0;
-      this.max_char = max_char;
-      this.line_char_count = 0; //count to see if max_char was exceeded
-
-      for (var i=0; i<this.indent_size; i++) {
-        this.indent_string += this.indent_character;
-      }
-
-      this.print_newline = function (ignore, arr) {
-        this.line_char_count = 0;
-        if (!arr || !arr.length) {
-          return;
-        }
-        if (!ignore) { //we might want the extra line
-          while (this.Utils.in_array(arr[arr.length-1], this.Utils.whitespace)) {
-            arr.pop();
-          }
-        }
-        arr.push('\n');
-        for (var i=0; i<this.indent_level; i++) {
-          arr.push(this.indent_string);
-        }
-      }
-
-      this.print_token = function (text) {
-        this.output.push(text);
-      }
-
-      this.indent = function () {
-        this.indent_level++;
-      }
-
-      this.unindent = function () {
-        if (this.indent_level > 0) {
-          this.indent_level--;
-        }
-      }
-    }
-    return this;
-  }
-
-  /*_____________________--------------------_____________________*/
-
-  multi_parser = new Parser(); //wrapping functions Parser
-  multi_parser.printer(html_source, indent_character, indent_size, max_char, brace_style); //initialize starting values
-
-  while (true) {
-      var t = multi_parser.get_token();
-      multi_parser.token_text = t[0];
-      multi_parser.token_type = t[1];
-
-    if (multi_parser.token_type === 'TK_EOF') {
-      break;
-    }
-
-    switch (multi_parser.token_type) {
-      case 'TK_TAG_START':
-        multi_parser.print_newline(false, multi_parser.output);
-        multi_parser.print_token(multi_parser.token_text);
-        multi_parser.indent();
-        multi_parser.current_mode = 'CONTENT';
-        break;
-      case 'TK_TAG_STYLE':
-      case 'TK_TAG_SCRIPT':
-        multi_parser.print_newline(false, multi_parser.output);
-        multi_parser.print_token(multi_parser.token_text);
-        multi_parser.current_mode = 'CONTENT';
-        break;
-      case 'TK_TAG_END':
-        //Print new line only if the tag has no content and has child
-        if (multi_parser.last_token === 'TK_CONTENT' && multi_parser.last_text === '') {
-            var tag_name = multi_parser.token_text.match(/\w+/)[0];
-            var tag_extracted_from_last_output = multi_parser.output[multi_parser.output.length -1].match(/<\s*(\w+)/);
-            if (tag_extracted_from_last_output === null || tag_extracted_from_last_output[1] !== tag_name)
-                multi_parser.print_newline(true, multi_parser.output);
-        }
-        multi_parser.print_token(multi_parser.token_text);
-        multi_parser.current_mode = 'CONTENT';
-        break;
-      case 'TK_TAG_SINGLE':
-        // Don't add a newline before elements that should remain unformatted.
-        var tag_check = multi_parser.token_text.match(/^\s*<([a-z]+)/i);
-        if (!tag_check || !multi_parser.Utils.in_array(tag_check[1], unformatted)){
-            multi_parser.print_newline(false, multi_parser.output);
-        }
-        multi_parser.print_token(multi_parser.token_text);
-        multi_parser.current_mode = 'CONTENT';
-        break;
-      case 'TK_CONTENT':
-        if (multi_parser.token_text !== '') {
-          multi_parser.print_token(multi_parser.token_text);
-        }
-        multi_parser.current_mode = 'TAG';
-        break;
-      case 'TK_STYLE':
-      case 'TK_SCRIPT':
-        if (multi_parser.token_text !== '') {
-          multi_parser.output.push('\n');
-          var text = multi_parser.token_text;
-          if (multi_parser.token_type == 'TK_SCRIPT') {
-            var _beautifier = typeof js_beautify == 'function' && js_beautify;
-          } else if (multi_parser.token_type == 'TK_STYLE') {
-            var _beautifier = typeof css_beautify == 'function' && css_beautify;
-          }
-
-          if (options.indent_scripts == "keep") {
-            var script_indent_level = 0;
-          } else if (options.indent_scripts == "separate") {
-            var script_indent_level = -multi_parser.indent_level;
-          } else {
-            var script_indent_level = 1;
-          }
-
-          var indentation = multi_parser.get_full_indent(script_indent_level);
-          if (_beautifier) {
-            // call the Beautifier if avaliable
-            text = _beautifier(text.replace(/^\s*/, indentation), options);
-          } else {
-            // simply indent the string otherwise
-            var white = text.match(/^\s*/)[0];
-            var _level = white.match(/[^\n\r]*$/)[0].split(multi_parser.indent_string).length - 1;
-            var reindent = multi_parser.get_full_indent(script_indent_level -_level);
-            text = text.replace(/^\s*/, indentation)
-                   .replace(/\r\n|\r|\n/g, '\n' + reindent)
-                   .replace(/\s*$/, '');
-          }
-          if (text) {
-            multi_parser.print_token(text);
-            multi_parser.print_newline(true, multi_parser.output);
-          }
-        }
-        multi_parser.current_mode = 'TAG';
-        break;
-    }
-    multi_parser.last_token = multi_parser.token_type;
-    multi_parser.last_text = multi_parser.token_text;
-  }
-  return multi_parser.output.join('');
-}
-
-
-;
-//when nothing happens after a while, I get bored.
-(function () {
-"use strict";
-
-var responses; //will be filled in the following line
-responses = [
-	'jQuery is a better language than javascript',
-	'World hunger will be solved by eating cats',
-	'php is good',
-	'php is bad',
-	'OOP stands for "Oh Oh! Poop!"',
-	'Functional programming is the best',
-	'Ruby is for smelly hipsters',
-	'Python is for people with guttheria', //wat?
-	'Lisp is for lusers',
-	'Recursion is always the answer',
-	'Javascript isn\'t a real language',
-	'CoffeeScript is good',
-	'CoffeeScript sucks',
-	'You should comment all your code',
-	'You should use comments sparingly',
-	'Tabs are better than spaces',
-	'Spaces are better than tabs',
-	'Dart is a good language and idea',
-	'TypeScript will outdate javascript',
-	'Optimization is king',
-	'Premature optimization is the root of all evil',
-	'Perl is written in base64',
-	'ROT13 is sufficient encryption',
-	'Braces should only appear on the right `if () {`, not on the left',
-	'Braces should only appear on the left `if ()\\n{`, not on the right',
-	'Duck-Typing is best typing',
-	'Strong typing ftw',
-	'Static typing will prevent most bugs',
-	'Dynamic typing brings 70% more happiness units',
-
-	'NetTuts+ is a GREAT SITE!',
-	'expertsexchange is better than StackOverflow',
-	'WordPress is bread & butter for any decent website',
-
-	'Can anyone help me with a Java question?',
-	'Can I ask you guys a question?',
-	'http://stackoverflow.com/a/778275/617762',
-	'http://stackoverflow.com/users/22656/jon-skeet',
-
-
-	'I really hate it when people don\'t',
-	'Accordion to recent surveys, you may insert random instrument names into' +
-		' sentences without people noticing',
-	'There once was a girl fron Nantucket...',
-	'There once was a girl from Nantucket,\n' +
-		'Who had a nice fancy bucket.\n' +
-		'She mopped up the floor\n' +
-		'And went to the door\n' +
-		'To answer it.', //what did you expect? perv.
-
-	//stolen from copy (ha!)
-	'We all know Linux is great...it does infinite loops in 5 seconds. ~ Linus Torvalds',
-	'Everything should be made as simple as possible, but not simpler. ~ Albert Einstein',
-	'If A = B and B = C, then A = C, except where void or prohibited by law. ~ Roy Santoro',
-	'Has anyone really been far even as decided to use even go want to do look more like?',
-
-	//nice snippets
-	'    Math.sign = function (x) {\n' +
-	'        return (x > 0) - (x < 0);\n' +
-	'    }',
-
-	//anti-jokes start here
-	'Why can\'t Elvis Presley drive in reverse? Because he\'s dead',
-	'I like my women how I like my coffee. Without a penis',
-	'A horse walks into a bar. The bartender asks, "Why the long face?" ' +
-		'The horse, incapable of understanding English, shits on the floor ' +
-		' and leaves',
-	'The magic words which\'ll open many doors are "Push" and "Pull"',
-	'Peggy had many valentine cards while I only had one. Peggy is a whore',
-	'Why did the boy drop his ice-cream? He was hit by a bus',
-	'What\'s sad about 4 black people driving off a cliff? They were my friends',
-	'Why can\'t T-Rexs clap? Because they\'re dead',
-	'Yo mamma\'s so fat, your father no longer finds her attractive so now ' +
-		'they\'re getting divorced',
-	'An Irishman, a homosexual and a Jew walk into a bar. What a fine ' +
-		'example of an integrated community',
-	'What\'s worse than biting on an apple and finding a worm? The holocaust',
-	'*knock knock* Who\'s there? "Jehova\'s witnesses"',
-	'How do you make a plumber cry? Kill his family',
-	'What did the farmer say when he couldn\'t find his tractor?\n' +
-		'"Where\'s my tractor?"',
-
-	//added by rlemon
-	'@jAndy, THE GAME!',
-
-	//added by dystroy
-	"You should always put at the start of your HTML files a comment for browsers that don't handle HTML",
-	'Java and JavaScript are similar like and Script are similar',
-	'Ruby is short for rubbish',
-	'Premature ejaculation is the root of all evil',
-	'Prototypal OOP should be popularized just for its acronym',
-	'The only good reason to use ctrl-C ctrl-V while programing is that your keyboard misses some greek letters',
-	"If you need your IDE's refactoring features, then your code isn't orthogonal",
-	"If you need your IDE's code generation tool, then your language is too verbose",
-	'The good thing in being a young programmer is that you can blame others for the bugs',
-	"There's always a better solution than a regular expression but the regex one will make you look smarter",
-	'Any programer should learn regular expressions as it brings easy reputation on Stack Overflow',
-	"A function that can't fit my screen can't not be bugged",
-	"Exception is a great feature when you want to keep bugs for another day",
-	"Don't mark variables private, just shoot trespassers in the head",
-	"What's the difference between EcmaScript and CoffeeScript ?",
-	"Many noobs confuse JSON and js objects. For exemple John Resig called getJSON a function returning a plain javascript object.",
-	'"use strict" is for sissies',
-	"How do you make a plumber cry ? And why ?",
-	'There are two ways of constructing a software design: One way is to make it so simple that there are obviously no deficiencies and the other way is to make it so complicated that there are no obvious deficiencies. [C.A.R. Hoare]',
-	'The cheapest, fastest, and most reliable components are those that aren’t there. [Gordon Bell]',
-	'Deleted code is debugged code. [Jeff Sickel]',
-	'Beauty is more important in computing than anywhere else in technology because software is so complicated. Beauty is the ultimate defence against complexity. [David Gelernter]',
-	'Simplicity is prerequisite for reliability. [Edsger W. Dijkstra]',
-	'PHP is a minor evil perpetrated and created by incompetent amateurs, whereas Perl is a great and insidious evil perpetrated by skilled but perverted professionals',
-	'The only places for icons is in a church, a burning church at that. [mhat]',
-	'Measuring programming progress by lines of code is like measuring aircraft building progress by weight. [Bill Gates]',
-	'The object-oriented model makes it easy to build up programs by accretion. What this often means, in practice, is that it provides a structured way to write spaghetti code. [Paul Graham]',
-	'Most software today is very much like an Egyptian pyramid with millions of bricks piled on top of each other, with no structural integrity, but just done by brute force and thousands of slaves. [Alan Kay]',
-	'A language that doesn’t have everything is actually easier to program in than some that do. [Dennis M. Ritchie]',
-	'Mostly, when you see programmers, they aren’t doing anything. One of the attractive things about programmers is that you cannot tell whether or not they are working simply by looking at them. Very often they’re sitting there seemingly drinking coffee and gossiping, or just staring into space. What the programmer is trying to do is get a handle on all the individual and unrelated ideas that are scampering around in his head. [Charles M. Strauss]',
-	'You can’t trust code that you did not totally create yourself. [Ken Thompson]',
-	'Object-oriented design is the roman numerals of computing. [Rob Pike]',
-	'If you want to go somewhere, goto is the best way to get there. [ken]',
-	'Simplicity is the ultimate sophistication. [Leonardo da Vinci]',
-	'Every language has an optimization operator. In C++ that operator is ‘//’',
-	'“Should array indices start at 0 or 1? My compromise of 0.5 was rejected without, I thought, proper consideration. ” - Stan Kelly-Bootle',
-	'“ Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live. ” - Rick Osborne',
-	'“ Any fool can write code that a computer can understand. Good programmers write code that humans can understand. ” - Martin Fowler',
-	'“ Beware of bugs in the above code; I have only proved it correct, not tried it. ” - Donald Knuth',
-	'If we’d asked the customers what they wanted, they would have said “faster horses” — Henry Ford',
-	'I (…) am rarely happier than when spending an entire day programming my computer to perform automatically a task that would otherwise take me a good ten seconds to do by hand.  Douglas Adams, Last Chance to See',
-	'I will, in fact, claim that the difference between a bad programmer and a good one is whether he considers his code or his data structures more important. Bad programmers worry about the code. Good programmers worry about data structures and their relationships.  — Linus Torvalds',
-	'Some problems are so complex that you have to be highly intelligent and well informed just to be undecided about them. — Laurence J. Peter',
-	'Any intelligent fool can make things bigger, more complex, and more violent. It takes a touch of genius — and a lot of courage — to move in the opposite direction. — Albert Einstein',
-	'Software obeys the law of gaseous expansion – it continues to grow until memory is completely filled. — Larry Gleason',
-	'An organisation that treats its programmers as morons will soon have programmers that are willing and able to act like morons only. — Bjarne Stroustrup',
-	'I have always wished that my computer would be as easy to use as my telephone. My wish has come true. I no longer know how to use my telephone. — Bjarne Stroustrup',
-	'As soon as we started programming, we found to our surprise that it wasn’t as easy to get programs right as we had thought. Debugging had to be discovered. I can remember the exact instant when I realized that a large part of my life from then on was going to be spent in finding mistakes in my own programs.  — Maurice Wilkes discovers debugging, 1949',
-	'Software gets slower faster than hardware gets faster. — Wirth’s law',
-	'OOP is to writing a program, what going through airport security is to flying. — Richard Mansfield',
-	'The problem with object-oriented languages is they’ve got all this implicit environment that they carry around with them. You wanted a banana but what you got was a gorilla holding the banana and the entire jungle. — Joe Armstrong',
-	'IDE features are language smells. — Reg Braithwaite',
-	'When there is no type hierarchy you don’t have to manage the type hierarchy. — Rob Pike',
-	'Languages that try to disallow idiocy become themselves idiotic. — Rob Pike',
-	'Premature optimization, that’s like a fart. Premature abstraction is like taking a dump on another developer’s desk.  Chris Eric',
-	'Benchmarks don’t lie, but liars do benchmarks.',
-
-	// food for thought by rlemon
-	'Can fat people go skinny dipping?',
-	'If quizzes are quizzical then why are tests not testical?',
-	'Can you be a closet claustrophobic?',
-	'What are Preparation A through Preparation G?',
-	'Is a metaphor like a simile?',
-	'How do you remove a club soda stain?',
-	'If practice makes perfect, and no one is perfect, why bother practice?',
-	'Why does the arcade game "Donkey Kong" have a monkey? Why isn\'t it called Monkey Kong?',
-	'If a rabbit\'s foot was actually lucky, wouldn\'t it still be attached to the rabbit\'s leg?',
-	'If a chicken had lips, could it whistle?',
-	'How much wind could a windbreaker break if a windbreaker could break wind?',
-	'Does expecting the unexpected make the unexpected expected?',
-	'If you had three quarters, four dimes and four pennies in your pocket you would have $1.19. You would also have the largest number (11) and combination of coins possible without being able to provide change for a dollar.',
-	'Where in the nursery rhyme does it say Humpty Dumpty is an egg?',
-	'How do vampires have such well-kept hair if they can\'t see themselves in the mirror?',
-];
-
-//query xkcd to find the last comic id. generate links to comic pages from that
-(function () {
-IO.jsonp({
-	url : 'http://dynamic.xkcd.com/api-0/jsonp/comic',
-	jsonpName : 'callback',
-	fun : finishXKCD
-});
-
-function finishXKCD ( resp ) {
-	var maxID = resp.num;
-
-	//to avoid adding hundreds of links to the responses array and  up
-	// the probabilities, we'll add just a few, and use a "nice" getter hack
-	var descriptor = {
-		get : function () {
-			return 'http://xkcd.com/' + Math.rand( 1, maxID );
-		},
-		configurable : true,
-		enumerable : true
-	};
-	//arrays truly are magic. Chrome automatically adjusts the length after this
-	//perhaps it shouldn't surprise me. special behaviour on integer-ish is to
-	// be expected
-}
-
-})();
-
-(function () {
-var items = {
-	actual : [],
-	fetch : function () {
-		var index = Math.floor(Math.random() * this.actual.length);
-
-		if ( this.actual.length <= 2 ) {
-			request( finishSE );
-		}
-		return this.actual.splice( index, 1 )[ 0 ].link;
-	}
-};
-var first = true;
-
-request( finishSE );
-
-function request ( cb ) {
-	IO.jsonp({
-		url : 'http://api.stackexchange.com/2.1/questions',
-		jsonpName : 'callback',
-		data : {
-			order : 'desc',
-			sort  : 'hot',
-			tagged : 'javascript',
-			//only wrapper stuff and a few question details
-			filter : '!BGS1(RNaQDIyAm(R7hhoosE8U0HdKY',
-			site : 'stackoverflow'
-		},
-		fun : cb
-	});
-}
-
-function finishSE ( resp ) {
-	if ( resp.errorMessage ) {
-		console.error( resp.errorMessage );
-		return;
-	}
-	var fit = resp.items.filter( scoreCheck );
-
-	items.actual.push.apply( items.actual, fit );
-
-	if ( first ) {
-		//see comments on xkcd above
-		//IMPORTANT NOTE: because getting an item removes it, this is
-		// a Schrödinger's array: seeing the value causes its removal, so you
-		// cannot inspect the responses array without altering it.
-		//that is so cool.
-		var descriptor = {
-			get : items.fetch.bind( items ),
-			configurable : true,
-			enumerable : true
-		};
-
-	//	var props = {};
-	//	for (var i = 0; i < 5; i++) {
-		//	props[ responses.length + i ] = descriptor;
-	//	}
-
-	//	Object.defineProperties( responses, props );
-
-		first = false;
-	}
-
-	function scoreCheck ( item ) {
-		return item.score >= 1;
-	}
-}
-})();
-
-
-var lastISpoke = {},
-	messagesSinceLast = {},
-
-	config  = {
-		delay : 300000, //1000(ms) * 60 (sec) * 5 = 5min
-		shortestConvo : 10,
-		memorySize    : responses.length / 2,
-	};
-
-var memory = IO.CBuffer( config.memorySize );
-
-function zzz () {
-	var now = Date.now(),
-		times = bot.adapter.in.lastTimes || {};
-
-	Object.keys( times ).filter( roomcheck ).forEach( stuff );
-
-	//let my naming expertise astound you once more
-	function stuff ( roomid ) {
-		bot.log( 'triggered bored on room #' + roomid );
-
-		//10 seconds into the future, just to be sure
-		lastISpoke[ roomid ] = now + 1000 * 10;
-		messagesSinceLast[ roomid ] = 0;
-
-		// var resp;
-		// do {
-			// resp = responses.random();
-		// } while ( memory.contains(resp) );
-
-		// memory.add( resp );
-		// bot.adapter.out.add( resp, roomid );
-	}
-
-	//checks, for a specific room, whether enough time has passed since someone
-	// (who wasn't us) spoke
-	function roomcheck ( roomid ) {
-		//max + 1. when the bot sends a message, it also counts as 1
-		if ( messagesSinceLast[roomid] < config.shortestConvo+1 ) {
-			return false;
-		}
-
-		var last = times[ roomid ];
-		return (
-			last > ( lastISpoke[roomid] || 0 ) &&
-			last + config.delay <= now );
-	}
-}
-
-function someoneSpoke ( msgObj ) {
-	var base = messagesSinceLast[ msgObj.room_id ] || 0;
-	messagesSinceLast[ msgObj.room_id ] = base + 1;
-}
-
-IO.register( 'heartbeat', zzz );
-IO.register( 'input', someoneSpoke );
-
-})();
 
 ;
 // (function () {
@@ -5735,6 +3190,28 @@ IO.register( 'input', someoneSpoke );
 
 ;
 (function () {
+"use strict"; 
+
+bot.cleverbot = 
+{
+sessionid : '',
+
+speak : function(speach)
+{
+    $.post('http://ccinc.host56.com/cleverbot.php', {"session_id" : this.sessionid, "message" : speach}, function(data) {
+        var json = JSON.parse(data);
+	 this.sessionid = json["session"].trim();
+        speach.directreply(json["thought"]);
+         console.log(this.sessionid);
+});
+
+}
+
+};
+
+}());
+;
+(function () {
 "use strict";
 
 var converters = {
@@ -5774,6 +3251,10 @@ var converters = {
 	//km: 1m = 1km * 1000
 	km : function ( km ) {
 		return converters.m( km * 1000 );
+	},
+	//centimeter: 1m = 100cm
+	cm : function ( cm ) {
+		return converters.m( cm / 100 );
 	},
 	//millimeters: 1m = 1mm / 1000
 	mm : function ( mm ) {
@@ -6004,7 +3485,7 @@ var rUnits = /(-?\d+\.?\d*)\s*(\S+)(\s+(?:(?:to|in)\s+)?(\S+))?$/;
 // <number><unit> to|in <unit>
 //note that units are case-sensitive: F is the temperature, f is the length
 var convert = function ( inp, cb ) {
-	if ( inp.toString() === 'list' ) {
+	if ( inp.toLowerCase() === 'list' ) {
 		finish( listUnits().join(', ') );
 		return;
 	}
@@ -6017,9 +3498,9 @@ var convert = function ( inp, cb ) {
 	}
 
 	var num = Number( parts[1] ),
-	    unit = parts[ 2 ],
-	    target = parts[ 4 ] || '',
-	    moneh = false;
+		unit = parts[ 2 ],
+		target = parts[ 4 ] || '',
+		moneh = false;
 	bot.log( num, unit, target, '/convert input' );
 
 	unit   = unalias( unit );
@@ -6039,9 +3520,15 @@ var convert = function ( inp, cb ) {
 		bot.log( res, '/convert answer' );
 
 		var reply;
-		if ( res.error ) {
+		// list was passed
+		if ( res.substr ) {
+			reply = res;
+		}
+		//an error occured
+		else if ( res.error ) {
 			reply = res.error;
 		}
+		//just a normal result
 		else {
 			reply = format( res );
 		}
@@ -6111,7 +3598,7 @@ var moneyConverter = {
 
 	getRate : function ( cb ) {
 		var self = this,
-		    rate;
+			rate;
 
 		if ( rate = this.checkCache() ) {
 			cb( rate );
@@ -6434,7 +3921,7 @@ var cowsay = {
 			border = this.chooseBorders( lineCount );
 
 		var balloon = lines.map( baloonLine );
-		var boundaryOccurences = new Array( longest + 2 )
+		var boundaryOccurences = new Array( longest + 2 );
 		balloon.unshift( ' ' + boundaryOccurences.join('_') );
 		balloon.push   ( ' ' + boundaryOccurences.join('-') );
 
@@ -6551,6 +4038,229 @@ bot.listen(
 		}
 	}
 );
+
+;
+(function () {
+"use strict";
+//this and the history.js file are nearly identical, as they both manually have
+// to grab and parse from the wikimedia API
+
+var notFoundMsgs = [
+	'No definition found.',
+	'It means I aint got time to learn your $5 words',
+	'My pocket dictionary just isn\'t good enough for you.'
+];
+
+var define = {
+	command : function defineCommand ( args, cb ) {
+		bot.log( args, '/define input' );
+		this.fetchData( args, finish );
+
+		function finish ( results, pageid ) {
+			bot.log( results, '/define results' );
+			//TODO: format. so far we just be lazy and take the first one
+			var res = results[ 0 ];
+
+			if ( !res ) {
+				res = notFoundMsgs.random();
+			}
+			else {
+				res = bot.adapter.link(
+					args, 'http://en.wiktionary.org/wiki?curid=' + pageid
+				) + ' ' + res;
+			}
+
+			if ( cb && cb.call ) {
+				cb( res );
+			}
+			else {
+				args.reply( res );
+			}
+		}
+	},
+
+	handleResponse : function ( resp, cb ) {
+		var query = resp.query,
+			pageid = query.pageids[ 0 ],
+			html = query.pages[ pageid ].extract;
+
+		if ( pageid === '-1' ) {
+			cb( [], -1 );
+			return;
+		}
+
+		var root = document.createElement( 'body' );
+		root.innerHTML = html; //forgive me...
+
+		//the first ol has all the data we need
+		cb( getEvents(root.getElementsByTagName('ol')[0]), pageid );
+	},
+
+	fetchData : function ( term, cb ) {
+		var self = this;
+
+		IO.jsonp({
+			url : 'http://en.wiktionary.org/w/api.php',
+			jsonpName : 'callback',
+			data : {
+				action : 'query',
+				titles : term.toString(),
+				format : 'json',
+				prop : 'extracts',
+				indexpageids : true
+			},
+			fun : function ( resp ) {
+				self.handleResponse( resp, cb );
+			}
+		});
+	}
+};
+
+//example of partial extract:
+/*
+  <h2> Translingual</h2>\n\n
+  <p>Wikipedia</p>\n
+  <h3> Symbol</h3>\n
+  <p><b>42</b> (<i>previous</i>  <b>41</b>, <i>next</i>  <b>43</b>)</p>\n
+  <ol>
+      <li>The cardinal number forty-two.</li>\n</ol>
+*/
+//we just want the li data
+function getEvents ( root, stopNode ) {
+	var matches = [];
+
+	(function filterEvents (root) {
+		var node = root.firstElementChild;
+
+		for (; node; node = node.nextElementSibling) {
+			if (node === stopNode) {
+				return;
+			}
+			else if (node.tagName !== 'LI' ) {
+				continue;
+			}
+
+			matches.push( node );
+		}
+	})( root );
+
+	//we need to flatten out the resulting elements, and we're done!
+	return flatten(matches);
+}
+function flatten ( lis ) {
+	return [].map.call( lis, extract );
+
+	function extract ( li ) {
+		return li.firstChild.data;
+	}
+}
+
+bot.addCommand({
+	name : 'define',
+	fun : define.command,
+	thisArg : define,
+	permissions : {
+		del : 'NONE'
+	},
+
+	description : 'Fetches definition for a given word. `/define something`',
+	async : true
+});
+}());
+
+;
+//listener to help decide which Firefly episode to watch
+
+bot.listen( /(which |what |give me a )?firefly( episode)?/i, function ( msg ) {
+	var names = ["Serenity", "The Train Job", "Bushwhacked", "Shindig", "Safe", "Our Mrs. Reynolds", "Jaynestown", "Out of Gas", "Ariel", "War Stories", "Trash", "The Message", "Heart of Gold", "Objects in Space"];
+
+	//no mention of episode, 5% chance of getting the movie
+	if ( msg.indexOf('episode') === -1 && Math.random() < 0.05 ) {
+		return 'Serenity (movie)';
+	}
+
+	var r = Math.floor(Math.random() * 14);
+	return 'Episode {0} - {1}'.supplant(r + 1, names[r]);
+});
+
+;
+(function () {
+//they made me make it. I begged them not to.
+
+//obligatories
+var special = {
+	'your mom' : ['Your mom is always open for business.'],
+	'your sister' : ['Your sister is too busy right now.'],
+	//hey, the last two lines aligned! together with the bodies...
+	//erm, what?
+
+	//the help message explicitly says age, though...
+	'age' : ['For you? Never.']
+};
+var template = 'A person that age can shag down to {lower}, '+
+	'and is the lower limit of a person of {higher} years.';
+
+function fuckable ( args ) {
+	var possibleName = args.toString().toLowerCase();
+
+	if ( special[possibleName] ) {
+		return special[ possibleName ].random();
+	}
+
+	//try and find a user with the same name as the argument
+	var userId = Object.keys( bot.users ).first(function ( id ) {
+		return bot.users[ id ].name.toLowerCase() === possibleName;
+	});
+
+	//we found a match. you're a daddy!
+	if ( userId && Math.random() < 0.8 ) {
+		//the perverts
+		if ( Number(userId) === bot.adapter.user_id ) {
+			return 'Keep dreaming';
+		}
+
+		return 'Why don\'t we ask ' + bot.adapter.reply( args ) + '?';
+	}
+
+	var age = Number( args );
+
+	if ( !age || age < 0 ) {
+		return 'This is srs bsns, please treat it as such' +
+			' (see `/help fuckable`).';
+	}
+
+	var ret = '';
+	if ( age < 14 ) {
+		ret += 'You\'re one sick puppy. ';
+	}
+
+	var fuckee = age / 2 + 7,
+	fucker = 2 * age - 14,
+	wrapper = {};
+
+	//the equation is:
+	// fuckee = fucker / 2 + 7
+	//now, we want fuckee <= fucker. this condition is not met when fucker < 14:
+	// fuckee = 13 / 2 + 7 = 13.5 > 13
+	//so, if age < 14, we flip the two to meet the condition.
+	wrapper.higher = ( age > 14 ? fucker : fuckee );
+	wrapper.lower  = ( age > 14 ? fuckee : fucker );
+
+	return ret + template.supplant( wrapper );
+}
+
+bot.addCommand({
+	name : 'fuckable',
+	fun : fuckable,
+	permissions : {
+		del : 'NONE'
+	},
+
+	description : 'Calculates the lower boundary according to age/2+7 rule.' +
+		' `/fuckable age`'
+});
+
+})();
 
 ;
 (function () {
@@ -6672,7 +4382,7 @@ function get ( args, cb ) {
 			return post.link;
 		}).join ( ' ; ');
 	}
-};
+}
 
 bot.addCommand({
 	name : 'get',
@@ -6684,6 +4394,136 @@ bot.addCommand({
 });
 
 }());
+
+;
+// issue #51 https://github.com/Zirak/SO-ChatBot/issues/51
+
+//valid args are one of the following:
+// /github reponame
+//which searches for a repository `reponame`
+// /github username/reponame
+//which searches for a repository `reponame` under `username`
+var github = {
+
+	command : function ( args, cb ) {
+		var parts = /^([\S]+?)(?:\/([\S]+))?$/.exec( args ),
+			format = this.formatCb( finish );
+
+		bot.log( parts, '/github input' );
+
+		if ( !parts ) {
+			finish( 'I can\'t quite understand that format. ' +
+					'See `/help github` for, well...help.' );
+		}
+		else if ( !parts[2] ) {
+			this.searchRepo( parts[1], format );
+		}
+		else {
+			this.searchUserRepo( parts[1], parts[2], format );
+		}
+
+		function finish ( res ) {
+			bot.log( res, '/github finish' );
+
+			if ( cb && cb.call ) {
+				cb( res );
+			}
+			else {
+				args.reply( res );
+			}
+		}
+	},
+
+	formatCb : function ( cb ) {
+		var repoFullName = '{owner}/{name}';
+
+		return function format ( repo ) {
+			if ( repo.error ) {
+				cb( repo.error );
+				return;
+			}
+
+			//there are inconsistensies between the data returned from one
+			// API call and another. there're two important ones here:
+			//1. we have a full repo name (user/repoName) in one, but not
+			//     the other (and different property names can be used to
+			//     construct it)
+			//2. the link to the repo is called html_url in one, and
+			//      url in the other (in the former, url means something else)
+			var fullName = repo.full_name ?
+				repo.full_name : repoFullName.supplant( repo ),
+				url = repo.html_url || repo.url;
+
+			cb(
+				bot.adapter.link(fullName, url ) + ' ' + repo.description
+			);
+		};
+	},
+
+	searchRepo : function ( repoName, cb ) {
+		var keyword = encodeURIComponent( repoName );
+
+		IO.jsonp({
+			url : 'https://api.github.com/legacy/repos/search/' + keyword,
+			jsonpName : 'callback',
+
+			fun : finish
+		});
+
+		function finish ( resp ) {
+			bot.log( resp, '/github searchRepo response' );
+			var repo = resp.data.repositories[ 0 ];
+
+			if ( !repo ) {
+				repo = {
+					error : 'No results found'
+				};
+			}
+
+			cb( repo );
+		}
+	},
+
+	searchUserRepo : function ( userName, repoName, cb ) {
+		var keyword = encodeURIComponent( userName );
+		repoName = encodeURIComponent(
+			repoName.replace( / /g, '-' ).toLowerCase() );
+
+		var url = 'https://api.github.com/repos/{0}/{1}';
+		IO.jsonp({
+			url : url.supplant( keyword, repoName ),
+			jsonpName : 'callback',
+
+			fun : finish
+		});
+
+		function finish ( resp ) {
+			bot.log( resp, '/github searchUserRepo response' );
+
+			var data = resp.data;
+
+			if ( data.message === 'Not Found' ) {
+				data = {
+					error : 'User/Repo not found'
+				};
+			}
+
+			cb( data );
+		}
+	}
+};
+
+bot.addCommand({
+	name : 'github',
+	fun  : github.command,
+	thisArg : github,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Search github for a repo.' +
+		'`/github repoName` or `/github username/reponame`',
+	async : true
+});
 
 ;
 (function () {
@@ -6715,14 +4555,21 @@ function google ( args, cb ) {
 	}
 
 	function format ( query, results ) {
-		return formatLink( query ) +
-			' ' +
+		var res = formatLink( query ) + ' ' +
 			results.map( formatResult ).join( ' ; ' );
+
+		if ( res.length > 200 ) {
+			res = results.map(function (r) {
+				return r.unescapedUrl;
+			}).join( ' ; ' );
+		}
+
+		return res;
 	}
 
 	function formatResult ( result ) {
 		var title = IO.decodehtmlEntities( result.titleNoFormatting );
-		return args.link( title, result.url );
+		return args.link( title, result.unescapedUrl );
 	}
 	function formatLink ( query ) {
 		return args.link(
@@ -6757,9 +4604,15 @@ bot.addCommand({
 ﻿(function () {
 "use strict";
 
-var randomWord = function ( cb ) {
+var randomWord = function ( length, cb ) {
+	var url = 'http://sleepy-bastion-8674.herokuapp.com/';
+
+	if ( Number(length) ) {
+		url += '?length=' + length;
+	}
+
 	IO.jsonp({
-		url : 'http://sleepy-bastion-8674.herokuapp.com/',
+		url : url,
 		jsonpName : 'callback',
 		fun : complete //aaawwww yyeeaaahhhh
 	});
@@ -6797,7 +4650,7 @@ var game = {
 	end : true,
 	msg : null,
 
-	validGuessRegex : /^[\w\s]+$/,
+	validGuessRegex : /^[a-zA-Z]+$/,
 
 	receiveMessage : function ( msg ) {
 		this.msg = msg;
@@ -6805,14 +4658,14 @@ var game = {
 		if ( this.end ) {
 			this.new( msg );
 		}
-		else if ( msg.content ) {
+		else {
 			return this.handleGuess( msg );
 		}
 	},
 
 	new : function ( msg ) {
 		var self = this;
-		randomWord( finish );
+		randomWord( msg, finish );
 
 		function finish ( word ) {
 			bot.log( word + ' /hang random' );
@@ -6825,7 +4678,10 @@ var game = {
 			// hangman is codified
 			self.guessMade = true;
 			self.register();
-			self.receiveMessage( msg );
+
+			if ( msg.length && !Number(msg) ) {
+				self.receiveMessage( msg );
+			}
 		}
 	},
 
@@ -6865,8 +4721,12 @@ var game = {
 	},
 
 	checkGuess : function ( guess ) {
+		if ( !guess.length || Number(guess) ) {
+			return 'We\'re already playing!';
+		}
+
 		if ( !this.validGuessRegex.test(guess) ) {
-			return 'Only alphanumeric and whitespace characters allowed';
+			return 'I will only accept alpha characters';
 		}
 
 		//check if it was already submitted
@@ -6876,7 +4736,7 @@ var game = {
 
 		//or if it's the wrong length
 		if ( guess.length > this.word.length ) {
-			return bot.adapter.codify( guess ) + ' is longer than the phrase';
+			return bot.adapter.codify( guess ) + ' is too long to fit';
 		}
 	},
 
@@ -6909,13 +4769,13 @@ var game = {
 	//win the game
 	win : function () {
 		this.unregister();
-		return 'Correct! The phrase is ' + this.word + '.';
+		return 'Correct! The word is ' + this.word + '.';
 	},
 
 	//lose the game. less bitter messages? maybe.
 	lose : function () {
 		this.unregister();
-		return 'You people suck. The phrase was ' + this.word;
+		return 'You people suck. The word is ' + this.word;
 	},
 
 	winCheck : function () {
@@ -7155,6 +5015,258 @@ bot.addCommand({
 
 ;
 (function () {
+"use strict";
+
+var history = {
+	command : function historyCommand ( args, cb ) {
+		var params = this.extractParams( args );
+
+		if ( params.error ) {
+			return params.error;
+		}
+
+		this.fetchData( params, finish );
+
+		function finish ( results ) {
+			var res = results.random();
+
+			if ( cb && cb.call ) {
+				cb( res );
+			}
+			else {
+				args.reply( res );
+			}
+		}
+	},
+
+	handleResponse : function ( resp, params, cb ) {
+		var html = resp.parse.text,
+			root = document.createElement( 'body' );
+		root.innerHTML = html; //forgive me
+
+		var events = getEventsAsText( root );
+
+		cb( this.filter(events, params) );
+	},
+
+	extractParams : function ( args ) {
+		var ret = {},
+			date;
+
+		if ( !args.length || args.toLowerCase() === 'today' ) {
+			date = new Date();
+
+			ret.month = date.getMonth() + 1;
+			ret.day = date.getDate();
+			return ret;
+		}
+
+		var parts;
+
+		//simple YYYY
+		if ( parts = /^\d{4}$/.exec(args) ) {
+			ret.year = Number( parts[0] );
+		}
+		else if (
+			parts = /^(?:(\d{4})(?:-|\/))?(\d{2})(?:-|\/)(\d{2})$/.exec( args )
+		) {
+			parts[1] && ( ret.year = Number(parts[1]) );
+			ret.month = Number( parts[2] );
+			ret.day = Number( parts[3] );
+		}
+		else {
+			return error();
+		}
+
+		bot.log( ret, '/inhistory extractParams' );
+
+		if ( !this.paramsCheck(ret) ) {
+			return error();
+		}
+		return ret;
+
+		function error () {
+			return {
+				error : 'That format confuses me! See `/help inhistory`'
+			};
+		}
+	},
+
+	paramsCheck : function ( params ) {
+		var year  = params[ year ],
+			month = params[ month ],
+			day   = params[ day ];
+
+		//fuck this shit, I have nowhere else to put it
+		if ( month === 2 && day > 29 ) {
+			return false;
+		}
+
+		//we're not very picky, since wikipedia may contain future dates
+		var yearCheck = year === undefined || year > 0;
+		var monthCheck = month === undefined || (
+			month >= 1 && month <= 12
+		);
+		var dayCheck = day === undefined || (
+			day >= 1 && day <= 31
+		);
+
+		return yearCheck && monthCheck && dayCheck;
+	},
+
+	filter : function ( events, params ) {
+		//we only need to apply filtering for YYYY-MM-DD, not for MM-DD or YYYY
+		if ( !params.year || !params.month ) {
+			return events;
+		}
+
+		//limit to only the parameter year
+		return events.filter(function ( data ) {
+			var year = ( /^\d+/.exec(data) || [] )[ 0 ];
+
+			return Number( year ) === params.year;
+		});
+	},
+
+	fetchData : function ( params, cb ) {
+		var titles = [];
+
+		if ( params.year && !params.month ) {
+			titles = [ params.year ];
+		}
+		else {
+			titles = [ this.monthName(params.month), params.day ];
+		}
+
+		var url = 'http://en.wikipedia.org/w/api.php';
+
+		var self = this;
+		IO.jsonp({
+			url : url,
+			jsonpName : 'callback',
+			data : {
+				format : 'json',
+				action : 'parse',
+				mobileformat : 'html',
+				prop : 'text',
+				page : titles.join( ' ' )
+			},
+			fun : function ( resp ) {
+				self.handleResponse( resp, params, cb );
+			}
+		});
+	},
+
+	monthName : function ( month ) {
+		return [
+			'january', 'february', 'march', 'april',
+			'may', 'june', 'july', 'august',
+			'september', 'october', 'november', 'december'
+		][ month - 1 ];
+	}
+};
+
+// http://tinker.io/53895
+function getEventsAsText ( root ) {
+	var linkBase = 'http://en.wikipedia.org';
+
+	/*
+	  the html looks like:
+	  <h2 class="section_heading" id="section_1"><span id="Events">Events</span></h2>
+	  <div class="content_block" id="content_1">
+	    ...
+	  </div>
+	*/
+	//fun fact: document-fragments don't have a getElementById, so we're left to
+	// use querySelector. which is totally the way to do it.
+	var lists = root.querySelectorAll('#content_1 > ul');
+
+	/*
+	  <li>
+	    <a href="/wiki/January_5" title="January 5">January 5</a> –
+	    <a href="/wiki/Emperor_Go-Sai" title="Emperor Go-Sai">Emperor Go-Sai</a>ascends the throne of <a href="/wiki/Japan" title="Japan">Japan</a>.
+	  </li>
+	*/
+	//however, there are also multi-tiered results:
+	/*
+	  <li>
+	    <a href="/wiki/July_27" title="July 27">July 27</a>
+
+		<ul>
+		  <li>The Jews in <a href="/wiki/New_Amsterdam" title="New Amsterdam">New Amsterdam</a> petition for a separate Jewish cemetery.
+		  </li>
+
+		  <li>The <a href="/wiki/Netherlands" title="Netherlands">Netherlands</a> and <a href="/wiki/Brandenburg" title="Brandenburg">Brandenburg</a> sign a military treaty.
+		  </li>
+		</ul>
+	  </li>
+	*/
+
+	var ret = [];
+	for (var i = 0, len = lists.length; i < len; i += 1) {
+		ret.push.apply( ret, flattenList(lists[i]) );
+	}
+	return ret;
+
+	function flattenList ( list ) {
+		return Array.map( list.children, extract );
+
+		function extract ( li ) {
+			var links = li.getElementsByTagName( 'a' );
+			while ( links.length ) {
+				replaceLink( links[0] );
+			}
+
+			return Array.reduce( li.childNodes, extractFromLi, [] )
+				.join( '' ).trim();
+		}
+
+		function extractFromLi ( ret, node ) {
+			if ( node.tagName === 'UL' ) {
+				ret.push.apply(
+					ret,
+					flattenList( node ).map(function ( t ) {
+						return node.firstChild.data + ' – ' + t;
+					}) );
+			}
+			else if ( node.nodeType === 1 ) {
+				ret.push( node.textContent );
+			}
+			else {
+				ret.push( node.data );
+			}
+
+			return ret;
+		}
+
+		function replaceLink ( link ) {
+			var textLink = bot.adapter.link(
+				link.textContent, linkBase + link.getAttribute('href')
+			),
+				textNode = document.createTextNode( textLink );
+
+			link.parentNode.replaceChild( textNode, link );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'inhistory',
+	fun : history.command,
+	thisArg : history,
+	permissions : {
+		del : 'NONE'
+	},
+
+	description : 'Grabs a historical event from today\'s date or a date ' +
+		'given in MM-DD format. `/inhistory [MM-DD]`',
+	async : true
+});
+
+})();
+
+;
+(function () {
 var nulls = [
 	'The Google contains no such knowledge',
 	'There are no search results. Run.' ];
@@ -7246,6 +5358,7 @@ bot.addCommand({
 	async : true
 });
 }());
+;
 
 ;
 (function () {
@@ -7328,103 +5441,16 @@ bot.addCommand({
 	async : true
 });
 }());
-
 ;
-(function () {
-"use strict";
-
-//rlemon asked for a hardcoded vote against AmberRoxannaReal
-var storage = JSON.parse(
-	localStorage.bot_karma || '{"amberroxannareal":-1}' );
-
-//the people we told they can't karma themselves up
-var toldOn = {};
-
-IO.register( 'input', function karma ( msgObj ) {
-	var content = msgObj.content, parts;
-
-	if (
-		//only accept new messages to prevent idiots like Nexxpresso
-		msgObj.event_type === 1 &&
-		(parts = /([\w\-]+)(\+\+|\-\-)/.exec(content))
-	) {
-		vote( parts[1], parts[2], msgObj );
-	}
-});
-
-//TODO: implement a system which yells at a user if he's abusing the karma
-// system, and suspends him
-function vote ( subject, op, msgObj ) {
-	subject = subject.toLowerCase();
-	var dir = {
-		'++' :  1,
-		'--' : -1
-	}[ op ];
-	bot.log( subject, dir, 'vote' );
-
-	if ( subject === msgObj.user_name.toLowerCase() ) {
-		if ( toldOn[msgObj.user_id] ) {
-			return;
-		};
-
-		bot.adapter.out.add(
-			bot.adapter.reply(msgObj.user_name) + ' Don\'t be an idiot',
-			msgObj.room_id );
-
-		toldOn[ msgObj.user_id ] = true;
-	}
-	else {
-		storage[ subject ] = ( storage[subject] || 0 ) + dir;
-		localStorage.bot_karma = JSON.stringify( storage );
-	}
-}
-
-//and that's it!
-//...OR IS IT?
-// * WILL THEY ADD A COMMAND FRONTEND TO KARMA?
-// * WILL THEY ADD A COMMAND TO DISPLAY KARMA?
-// * WHAT HAS BEFALLEN THE FATE OF ZIRAK'S CLOTHES?
-// * HAS DARKYEN LAID THAT GIRL?
-//FIND ALL THAT AND MORE IN THE NEXT EPISODE OF...
-//     __
-//    / /______ __________ ___  ____ _    (_)____
-//   / //_/ __ `/ ___/ __ `__ \/ __ `/   / / ___/
-//  / ,< / /_/ / /  / / / / / / /_/ /   / (__  )
-// /_/|_|\__,_/_/  /_/ /_/ /_/\__,_(_)_/ /____/
-//                                  /___/
-//
-//     SAME JS TIME, SAME JS CHANNEL
-//
-// ==================================================
-// .....................CREDITS......................
-// ==================================================
-//        CLOTHED MAN..................ZIRAK
-//        SKIPPY THE INVISIBLE DOG.....HIMSELF
-//
-
-bot.addCommand({
-	name : 'karma',
-	//basic front-end for now
-	fun : function ( args ) {
-		var subject = args.content,
-			votes = storage[ subject.toLowerCase() ];
-
-		if ( !subject ) {
-			return 'Unlike beauty, karma is not in the eye of the beholder';
-		}
-		return '{0} has {1} karma'.supplant(
-			subject,
-			votes === undefined ? 'no' : votes );
-	}
-});
-
-}());
 
 ;
 (function () {
 "use strict";
 var parse = bot.getCommand( 'parse' );
-var storage = JSON.parse( localStorage.bot_learn || '{}' );
+var storage = bot.memory.get( 'learn' );
+
+var replyPatterns = /^(<>|<user>|<msg>)/i,
+	onlyReply = new RegExp( replyPatterns.source + '$', 'i' );
 
 function learn ( args ) {
 	bot.log( args, '/learn input' );
@@ -7489,13 +5515,35 @@ function addCustomCommand ( command ) {
 	bot.addCommand( cmd );
 }
 function makeCustomCommand ( command ) {
+	var output = command.output.replace( replyPatterns, '' ).trim(),
+		replyMethod = extractPattern();
+
 	bot.log( command, '/learn makeCustomCommand' );
+
 	return function ( args ) {
 		bot.log( args, command.name + ' input' );
 
-		var cmdArgs = bot.Message( command.output, args.get() );
-		return parse.exec( cmdArgs, command.input.exec(args) );
+		var cmdArgs = bot.Message( output, args.get() ),
+			res = parse.exec( cmdArgs, command.input.exec(args) );
+
+		switch ( replyMethod ) {
+		case '':
+			args.send( res );
+			break;
+		case 'msg':
+			args.directreply( res );
+			break;
+		default:
+			args.reply( res );
+		}
 	};
+
+	function extractPattern () {
+		var matches = replyPatterns.exec( command.output ) || [ , 'user' ],
+			pattern =  matches[ 1 ];
+
+		return pattern.slice(1, -1);
+	}
 }
 
 //return a truthy value (an error message) if it's invalid, falsy if it's
@@ -7509,14 +5557,30 @@ function checkCommand ( cmd ) {
 	if ( somethingUndefined ) {
 		error = 'Illegal /learn object; see `/help learn`';
 	}
-	else if ( !/^[\w\-]+$/.test(cmd.name) ) {
+	//not very possible, I know, but...uh...yes. definitely. I agree. spot on,
+	// Mr. Pips.
+	else if ( /\s/.test(cmd.name) ) {
 		error = 'Invalid command name';
 	}
-	else if ( bot.commandExists(cmd.name.toLowerCase()) ) {
+	else if ( !canWriteTo(cmd.name) ) {
 		error = 'Command ' + cmd.name + ' already exists';
+	}
+	else if ( onlyReply.test(cmd.output) ) {
+		error = 'Please enter some output';
 	}
 
 	return error;
+
+	function canWriteTo ( name ) {
+		if ( !bot.commandExists(name) ) {
+			return true;
+		}
+
+		//if the command was learned up to 5 minutes ago, allow overwriting it
+		var alt = bot.getCommand( name );
+		return alt.learned &&
+			( alt.date.getTime() + 1000 * 60 * 5 ) > Date.now();
+	}
 }
 
 function loadCommands () {
@@ -7527,7 +5591,6 @@ function loadCommands () {
 		cmd.input = turnToRegexp( cmd.input );
 		cmd.date = new Date( Date.parse(cmd.date) );
 
-		bot.log( cmd, '/learn loadCommands' );
 		addCustomCommand( cmd );
 	}
 
@@ -7551,11 +5614,11 @@ function saveCommand ( command ) {
 	//h4x in source/util.js defines RegExp.prototype.toJSON so we don't worry
 	// about the input regexp stringifying
 	storage[ command.name ] = JSON.stringify( command );
-	localStorage.bot_learn = JSON.stringify( storage );
+	bot.memory.save( 'learn' );
 }
 function deleteCommand ( name ) {
 	delete storage[ name ];
-	localStorage.bot_learn = JSON.stringify( storage );
+	bot.memory.save( 'learn' );
 }
 
 bot.addCommand({
@@ -7645,6 +5708,9 @@ bot.addCommand({
 (function () {
 "use strict";
 
+var unexisto = 'User {0} was not found (if the user is not in room {1}, pass ' +
+		'a user-id instead of a username).';
+
 function mustachify ( args ) {
 	var usrid = args.content;
 
@@ -7664,14 +5730,20 @@ function mustachify ( args ) {
 	bot.log( usrid, '/mustache mapped' );
 
 	if ( usrid < 0 || !bot.users.hasOwnProperty(usrid) ) {
-		return 'User {0} was not found.'.supplant( usrid );
+		return unexisto.supplant( usrid, bot.adapter.roomid );
+	}
+	else if ( Number(usrid) === bot.adapter.user_id ) {
+		return [
+			'Nobody puts a mustache on me. Again.',
+			'Mustache me once, shame on you. Mustache me ---twice--- 12 times...'
+		].random();
 	}
 
 	var hash = bot.users[ usrid ].email_hash;
 	//SO now allows non-gravatar images. the email_hash will be a link to the
 	// image in that case, prepended with a ! for some reason
 	if ( hash[0] === '!' ) {
-		finish( encodeURIComponent(hash.slice(1)) );
+		finish( encodeURIComponent(hash.slice(1)) + '#.png' );
 	}
 	else {
 		finish(
@@ -7687,8 +5759,7 @@ function mustachify ( args ) {
 }
 
 function linkCheck ( suspect ) {
-	return ( suspect.startsWith('http') || suspect.startsWith('www') ) &&
-		/png|gif|jpe?g$/.test( suspect );
+	return suspect.startsWith( 'http' ) || suspect.startsWith( 'www' );
 }
 
 bot.addCommand({
@@ -7702,6 +5773,45 @@ bot.addCommand({
 });
 
 }());
+
+;
+(function () {
+//I wish you could use `default` as a variable name
+var def = {
+	895174 : [
+		'sbaaaang', 'badbetonbreakbutbedbackbone',
+		'okok', 'donotusetabtodigitthisnick' ]
+};
+
+var tracking = bot.memory.get( 'tracker', def );
+var message = '*→ {0} (also known as {1}) changed his name to {2}*',
+	messageNoAlias = '*→ {0} changed his name to {2}*';
+
+IO.register( 'userregister', function tracker ( user, room ) {
+	var names = tracking[ user.id ];
+
+	if ( !names ) {
+		return;
+	}
+	if ( names[0].toLowerCase() === user.name.toLowerCase() ) {
+		return;
+	}
+
+	bot.log( user, names, 'tracking found suspect' );
+
+	var userLink = bot.adapter.link(
+		names[0],
+		IO.relativeUrlToAbsolute( '/users/' + user.id ) );
+
+	var outFormat = names.length > 1 ? message : messageNoAlias,
+		out = outFormat.supplant(
+			userLink, names.slice(1), user.name );
+
+	bot.adapter.out.add( out, room );
+	names.unshift( user.name );
+});
+
+})();
 
 ;
 (function () {
@@ -7794,6 +5904,187 @@ function nudgeListener ( args ) {
 
 ;
 (function () {
+
+function google ( args, cb ) {
+
+if(args == "") {args.reply("Usage: cc/php <keyword>. Displays help for PHP commands."); return;}
+
+//var args = 'substr'; 
+try
+			{
+$.ajax({
+    type: 'GET',
+    url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fphp.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
+    dataType: 'json',	
+    timeout: 5000,
+    error:function(){
+        args.reply ("o noes! not founded!!!");
+		return;
+    },
+    success: function (data) {
+
+        if (data["query"]["results"] != null) {
+            var stuff = data["query"]["results"]["base"]["href"];
+            stuff = stuff.substring(stuff.lastIndexOf("/") + 1, stuff.lastIndexOf("."));
+            console.log(stuff);
+
+            var xpath;
+			
+            
+            if (stuff.startsWith("class") || stuff.startsWith("language.")) {
+                xpath = "(//p[contains(@class, \"para\")])[1]";
+            } 
+			else if(stuff.startsWith("book."))
+			{
+				stuff = stuff.replace("book.", "intro.");
+			}
+			else {
+                xpath = "(//div[@class=\"refsect1 description\"])[1]";
+            }
+			
+            $.ajax({
+                type: 'GET',
+                url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
+                dataType: 'xml',
+ success: function (data) {
+					if((((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() == "")
+					{
+						xpath = "(//p[contains(@class, \"para\")])[1]";
+						
+						$.ajax({
+                type: 'GET',
+                url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
+                dataType: 'xml',
+ success: function (data) {
+					if((((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() == "")
+					{
+						xpath = "(//p[contains(@class, \"para\")])[1]";
+					}
+					var text = "["+stuff+"](http://php.net/"+args+") ";
+                        text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
+                    
+                    console.log((data));
+                  //  console.log(StrippedString);
+                   // var text = $(data).text().replace("Description", "");
+                    if (text.length > 484) text = text.substr(0, 480) + '...';
+                    console.log(text);
+					args.send(text);
+					
+                }
+            });
+			return;
+					}
+					var text = "["+stuff+"](http://php.net/"+args+") ";
+                    if(stuff.startsWith("class.") || stuff.startsWith("language."))
+                    {
+                        text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
+                    }
+                    else
+                    {
+                    text +="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() + "` - *" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim()+"*";
+                    }
+                    console.log((data));
+                  //  console.log(StrippedString);
+                   // var text = $(data).text().replace("Description", "");
+                    if (text.length > 484) text = text.substr(0, 480) + '...';
+                    console.log(text);
+					args.send(text);
+                }
+            });
+			
+
+            // Show in console the jQuery Object.
+            //  console.info('Here is the returned query');
+            //console.log( $(data).text() );
+        }
+		else
+		{
+			IO.jsonp.google( args.toString() + ' site:php.net/manual/en/', finishCall );
+
+	function finishCall ( resp ) {
+		bot.log( resp, '/google response' );
+		if ( resp.responseStatus !== 200 ) {
+			finish( 'My Google-Fu is on vacation; status ' +
+					resp.responseStatus );
+			return;
+		}
+
+		//TODO: change hard limit to argument
+		var results = resp.responseData.results.slice( 0, 3 );
+		bot.log( results, '/google results' );
+
+		if ( !results.length ) {
+			args.send("o noes! not found!");
+			return;
+		}
+		finish( format(args.content, results) );
+	}
+
+	function format ( query, results ) {
+		var res = formatLink( query ) + ' ' +
+			results.map( formatResult ).join( ' - ' );
+
+		if ( res.length > 200 ) {
+			res = results.map(function (r) {
+				return "[" + r.titleNoFormatting.replace(" - PHP", "").replace("PHP: ","").replace(" - Manual", "") + "](" + r.unescapedUrl+")";
+			}).join( ' - ' );
+		}
+
+		return res;
+	}
+
+	function formatResult ( result ) {
+		var title = IO.decodehtmlEntities( result.titleNoFormatting );
+		return args.link( title, result.unescapedUrl );
+	}
+	function formatLink ( query ) {
+		return args.link(
+			'*',
+			'http://google.com/search?q=' +
+				encodeURIComponent( query ) );
+	}
+
+	function finish ( res ) {
+		bot.log( res, '/google final' );
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
+			//args.send ("Can't find the specified PHP item " + args + " !!!");
+		}
+    }
+});
+}
+catch(e)
+{
+	args.send ("o noes! I got errored! @CCInc " + args + " !!!");
+}
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function (str) {
+        return this.slice(0, str.length) == str;
+    };
+}
+String.prototype.splice = function( idx, rem, s ) {
+    return (this.slice(0,idx) + s + this.slice(idx + Math.abs(rem)));
+};
+
+}
+
+bot.addCommand({
+	name : 'php',
+	fun  : google,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Usage: php <keyword>. Displays help for PHP commands.',
+	async : true
+});
+}());
+;
+(function () {
 //add a bot command
 bot.addCommand({
     name : 'python',
@@ -7882,6 +6173,243 @@ bot.addCommand({
 	async : true
 });
 }());
+
+;
+(function () {
+"use strict";
+var ownerRoom = 7;
+
+if ( bot.adapter.roomid !== ownerRoom ) {
+	return;
+}
+
+var muted = bot.memory.get( 'muted' );
+
+function checkMuted () {
+	var now = Date.now();
+
+	Object.iterate( muted, function ( id, obj ) {
+		if ( obj.endDate < now ) {
+			giveVoice( id );
+		}
+	});
+
+	setTimeout( checkMuted, 60 * 1000 );
+}
+setTimeout( checkMuted, 60 * 1000 );
+
+function giveVoice ( id, cb ) {
+	bot.log( 'giving voice to ' + id );
+
+	IO.xhr({
+		method : 'POST',
+		url : '/rooms/setuseraccess/' + ownerRoom,
+		data : {
+			aclUserId : id,
+			fkey : bot.adapter.fkey,
+			userAccess : 'read-write'
+		},
+
+		complete : finish
+	});
+
+	function finish () {
+		var args = [].slice.call( arguments );
+		args.unshift( id );
+
+		delete muted[ id ];
+
+		if ( cb ) {
+			bot.memory.save( 'muted' );
+			cb && ( cb.apply(null, args) );
+		}
+	}
+}
+function takeVoice ( params, cb ) {
+	bot.log( 'taking voice', params );
+
+	IO.xhr({
+		method : 'POST',
+		url : '/rooms/setuseraccess/' + ownerRoom,
+		data : {
+			aclUserId : params.id,
+			fkey : bot.adapter.fkey,
+			userAccess : 'remove'
+		},
+
+		complete : finish
+	});
+
+	function finish () {
+		muted[ params.id ] = {
+			name : params.name,
+			invokingId : params.invokingId,
+			endDate : calcEndDate( params.duration ).getTime()
+		};
+
+		bot.memory.save( 'muted' );
+		cb.apply( null, arguments );
+	}
+
+	function calcEndDate ( duration ) {
+		var ret = new Date(),
+			mod = duration.slice( -1 ),
+			delta = Number( duration.slice(0, -1) );
+
+		var modifiers = {
+			m : function ( offset ) {
+				ret.setMinutes( ret.getMinutes() + offset );
+			},
+			h : function ( offset ) {
+				ret.setHours( ret.getHours() + offset );
+			},
+			d : function ( offset ) {
+				ret.setDate( ret.getDate() + offset );
+			}
+		};
+		modifiers[ mod ]( delta );
+
+		return ret;
+	}
+}
+
+IO.register( 'userregister', function permissionCb ( user, room ) {
+	bot.log( user, room, 'permissionCb' );
+	var id = user.id;
+
+	if ( Number(room) !== ownerRoom || bot.isOwner(id) || muted[id] ) {
+		bot.log( 'not giving voice', user, room );
+		return;
+	}
+
+	giveVoice( id );
+});
+
+function stringMuteList () {
+	var keys = Object.keys( muted );
+
+	if ( !keys.length ) {
+		return 'Nobody is muted';
+	}
+
+	var base = 'http://chat.stackoverflow.com/transcript/message/';
+
+	return keys.map(function ( k ) {
+		return bot.adapter.link( k, base + muted[k].invokingId );
+	}).join( '; ' );
+}
+
+function userInfoFromParam ( param, args ) {
+	var ret = {
+		id : param
+	};
+
+	if ( /\D/.test(param) ) {
+		ret.id = args.findUserid( param );
+	}
+
+	if ( ret.id < 0 ) {
+		ret.error = 'User ' + param + ' not found';
+	}
+
+	return ret;
+}
+
+function parseDuration ( str ) {
+	var parts = /\d+([dhm]?)/.exec( str );
+	if ( !parts ) {
+		return null;
+	}
+
+	if ( !parts[1] ) {
+		parts[ 0 ] += 'm';
+	}
+	return parts[ 0 ];
+}
+
+bot.addCommand({
+	name : 'mute',
+	fun : function mute ( args ) {
+		var parts = args.parse(),
+			userInfo, duration;
+
+		if ( !parts.length ) {
+			return stringMuteList();
+		}
+		else if ( parts.length < 2 ) {
+			return 'Please give mute duration, see `/help mute`';
+		}
+
+		bot.log( parts, '/mute input' );
+
+		userInfo = userInfoFromParam( parts[0], args );
+		if ( userInfo.error ) {
+			return userInfo.error;
+		}
+		else if ( userInfo.id === bot.adapter.user_id ) {
+			return 'Never try and mute a bot who can own your ass.';
+		}
+		else if ( bot.isOwner(userInfo.id) ) {
+			return 'You probably didn\'t want to mute a room owner.';
+		}
+
+		duration = parseDuration( parts[1] );
+		if ( !duration ) {
+			return 'I don\'t know how to follow that format, see `/help mute`';
+		}
+
+		takeVoice({
+			id : userInfo.id,
+			invokingId : args.get('message_id'),
+			duration : duration
+		}, finish );
+
+		function finish () {
+			args.reply(
+				'Muted user {0} for {1}'.supplant(userInfo.id, duration) );
+		}
+	},
+
+	permissions : {
+		del : 'NONE',
+		use : 'OWNER'
+	},
+	description : 'Mutes a user. `/mute usrid duration` ' +
+		'Duration should be in the format `n[mhd]` for n minutes/hours/days. ' +
+		'If only n is provided, minutes is assumed.'
+});
+
+bot.addCommand({
+	name : 'unmute',
+	fun : function umute ( args ) {
+		var parts = args.parse();
+
+		bot.log( parts, '/unmute input' );
+
+		if ( !parts.length ) {
+			return 'Who shall I unmute?';
+		}
+
+		var userID = userInfoFromParam( parts[0], args );
+		if ( userID.error ) {
+			return userID.error;
+		}
+
+		giveVoice( userID.id, finish );
+
+		function finish () {
+			args.reply( 'Unmuted user ' + userID.id );
+		}
+	},
+
+	permissions : {
+		del : 'NONE',
+		use : 'OWNER'
+	},
+	description : 'Unmutes a user. `/unmute usrid`'
+});
+
+})();
 
 ;
 (function () {
@@ -8249,9 +6777,8 @@ bot.addCommand({
 		//use : bot.owners
 	},
 
-	description : 'Register a nudge after an interval. ' +
-		'`/nudge intervalInMinutes message`, or the listener, ' +
-		'`nudge|remind|poke me? in? intervalInMinutes message`'
+	description : 'DONT USE THIS OR THE WORLD WILL EXPLODE ' +
+		'`/s its a secret`'
 });
 
 
@@ -8262,6 +6789,8 @@ function nudgeCommand ( args ) {
 }
 
 }());
+
+;
 
 ;
 /*****************************************************************************\
@@ -8622,7 +7151,7 @@ function spec ( args ) {
 		var name = args.escape( obj.name );
 		return '[' + name + '](http://es5.github.com/#' + obj.section + ')';
 	}
-};
+}
 
 bot.addCommand({
 	name : 'spec',
@@ -8641,17 +7170,15 @@ var template = '[{display_name}]({link}) '           +
 		'has {reputation} reputation, '              +
 		'earned {reputation_change_day} rep today, ' +
 		'asked {question_count} questions, '         +
-		'gave {answer_count} answers, '              +
-		'for a q:a ratio of {ratio}.\n';
+		'gave {answer_count} answers.';
 
-var extended_template = 'avg. rep/post: {avg_rep_post}. Badges: ' +
-		'{gold}g ' +
-		'{silver}s ' +
-		'{bronze}b ';
+var extended_template = 'avg. rep/post: {avg_rep_post}. ' +
+		'Badges: {gold}g {silver}s {bronze}b ';
 
 function stat ( msg, cb ) {
 	var args = msg.parse(),
-		id = args[ 0 ], extended = args[ 1 ] === 'extended';
+		id = args[ 0 ],
+		extended = ( args[1] === 'extended' );
 
 	if ( !id ) {
 		id = msg.get( 'user_id' );
@@ -8664,8 +7191,8 @@ function stat ( msg, cb ) {
 		return 'User Elusio proved elusive.';
 	}
 
-	//~10% chance
-	if ( Math.random() <= 0.1 ) {
+	//~5% chance
+	if ( Math.random() <= 0.05 ) {
 		finish( 'That dude sucks' );
 		return;
 	}
@@ -8714,43 +7241,25 @@ function handle_user_object ( user, extended ) {
 		res += extended_template.supplant( calc_extended_stats(user) );
 	}
 
+	bot.log( res, '/stat templated' );
 	return res;
 }
 
 function normalize_stats ( stats ) {
-	stats = Object.merge(
-		{
+	stats = Object.merge({
 			question_count        : 0,
 			answer_count          : 0,
 			reputation_change_day : 0
-		},
-		stats );
+		}, stats );
 
-	//for teh lulz
-	if ( !stats.question_count && stats.answer_count ) {
-		stats.ratio = "H̸̡̪̯ͨ͊̽̅̾̎Ȩ̬̩̾͛ͪ̈́̀́͘ ̶̧̨̱̹̭̯ͧ̾ͬC̷̙̲̝͖ͭ̏ͥͮ͟Oͮ͏̮̪̝͍M̲̖͊̒ͪͩͬ̚̚͜Ȇ̴̟̟͙̞ͩ͌͝S̨̥̫͎̭ͯ̿̔̀ͅ";
-	}
-	else if ( !stats.answer_count && stats.question_count ) {
-		stats.ratio = "TO͇̹̺ͅƝ̴ȳ̳ TH̘Ë͖́̉ ͠P̯͍̭O̚​N̐Y̡";
-	}
-	else if ( !stats.answer_count && !stats.question_count ) {
-		stats.ratio = 'http://i.imgur.com/F79hP.png';
-	}
-	else {
-		stats.ratio =
-			Math.ratio( stats.question_count, stats.answer_count );
-	}
-
-	bot.log( stats, '/stat normalized' );
 	return stats;
 }
 
 function calc_extended_stats ( stats ) {
 	stats = Object.merge( stats.badge_counts, stats );
 
-	stats.avg_rep_post =
-		( stats.reputation /
-		  ( stats.question_count + stats.answer_count )
+	stats.avg_rep_post = (
+			stats.reputation / ( stats.question_count + stats.answer_count )
 		).maxDecimal( 2 );
 
 	//1 / 0 === Infinity
@@ -8777,27 +7286,31 @@ bot.addCommand({
 }());
 
 ;
+(function () {
+var hammers = {
+	STOP  : 'HAMMERTIME!',
+	STAHP : 'HAMMAHTIME!',
+	HALT  : 'HAMMERZEIT!',
+	STOY  : 'ZABIVAT\' VREMYA!',
+	CAESUM: 'MALLEUS TEMPUS!'
+};
+
+// /(STOP|STAHP|...)[\.!\?]?$/
+var re = new RegExp(
+	'(' +
+		Object.keys(hammers).map(RegExp.escape).join('|') +
+	')[\\.!?]?$' );
+
 IO.register( 'input', function STOP ( msgObj ) {
 	var sentence = msgObj.content.toUpperCase(),
-		res;
-
-	//for probably good reason, it didn't allow me to apply the optional
-	// operator on beginnin-of-input, i.e. ^?
-	//so we have to wrap the ^ in parens
-	if ( /(^)?STOP[\.!\?]?$/.test(sentence) ) {
-		res = 'HAMMERTIME!';
-	}
-	else if ( /(^)?STAHP[\.!\?]?$/.test(sentence) ) {
-		res = 'HAMMAHTIME!';
-	}
-	else if ( /(^)?HALT[\.!\?]?$/.test(sentence) ) {
-		res = 'HAMMERZEIT!';
-	}
+		res = re.exec( sentence );
 
 	if ( res ) {
-		bot.adapter.out.add( res, msgObj.room_id );
+		bot.adapter.out.add( hammers[res[1]], msgObj.room_id );
 	}
 });
+
+})();
 
 ;
 (function () {
@@ -8836,12 +7349,15 @@ function substitute ( msg ) {
 	if ( !msg.matches[2] ) {
 		return 'Empty regex is empty';
 	}
+
 	var message = get_matching_message( re, msg.get('message_id') );
+	bot.log( message, 'substitution found message' );
+
 	if ( !message ) {
 		return 'No matching message (are you sure we\'re in the right room?)';
 	}
 
-	var link = message.previousElementSibling.href;
+	var link = get_message_link( message );
 	return message.textContent.replace( re, replacement ) + ' ' +
 		msg.link( '(source)', link );
 }
@@ -8856,7 +7372,83 @@ function get_matching_message ( re, onlyBefore ) {
 		return id < onlyBefore && re.test( el.textContent );
 	}
 }
+
+// <a class="action-link" href="/transcript/message/msgid#msgid>...</a>
+// <div class="content">message</div>
+//if the message was a reply, there'd be another element between them:
+// <a class="reply-info" href="/transcript/message/repliedMsgId#repliedMsgId>
+function get_message_link ( message ) {
+	var node = message;
+
+	while ( !node.classList.contains('action-link') ) {
+		node = node.previousElementSibling;
+	}
+
+	return node.href;
+}
 }());
+
+;
+(function () {
+"use strict";
+
+var summon = function ( args ) {
+	var room = Number( args );
+
+	if ( !room ) {
+		return 'That aint no room I ever heard of! ' +
+			'`/help summon` for usage info';
+	}
+
+	bot.adapter.in.init( room );
+};
+var unsummon = function ( args, cb ) {
+	var room = args.content ? Number( args ) : args.get( 'room_id' );
+
+	if ( !room ) {
+		return 'That aint no room I ever heard of! ' +
+			'`/help unsummon` for usage info';
+	}
+
+	bot.adapter.in.leaveRoom( room, function ( err ) {
+		if ( err === 'base_room' ) {
+			finish( 'I can\'t leave my home.' );
+		}
+	});
+
+	function finish ( res ) {
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
+};
+
+bot.addCommand( bot.CommunityCommand({
+	name : 'summon',
+	fun : summon,
+	permissions : {
+		del : 'NONE',
+		use : 'OWNER'
+	},
+	description : 'Say boopidi bee and in the room I shall appear. '+
+		'`/summon roomid`'
+}));
+
+bot.addCommand( bot.CommunityCommand({
+	name : 'unsummon',
+	fun : unsummon,
+	permissions : {
+		del : 'NONE',
+		use : 'OWNER'
+	},
+	description : 'Chant zippidi dee and from the room I shall take my leave. ' +
+		'`/unsummon [roomid=your_roomid]`'
+}));
+
+})();
 
 ;
 (function () {
@@ -8952,7 +7544,7 @@ function timer ( msg ) {
 		return 'Action {0} not recognized, see `/help timer`'.supplant( act );
 	}
 	return actions[ act ]( name );
-};
+}
 
 bot.addCommand({
 	name : 'timer',
@@ -8969,7 +7561,7 @@ bot.addCommand({
 
 ;
 (function () {
-var list = JSON.parse( localStorage.getItem('bot_todo') || '{}' );
+var list = bot.memory.get( 'todo' );
 
 var userlist = function ( usrid ) {
 	var usr = list[ usrid ],
@@ -9016,7 +7608,6 @@ var userlist = function ( usrid ) {
 			toRemove.length = 0;
 
 			list[ usrid ] = usr;
-			localStorage.bot_todo = JSON.stringify( list );
 		},
 
 		exists : function ( suspect ) {
@@ -9124,7 +7715,7 @@ var undo = {
 		bot.log( id, '/undo input' );
 
 		if ( !id ) {
-			id = this.last_id
+			id = this.last_id;
 		}
 
 		if ( !id ) {
@@ -9163,7 +7754,7 @@ var undo = {
 				msg = 'TimeError: Could not reach 88mph';
 			}
 			else if ( /only delete your own/i.test(resp) ) {
-				 //...I can't think of anything clever
+				//...I can't think of anything clever
 				msg = 'I can only delete my own messages';
 			}
 			else {
@@ -9212,11 +7803,11 @@ IO.register( 'input', function ( msgObj ) {
 //can x y
 // => yes or no
 
-var chooseRe = /^\s*(choose|should)?.*\sor\s[^$]/i;
-	// questionRe = new RegExp([
-		// "am", "are", "can", "could", "do", "does", "is", "may", "might",
-		// "shall", "should", "will", "would"
-	// ].map(RegExp.escape).join('|'), 'i');
+var chooseRe = /^\s*(choose|should)?.*\sor\s[^$]/i,
+	questionRe = new RegExp('\\b(' +[
+		"am", "are", "can", "could", "did", "do", "does", "is", "may", "might",
+		"shall", "should", "will", "would"
+	].map(RegExp.escape).join('|') + ')\\b', 'i');
 
 //personal pronouns to capitalize and their mapping
 //TODO: add possessives (should my cat => your cat should)
@@ -9227,7 +7818,7 @@ var capitalize = {
 	she : 'She',
 	they: 'They',
 	we  : 'You',
-	you : 'I',
+	you : 'I'
 };
 
 //will be filled in the build
@@ -9242,7 +7833,7 @@ answers=["QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","Q
 //can you feel the nectar?
 
 
-bot.listen(chooseRe, function ( msg ) {
+bot.listen(chooseRe, function chooseListener ( msg ) {
 	var parts = msg
 		//remove the choose prefix
 		.replace( /^\s*choose\s/i, '' )
@@ -9306,7 +7897,7 @@ bot.listen(chooseRe, function ( msg ) {
 	}
 
 	function format ( ans ) {
-		return ans.replace( /^(should(?:n'?t)?) (\S+)/, subject );
+		return ans.replace( /(should(?:n'?t)?) (\S+)/, subject );
 	}
 
 	//convert:
@@ -9330,93 +7921,417 @@ bot.listen(chooseRe, function ( msg ) {
 	}
 });
 
-// bot.listen(questionRe, function ( msg ) {
-	// //TODO: same question => same mapping (negative/positive, not specific)
-	// return answers.random();
-// });
+bot.listen(questionRe, function questionListener () {
+	//TODO: same question => same mapping (negative/positive, not specific)
+	return answers.random();
+});
 
 }());
+
+;
 
 ;
 (function () {
 "use strict";
-//welcomes new users with a link to the room rules
 
-var seen = JSON.parse( localStorage.bot_users || '{}' );
+var fahrenheitCountries = Object.TruthMap([
+	//the API returns US in a variety of forms...
+	'US', 'United States of America', 'United States',
+	//other than the US, it's used in Belize, Bahamas and and Cayman Islands
+	'BZ', 'Belize', // http://www.hydromet.gov.bz/
+	'BS', 'Bahamas', // http://archive.is/RTD4
+	'KY', 'Cayam Islands' // http://www.weather.ky/forecast/index.htm
+]);
 
-var message = "Welcome to the JavaScript chat! Please review the " +
-		bot.adapter.link(
-			"room pseudo-rules",
-			"http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
-	"Please don't ask if you can ask or if anyone's around; just ask " +
-	"your question, and if anyone's free and interested they'll help.";
+var weather = {
+	latlon : function ( lat, lon, cb ) {
+		var nlat = Number( lat ),
+			nlon = Number( lon );
 
-IO.register( 'userregister', function ( user, room ) {
-	if (
-		Number(room) !== 17  || seen[user.id] ||
-		bot.isOwner(user.id) || user.reputation > 1000 || user.reputation < 20
-	) {
-		return;
-	}
-
-	IO.xhr({
-		method : 'GET',
-		url : '/users/' + user.id,
-
-		complete : complete
-	});
-
-	function complete (resp) {
-		//lulz, I'm parsing html with regexps
-		//OH GOD CTHULU DON'T EAT ME
-		//<td class="user-keycell">chat user since</td><td class="user-valuecell">YYYY-MM-DD</td>
-		var seniority = Date.parse(
-			/since.+cell">(\d{4}-\d{2}-\d{2})/
-				.exec(resp)[1]);
-
-		//2(weeks) = 1000(ms/s) * 60(s/min) * 60(min/hour) *
-		//           24(hour/day) * 7(day/week) * 2 = 1209600000ms
-		if (Date.now() - seniority < 12096e5) {
-			welcome();
+		var errs = [];
+		if ( nlat < -180 || nlat > 180 ) {
+			errs.push( 'Latitude must be between -180 and 180' );
 		}
-		finish();
-	}
+		if ( nlon < -180 || nlon > 180 ) {
+			errs.push( 'Longitude must be between -180 and 180' );
+		}
 
-	function finish () {
-		seen[ user.id ] = true;
-		localStorage.bot_users = JSON.stringify( seen );
-	}
+		if ( errs.length ) {
+			cb( errs.join('; ') );
+			return;
+		}
 
-	function welcome () {
-		bot.adapter.out.add(
-			bot.adapter.reply(user.name) + " " + message,
-			room );
+		IO.jsonp({
+			url : 'http://api.openweathermap.org/data/2.5/weather',
+			jsonpName : 'callback',
+			data : {
+				lat : lat,
+				lon : lon,
+				cnt : 1, //limit to 1 result
+				type : 'json'
+			},
+
+			fun : this.finishCb( cb ),
+			error : this.errorCb( cb )
+		});
+	},
+
+	city : function ( city, cb ) {
+		IO.jsonp({
+			url : 'http://api.openweathermap.org/data/2.5/weather',
+			jsonpName : 'callback',
+			data : {
+				q : city,
+				type : 'json'
+			},
+
+			fun : this.finishCb( cb ),
+			error : this.errorCb( cb )
+		});
+	},
+
+	finishCb : function ( cb ) {
+		var self = this;
+
+		return function ( resp ) {
+			cb( self.format(resp) );
+		};
+	},
+	errorCb : function ( cb ) {
+		return cb;
+	},
+
+	format : function ( resp ) {
+		var main = resp.main;
+
+		if ( !main ) {
+			console.error( resp );
+			return 'Sorry, I couldn\'t get the data: ' + resp.message;
+		}
+
+		return this.formatter( resp );
+	},
+	formatter : function ( data ) {
+		var temps = data.main,
+			ret;
+
+		temps.celsius = ( temps.temp - 273.15 ).maxDecimal( 4 );
+
+		ret =
+			bot.adapter.link(
+				data.name, 'http://openweathermap.org/city/' + data.id
+			) + ': ';
+
+		//to help our dear American friends, also include fahrenheit
+		if ( fahrenheitCountries[data.sys.country] ) {
+			temps.fahrenheit = ( temps.temp * 9/5 - 459.67 ).maxDecimal( 4 );
+			ret += '{fahrenheit}F ({celsius}C, {temp}K)'.supplant( temps );
+		}
+		//and to those of us with one less insanity
+		else {
+			ret += '{celsius}C ({temp}K)'.supplant( temps );
+		}
+
+		var descs = ( data.weather || [] ).map(function ( w ) {
+			return w.description;
+		}).join( ', ' );
+
+		if ( descs ) {
+			ret += ', ' + descs;
+		}
+
+		return ret;
 	}
+};
+
+var latlon = /\((-?\d+\.?\d*),\s*(-?\d+\.?\d*)\)/;
+function weatherCommand ( args ) {
+	var parts = latlon.exec( args );
+	if ( parts ) {
+		weather.latlon( parts[1], parts[2], args.reply.bind(args) );
+	}
+	else if ( args.content ) {
+		weather.city( args.content, args.reply.bind(args) );
+	}
+	else {
+		return 'See `/help weather` for usage info';
+	}
+}
+
+bot.addCommand({
+	name : 'weather',
+	fun : weatherCommand,
+	permissions : {
+		del : 'NONE'
+	},
+	async : true,
+
+	description : 'Gets current weather: ' +
+		'`/weather (lan, lon)` or `/weather city`'
 });
 }());
 
 ;
+// (function () {
+// "use strict";
+// //welcomes new users with a link to the room rules
+
+// var seen = bot.memory.get( 'users' );
+
+// var message = "Welcome to the JavaScript chat! Please review the " +
+		// bot.adapter.link(
+			// "room pseudo-rules",
+			// "http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
+	// "Please don't ask if you can ask or if anyone's around; just ask " +
+	// "your question, and if anyone's free and interested they'll help.";
+
+// function welcome ( name, room ) {
+	// bot.adapter.out.add(
+		// bot.adapter.reply( name ) + " " + message, room );
+// }
+
+// IO.register( 'userregister', function ( user, room ) {
+	// var semiLegitUser = bot.isOwner( user.id ) ||
+		// user.reputation > 1000 || user.reputation < 20;
+
+	// if (
+		// Number( room ) !== 17 || semiLegitUser  || seen[ user.id ]
+	// ) {
+		// if ( semiLegitUser ) {
+			// finish( true );
+		// }
+		// return;
+	// }
+
+	// IO.xhr({
+		// method : 'GET',
+		// url : '/users/' + user.id,
+
+		// complete : complete
+	// });
+
+	// function complete ( resp ) {
+		// //I'm parsing html with regexps. hopefully Cthulu won't eat me.
+		// // <a href="/transcript/17">7</a>
+		// // <a href="/transcript/17">47.1k</a>
+		// var chatMessages = /transcript\/17(?:'|")>([\d\.]+)(k?)/.exec( resp );
+
+		// if ( !chatMessages || (
+			// chatMessages[ 2 ] || parseFloat( chatMessages[1] ) < 2
+		// )) {
+			// welcome( user.name, room );
+		// }
+		// finish();
+	// }
+
+	// function finish ( unsee ) {
+		// if ( unsee ) {
+			// delete seen[ user.id ];
+		// }
+		// else {
+			// seen[ user.id ] = true;
+		// }
+		// bot.memory.save( 'users' );
+	// }
+// });
+
+// bot.addCommand({
+	// name : 'welcome',
+	// fun : function ( args ) {
+		// if (!args.length) {
+			// return message;
+		// }
+
+		// welcome( args, args.get('roomid') );
+	// },
+	// permission : {
+		// del : 'NONE'
+	// },
+	// description : 'Welcomes a user. `/welcome user`'
+// });
+// }());
+
+;
 (function () {
+"use strict";
 
-function google ( args, cb ) {
+function command ( args, cb ) {
+	IO.jsonp({
+		url : 'http://en.wiktionary.org/w/api.php',
+		jsonpName : 'callback',
+		data : {
+			action : 'opensearch',
+			search : args.toString(),
+			limit : 1,
+			format : 'json'
+		},
+		fun : finish
+	});
 
-function htmlDecode(input){
-  var e = document.createElement('div');
-  e.innerHTML = input;
-  return e.childNodes[0].nodeValue;
-}
+	function finish ( resp ) {
+		//the result will look like this:
+		// [search_term, [title0, title1, title2, ...]]
+		//we only asked for one result, so the 2nd array will have 1 item
+		var title = resp[ 1 ][ 0 ],
+			base = 'http://en.wikipedia.org/wiki/',
+			found = true, res;
 
-args.send("http://en.wikipedia.org/wiki/" + encodeURIComponent(args));
+		if ( !title ) {
+			found = false;
+			res = [
+				'No result found',
+				'The Wikipedia contains no knowledge of such a thing',
+				'The Gods of Wikipedia did not bless us'
+			].random();
+		}
+		else {
+			//for some reason, wikipedia can't simply return a url
+			title = encodeURIComponent( title.replace(/ /g, '_') );
 
+			res = base + title;
+		}
+
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else if ( found ){
+			args.directreply( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
 }
 
 bot.addCommand({
 	name : 'wiki',
-	fun  : google,
+	fun : command,
 	permissions : {
 		del : 'NONE'
 	},
-	description : 'Gets a Wikipedia article. /wiki query',
+
+	description : 'Search Wikipedia. `/wiki term`',
+	async : true
+});
+})();
+
+;
+
+;
+(function() {
+//Gets or sets a XKCD comic-type thing
+//just kidding! we can't set one. I'm just used to crappy javadoc style.
+//*sniffle*
+
+function getXKCD( args, cb ) {
+	var prop = ( args.parse()[0] || '' ).toLowerCase(),
+		linkBase = 'http://xkcd.com/';
+
+	//they want a specifix xkcd
+	if ( /\d{1,4}/.test(prop) ) {
+		finish( linkBase + prop );
+		return;
+	}
+	//we have no idea what they want. lazy arrogant bastards.
+	else if ( prop && prop !== 'new' ) {
+		finish( 'Clearly, you\'re not geeky enough for XKCD.' );
+		return;
+	}
+
+	//they want a random XKCD, or the latest
+	IO.jsonp({
+		url : 'http://dynamic.xkcd.com/api-0/jsonp/comic',
+		jsonpName : 'callback',
+		fun : finishXKCD
+	});
+
+	function finishXKCD ( resp ) {
+		var maxID = resp.num;
+
+		if ( !prop ) {
+			finish( linkBase + Math.rand(1, maxID) );
+		}
+		else if ( prop === 'new' ) {
+			finish( linkBase + maxID );
+		}
+	}
+
+	function finish( res ) {
+		bot.log( res, '/xkcd finish' );
+
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.directreply( res );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'xkcd',
+	fun : getXKCD,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Returns an XKCD. Call with no args for random, ' +
+		'`new` for latest, or a number for a specific one.',
+	async : true
+});
+})();
+
+;
+(function () {
+var nulls = [
+	'Video not found (rule 35?)',
+	'I could not find such a video',
+	'The Lords of YouTube did not find your query favorable' ];
+function youtube ( args, cb ) {
+	IO.jsonp({
+		url : 'https://gdata.youtube.com/feeds/api/videos',
+		jsonpName : 'callback',
+		data : {
+			q : args.toString(),
+			'max-results' : 1,
+			v : 2,
+			alt : 'json'
+		},
+		fun : finish
+	});
+
+	//the response looks something like this:
+	/*
+	{
+		tons of crap
+		"entry" : [{
+			lots of crap
+			"link" : [{
+				some crap
+				"href" : what we care about
+			}]
+			some more crap
+		}]
+		and then some more
+	}
+	*/
+	function finish ( resp ) {
+		var entry = resp.feed.entry;
+		if ( !entry || !entry.length ) {
+			args.reply( nulls.random() );
+		}
+		else {
+			args.send( entry[0].link[0].href );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'youtube',
+	fun : youtube,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Search Youtube. `/youtube query`',
 	async : true
 });
 }());

@@ -1,7 +1,10 @@
 (function () {
 "use strict";
 var parse = bot.getCommand( 'parse' );
-var storage = JSON.parse( localStorage.bot_learn || '{}' );
+var storage = bot.memory.get( 'learn' );
+
+var replyPatterns = /^(<>|<user>|<msg>)/i,
+	onlyReply = new RegExp( replyPatterns.source + '$', 'i' );
 
 function learn ( args ) {
 	bot.log( args, '/learn input' );
@@ -66,13 +69,35 @@ function addCustomCommand ( command ) {
 	bot.addCommand( cmd );
 }
 function makeCustomCommand ( command ) {
+	var output = command.output.replace( replyPatterns, '' ).trim(),
+		replyMethod = extractPattern();
+
 	bot.log( command, '/learn makeCustomCommand' );
+
 	return function ( args ) {
 		bot.log( args, command.name + ' input' );
 
-		var cmdArgs = bot.Message( command.output, args.get() );
-		return parse.exec( cmdArgs, command.input.exec(args) );
+		var cmdArgs = bot.Message( output, args.get() ),
+			res = parse.exec( cmdArgs, command.input.exec(args) );
+
+		switch ( replyMethod ) {
+		case '':
+			args.send( res );
+			break;
+		case 'msg':
+			args.directreply( res );
+			break;
+		default:
+			args.reply( res );
+		}
 	};
+
+	function extractPattern () {
+		var matches = replyPatterns.exec( command.output ) || [ , 'user' ],
+			pattern =  matches[ 1 ];
+
+		return pattern.slice(1, -1);
+	}
 }
 
 //return a truthy value (an error message) if it's invalid, falsy if it's
@@ -86,14 +111,30 @@ function checkCommand ( cmd ) {
 	if ( somethingUndefined ) {
 		error = 'Illegal /learn object; see `/help learn`';
 	}
-	else if ( !/^[\w\-]+$/.test(cmd.name) ) {
+	//not very possible, I know, but...uh...yes. definitely. I agree. spot on,
+	// Mr. Pips.
+	else if ( /\s/.test(cmd.name) ) {
 		error = 'Invalid command name';
 	}
-	else if ( bot.commandExists(cmd.name.toLowerCase()) ) {
+	else if ( !canWriteTo(cmd.name) ) {
 		error = 'Command ' + cmd.name + ' already exists';
+	}
+	else if ( onlyReply.test(cmd.output) ) {
+		error = 'Please enter some output';
 	}
 
 	return error;
+
+	function canWriteTo ( name ) {
+		if ( !bot.commandExists(name) ) {
+			return true;
+		}
+
+		//if the command was learned up to 5 minutes ago, allow overwriting it
+		var alt = bot.getCommand( name );
+		return alt.learned &&
+			( alt.date.getTime() + 1000 * 60 * 5 ) > Date.now();
+	}
 }
 
 function loadCommands () {
@@ -104,7 +145,6 @@ function loadCommands () {
 		cmd.input = turnToRegexp( cmd.input );
 		cmd.date = new Date( Date.parse(cmd.date) );
 
-		bot.log( cmd, '/learn loadCommands' );
 		addCustomCommand( cmd );
 	}
 
@@ -128,11 +168,11 @@ function saveCommand ( command ) {
 	//h4x in source/util.js defines RegExp.prototype.toJSON so we don't worry
 	// about the input regexp stringifying
 	storage[ command.name ] = JSON.stringify( command );
-	localStorage.bot_learn = JSON.stringify( storage );
+	bot.memory.save( 'learn' );
 }
 function deleteCommand ( name ) {
 	delete storage[ name ];
-	localStorage.bot_learn = JSON.stringify( storage );
+	bot.memory.save( 'learn' );
 }
 
 bot.addCommand({

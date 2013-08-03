@@ -122,12 +122,20 @@ var replaceEntities = function ( entities ) {
 	return entities.slice( 1 ).split( ';' ).map( decodeEntity ).join( '' );
 };
 var decodeEntity = function ( entity ) {
+	if ( !entity ) {
+		return '';
+	}
+
 	//starts with a #, it's charcode
 	if ( entity[0] === '#' ) {
 		return decodeCharcodeEntity( entity );
 	}
 
-	return entities[ entity ] || entity;
+	if ( !entities.hasOwnProperty(entity) ) {
+		//I hate this so. so. so much. it's just wrong.
+		return '&' + entity +';';
+	}
+	return entities[ entity ];
 };
 var decodeCharcodeEntity = function ( entity ) {
 	//remove the # prefix
@@ -205,7 +213,7 @@ IO.CBuffer = function ( size ) {
 	var ret = {
 		items : [],
 		pos : 0,
-		size : size,
+		size : size
 	};
 
 	ret.add = function ( item ) {
@@ -221,6 +229,23 @@ IO.CBuffer = function ( size ) {
 	};
 
 	return ret;
+};
+
+IO.relativeUrlToAbsolute = function ( url ) {
+	//the anchor's href *property* will always be absolute, unlike the href
+	// *attribute*
+	var a = document.createElement( 'a' );
+	a.setAttribute( 'href', url );
+
+	return a.href;
+};
+
+IO.injectScript = function ( url ) {
+	var script = document.createElement( 'script' );
+	script.src = url;
+
+	document.head.appendChild( script );
+	return script;
 };
 
 IO.xhr = function ( params ) {
@@ -289,26 +314,15 @@ IO.jsonp = function ( opts ) {
 	}
 
 	//append the data to be sent, in string form, to the url
-	opts.url += this.urlstringify( opts.data );
+	opts.url += '&' + this.urlstringify( opts.data );
+
+	script.onerror = opts.error;
 
 	script.src = opts.url;
 	document.head.appendChild( script );
-	console.log(opts.url);
 };
 
-//generic, pre-made calls to be used inside commands
-IO.jsonp.ddg = function ( query, cb ) {
-	IO.jsonp({
-		url : 'http://api.duckduckgo.com/',
-		jsonpName : 'callback',
-		data : {
-			format : 'json',
-			q : query
-		},
-		fun : cb
-	});
-};
-
+//generic, pre-made call to be used inside commands
 IO.jsonp.google = function ( query, cb ) {
 	IO.jsonp({
 		url : 'http://ajax.googleapis.com/ajax/services/search/web',
@@ -316,20 +330,6 @@ IO.jsonp.google = function ( query, cb ) {
 		data : {
 			v : '1.0',
 			q : query
-		},
-		fun : cb
-	});
-};
-
-IO.jsonp.time = function ( query, cb ) {
-	IO.jsonp({
-		url : 'http://api.worldweatheronline.com/free/v1/tz.ashx',
-		jsonpName : 'callback',
-		data : {
-q   : query,
-			format: 'json',
-			callback: cb,
-			key : 'e7qnb5e3xh3cy2kysypbmuj5'
 		},
 		fun : cb
 	});
@@ -350,4 +350,3 @@ IO.jsonp.image = function ( query, cb, number ) {
 		fun : cb
 	});
 };
-

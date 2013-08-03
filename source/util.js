@@ -71,6 +71,14 @@ Object.defineProperty( Array.prototype, 'random', {
 	writable : true
 });
 
+//define generic array methods on Array, like FF does
+[ 'forEach', 'map', 'filter', 'reduce' ].forEach(function ( name ) {
+	var fun = [][ name ]; //teehee
+	Array[ name ] = function () {
+		return fun.call.apply( fun, arguments );
+	};
+});
+
 String.prototype.indexesOf = function ( str, fromIndex ) {
 	//since we also use index to tell indexOf from where to begin, and since
 	// telling it to begin from where it found the match will cause it to just
@@ -138,8 +146,9 @@ Function.prototype.memoize = function () {
 
 //async memoizer
 Function.prototype.memoizeAsync = function ( hasher ) {
-	var cache = Object.create( null ), fun = this,
-		hasher = hasher || function (x) { return x; };
+	var cache = Object.create( null ), fun = this;
+
+	hasher = hasher || function (x) { return x; };
 
 	return function memoized () {
 		var args = [].slice.call( arguments ),
@@ -255,7 +264,7 @@ Date.timeSince = function ( d0, d1 ) {
 	d1 = d1 || (new Date);
 
 	var ms = d1 - d0,
-		delay, interval;
+		delay;
 
 	var delays = [
 		{

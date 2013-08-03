@@ -27,14 +27,21 @@ function google ( args, cb ) {
 	}
 
 	function format ( query, results ) {
-		return formatLink( query ) +
-			' ' +
+		var res = formatLink( query ) + ' ' +
 			results.map( formatResult ).join( ' ; ' );
+
+		if ( res.length > 200 ) {
+			res = results.map(function (r) {
+				return r.unescapedUrl;
+			}).join( ' ; ' );
+		}
+
+		return res;
 	}
 
 	function formatResult ( result ) {
 		var title = IO.decodehtmlEntities( result.titleNoFormatting );
-		return args.link( title, result.url );
+		return args.link( title, result.unescapedUrl );
 	}
 	function formatLink ( query ) {
 		return args.link(

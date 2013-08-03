@@ -89,4 +89,8 @@ bot.addCommand({
 	description : 'Search Google images. `/image number|random query`',
 	async : true
 });
+<<<<<<< HEAD
 }());
+=======
+}());
+>>>>>>> bf2327661c3f26725ba4295baa95be264eb7313e

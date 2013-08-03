@@ -206,8 +206,14 @@ bot.addCommand({
 		//use : bot.owners
 	},
 
+<<<<<<< HEAD
+	description : 'Register a nudge after an interval. ' +
+		'`/nudge intervalInMinutes message`, or the listener, ' +
+		'`nudge|remind|poke me? in? intervalInMinutes message`'
+=======
 	description : 'DONT USE THIS OR THE WORLD WILL EXPLODE ' +
 		'`/s its a secret`'
+>>>>>>> bf2327661c3f26725ba4295baa95be264eb7313e
 });
 
 
