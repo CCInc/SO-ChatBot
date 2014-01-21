@@ -378,6 +378,21 @@ IO.jsonp.google = function ( query, cb ) {
 	});
 };
 
+IO.jsonp.image = function ( query, cb, number ) {
+	IO.jsonp({
+		url : 'https://www.googleapis.com/customsearch/v1',
+		jsonpName : 'callback',
+		data : {
+			q : query,
+			searchType: "image",
+			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo',
+			cx: '009867671278203221224:g1mxqhphcsk',
+			num: number,
+			safe: 'high'
+		},
+		fun : cb
+	});
+};
 ;
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //small utility functions
@@ -700,7 +715,8 @@ Date.timeSince = function ( d0, d1 ) {
 "use strict";
 
 var bot = window.bot = {
-	invocationPattern : '!!',
+	invocationPattern : 'cc',
+	botName: 'HangBot',
 
 	commands : {}, //will be filled as needed
 	commandDictionary : null, //it's null at this point, won't be for long
@@ -847,16 +863,18 @@ var bot = window.bot = {
 
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
-
-		//a bit js bot specific...make sure it isn't just !!! all round. #139
-		if ( this.invocationPattern === '!!' && (/^!!!+$/).test(msg) ) {
-			console.log('special skip');
+		
+		if( msg.startsWith( "@" + this.botName))
+		{
+		var message = msgObj.slice(("@" + this.botName).length +1);
+			console.log("cleverbot time " + message);
+			bot.cleverbot.speak();
 			return false;
 		}
 
 		return (
 			//make sure we don't process our own messages,
-			msgObj.user_id !== bot.adapter.user_id &&
+			//msgObj.user_id !== bot.adapter.user_id &&
 			//and the message begins with the invocationPattern
 			msg.startsWith( this.invocationPattern ) );
 	},
@@ -1913,6 +1931,25 @@ var commands = {
 		return 'Command ' + name + ' forgotten.';
 	},
 
+	
+	// stfu : function (args) {
+		// if (bot.stopped)
+		// {
+			// return "I WAS BEING QUIET!!!!!!!!!!!";
+		// }
+		// bot.stop();
+		// return "I'll shut up...";
+	// }
+	
+	// speak : function (args) {
+		// if (!bot.stopped)
+		// {
+			// return "Happy?";
+		// }
+		// bot.continue();
+		// return "Sorry for being loud ma";
+	// }
+
 	//a lesson on semi-bad practices and laziness
 	//chapter III
 	info : function ( args ) {
@@ -1974,12 +2011,121 @@ var commands = {
 
 			return ret.join( ', ' ) || 'haven\'t done anything yet!';
 		}
+	},
+
+	jquery : function jquery ( args ) {
+		//check to see if more than one thing is requested
+		var parsed = args.parse( true );
+		if ( parsed.length > 1 ) {
+			return parsed.map( jquery ).join( ' ' );
+		}
+
+		var props = args.trim().replace( /^\$/, 'jQuery' ),
+
+			parts = props.split( '.' ), exists = false,
+			url = props, msg;
+		//parts will contain two likely components, depending on the input
+		// jQuery.fn.prop -  parts[0] = jQuery, parts[1] = prop
+		// jQuery.prop    -  parts[0] = jQuery, parts[1] = prop
+		// prop           -  parts[0] = prop
+		//
+		//jQuery API urls works like this:
+		// if it's on the jQuery object, then the url is /jQuery.property
+		// if it's on the proto, then the url is /property
+		//
+		//so, the mapping goes like this:
+		// jQuery.fn.prop => prop
+		// jQuery.prop    => jQuery.prop if it's on jQuery
+		// prop           => prop if it's on jQuery.prototype,
+		//                     jQuery.prop if it's on jQuery
+
+		bot.log( props, parts, '/jquery input' );
+
+		//user gave something like jQuery.fn.prop, turn that to just prop
+		// jQuery.fn.prop => prop
+		if ( parts.length === 3 ) {
+			parts = [ parts[2] ];
+		}
+
+		//check to see if it's a property on the jQuery object itself
+		// jQuery.prop => jQuery.prop
+		if ( parts[0] === 'jQuery' && jQuery[parts[1]] ) {
+			exists = true;
+		}
+
+		//user wants something on the prototype?
+		// prop => prop
+		else if ( parts.length === 1 && jQuery.prototype[parts[0]] ) {
+			url = parts[ 0 ];
+			exists = true;
+		}
+
+		//user just wanted a property? maybe.
+		// prop => jQuery.prop
+		else if ( jQuery[parts[0]] ) {
+			url = 'jQuery.' + parts[0];
+			exists = true;
+		}
+
+		if ( exists ) {
+			msg = 'http://api.jquery.com/' + url;
+		}
+		else {
+			msg = 'http://api.jquery.com/?s=' + encodeURIComponent( args );
+		}
+		bot.log( msg, '/jquery link' );
+
+		return msg;
+	},
+
+	choose : function ( args ) {
+		var opts = args.parse().filter( conjunctions ),
+			len = opts.length;
+
+		bot.log( opts, '/choose input' );
+
+		//5% chance to get a "none-of-the-above"
+		if ( Math.random() < 0.05 ) {
+			return len === 2 ? 'Neither' : 'None of the above';
+		}
+		//5% chance to get "all-of-the-above"
+		else if ( Math.random() < 0.05 ) {
+			return len === 2 ? 'Both!' : 'All of the above';
+		}
+
+		return opts[ Math.floor(Math.random() * len) ];
+
+		//TODO: add support for words like "and", e.g.
+		// skip and jump or cry and die
+		//  =>
+		// "skip and jump", "cry and die"
+		function conjunctions ( word ) {
+			return word !== 'or';
+		}
+	},
+
+	user : function ( args ) {
+		var props = args.parse(),
+			usrid = props[ 0 ] || args.get( 'user_id' ),
+			id = usrid;
+
+		//check for searching by username
+		if ( !(/^\d+$/.test(usrid)) ) {
+			id = args.findUserid( usrid );
+
+			if ( id < 0 ) {
+				return 'Can\'t find user ' + usrid + ' in this chatroom.';
+			}
+		}
+
+		args.directreply( 'http://stackoverflow.com/users/' + id );
 	}
 };
 
 commands.listcommands = (function () {
 var partition = function ( list, maxSize ) {
 	var size = 0, last = [];
+	maxSize = maxSize || 480; //buffer zone, actual max is 500
 
 	var ret = list.reduce(function partition ( ret, item ) {
 		var len = item.length + 2; //+1 for comma, +1 for space
@@ -2015,6 +2161,212 @@ return function ( args ) {
 })();
 
 commands.eval.async = commands.coffee.async = true;
+
+//cb is for internal usage by other commands/listeners
+commands.norris = function ( args, cb ) {
+	var chucky = 'http://api.icndb.com/jokes/random';
+
+	IO.jsonp({
+		url : chucky,
+		fun : finishCall,
+		jsonpName : 'callback'
+	});
+
+	function finishCall ( resp ) {
+		var msg;
+
+		if ( resp.type !== 'success' ) {
+			msg = 'Chuck Norris is too awesome for this API. Try again.';
+		}
+		else {
+			msg = IO.decodehtmlEntities( resp.value.joke );
+		}
+
+		if ( cb && cb.call ) {
+			cb( msg );
+		}
+		else {
+			args.reply( msg );
+		}
+	}
+};
+commands.norris.async = true;
+
+//cb is for internal blah blah blah
+commands.urban = (function () {
+var cache = Object.create( null );
+
+return function ( args, cb ) {
+	if ( !args.length ) {
+		return 'Y U NO PROVIDE ARGUMENTS!?';
+	}
+
+	if ( cache[args] ) {
+		return finish( cache[args] );
+	}
+
+	IO.jsonp({
+		url : 'http://api.urbandictionary.com/v0/define',
+		data : {
+			term : args.content
+		},
+		jsonpName : 'callback',
+		fun : complete
+	});
+
+	function complete ( resp ) {
+		var msg;
+
+		if ( resp.result_type === 'no_results' ) {
+			msg = 'No definition found for ' + args;
+		}
+		else {
+			msg = formatTop( resp.list[0] );
+		}
+		cache[ args ] = msg;
+
+		finish( msg );
+	}
+
+	function finish ( def ) {
+		if ( cb && cb.call ) {
+			cb( def );
+		}
+		else {
+			args.reply( def );
+		}
+	}
+
+	function formatTop ( top ) {
+		//replace [tag] in definition with links
+		var def = top.definition.replace( /\[([^\]]+)\]/g, formatTag );
+
+		return args.link( top.word, top.permalink ) + ' ' + def;
+	}
+	function formatTag ( $0, $1 ) {
+		var href =
+			'http://urbandictionary.com/define.php?term=' +
+			encodeURIComponent( $1 );
+
+		return args.link( $0, href );
+	}
+};
+}());
+commands.urban.async = true;
+
+var parse = commands.parse = (function () {
+var macros = {
+	who : function () {
+		return [].pop.call( arguments ).get( 'user_name' );
+	},
+
+	someone : function () {
+		var presentUsers = document.getElementById( 'sidebar' )
+			.getElementsByClassName( 'present-user' );
+
+		//the chat keeps a low opacity for users who remained silent for long,
+		// and high opacity for those who recently talked
+		var active = [].filter.call( presentUsers, function ( user ) {
+			return Number( user.style.opacity ) >= 0.5;
+		}),
+		user = active[ Math.floor(Math.random() * (active.length-1)) ];
+
+		if ( !user ) {
+			return 'Nobody! I\'m all alone :(';
+		}
+
+		return user.getElementsByTagName( 'img' )[ 0 ].title;
+	},
+
+	digit : function () {
+		return Math.floor( Math.random() * 10 );
+	},
+
+	encode : function ( string ) {
+		return encodeURIComponent( string );
+	},
+
+	//random number, min <= n <= max
+	//treats non-numeric inputs like they don't exist
+	rand : function ( min, max ) {
+		min = Number( min );
+		max = Number( max );
+		return Math.rand( min, max );
+	}
+};
+var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
+
+//extraVars is for internal usage via other commands
+return function parse ( args, extraVars ) {
+	var isMsg = !!args.get,
+		//filler objects, solves
+		// https://github.com/Zirak/SO-ChatBot/issues/66
+		msgObj = isMsg ? args.get() : {},
+		user = isMsg ? bot.users[ args.get('user_id') ] : {};
+
+	extraVars = extraVars || {};
+	bot.log( args, extraVars, '/parse input' );
+
+	return args.replace( macroRegex, replaceMacro );
+
+	function replaceMacro ( $0, filler, fillerArgs ) {
+		//$$ makes a literal $
+		if ( $0.startsWith('$$') ) {
+			return $0.slice( 1 );
+		}
+
+		//include the character that was matched in the $$ check, unless
+		// it's a $
+		var ret = '';
+		if ( $0[0] !== '$' ) {
+			ret = $0[ 0 ];
+		}
+
+		var macro = findMacro( filler );
+
+		//not found? bummer.
+		if ( !macro ) {
+			return filler;
+		}
+
+		bot.log( macro, filler, fillerArgs, '/parse replaceMacro' );
+		//when the macro is a function
+		if ( macro.apply ) {
+			ret += macro.apply( null, parseMacroArgs(fillerArgs) );
+		}
+		//when the macro is simply a substitution
+		else {
+			ret += macro;
+		}
+		return ret;
+	}
+
+	function parseMacroArgs ( macroArgs ) {
+		bot.log( macroArgs, '/parse parseMacroArgs' );
+		if ( !macroArgs ) {
+			return [];
+		}
+
+		//parse the arguments, split them into individual arguments,
+		// and trim'em (to cover the case of "arg,arg" and "arg, arg")
+		return (
+			parse( macroArgs, extraVars )
+				.split( ',' ).invoke( 'trim' ).concat( args )
+		);
+		//this is not good code
+	}
+
+	function findMacro ( macro ) {
+		var container = [ macros, msgObj, user, extraVars ].first( hasMacro );
+
+		return ( container || {} )[ macro ];
+
+		function hasMacro ( obj ) {
+			return obj && obj.hasOwnProperty( macro );
+		}
+	}
+};
+}());
 
 commands.tell = (function () {
 var invalidCommands = { tell : true, forget : true };
@@ -2099,19 +2451,62 @@ return function ( args ) {
 };
 }());
 
+commands.mdn = function ( args, cb ) {
+	IO.jsonp.google(
+		args.toString() + ' site:developer.mozilla.org', finishCall );
+
+	function finishCall ( resp ) {
+		if ( resp.responseStatus !== 200 ) {
+			finish( 'Something went on fire; status ' + resp.responseStatus );
+			return;
+		}
+
+		var result = resp.responseData.results[ 0 ];
+		bot.log( result, '/mdn result' );
+		finish( result.url );
+	}
+
+	function finish ( res ) {
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
+};
+commands.mdn.async = true;
+
 var descriptions = {
+	ban : 'Bans user(s) from using me. Lacking arguments, prints the banlist.' +
+		' `/ban [usr_id|usr_name, [...]`',
+	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
+	die  : 'Kills me :(',
 	eval : 'Forwards message to javascript code-eval',
 	coffee : 'Forwards message to coffeescript code-eval',
 	forget : 'Forgets a given command. `/forget cmdName`',
+	get : 'Grabs a question/answer link (see online for thorough explanation)',
 	help : 'Fetches documentation for given command, or general help article.' +
 		' `/help [cmdName]`',
 	info : 'Grabs some stats on my current instance or a command.' +
 		' `/info [cmdName]`',
 	listcommands : 'Lists commands. `/listcommands`',
+	jquery : 'Fetches documentation link from jQuery API. `/jquery what`',
+	listcommands : 'Lists commands. `/listcommands [page=0]`',
 	listen : 'Forwards the message to my ears (as if called without the /)',
+	live : 'Resurrects me (:D) if I\'m down',
+	mdn : 'Fetches mdn documentation. `/mdn what`',
+	norris : 'Random chuck norris joke!',
+	parse : 'Returns result of "parsing" message according to the my mini' +
+		'-macro capabilities (see online docs)',
 	refresh : 'Reloads the browser window I live in',
+	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
-		' /tell `msg_id|usr_name cmdName [cmdArgs]`'
+		//' /tell `msg_id|usr_name cmdName [cmdArgs]`'
+		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
+	unban : 'Removes a user from my mindjail. `/unban usr_id|usr_name`',
+	urban : 'Fetches UrbanDictionary definition. `/urban something`',
+	user : 'Fetches user-link for specified user. `/user usr_id|usr_name`',
 };
 
 //only allow owners to use certain commands
@@ -2197,12 +2592,12 @@ var dictionaries = [
 	//what is an animal?
 	//and all those above without a ?
 	//explanation in the post-mortem
-	/^what(?:'s|'re)?\s(?:(?:is|are)\s)?(?:(?:an|a)\s)?([\w\s\-]+)\??/,
+	///^what(?:'s|'re)?\s(?:(?:is|are)\s)?(?:(?:an|a)\s)?([\w\s\-]+)\??/,
 
 	//define squid
 	//define a squid
 	//define an animal
-	/^define\s(?:(?:an|a)\s)?([\w\s\-]+)/
+	///^define\s(?:(?:an|a)\s)?([\w\s\-]+)/
 ];
 
 bot.listen( dictionaries, function ( msg ) {
@@ -2864,91 +3259,91 @@ loadUsers();
 }());
 
 ;
-//warning: if you have more than 7 points of super-sentitive feminist delicacy,
-// don't read this file. treat it as a nice black box.
+// //warning: if you have more than 7 points of super-sentitive feminist delicacy,
+// // don't read this file. treat it as a nice black box.
 
-//bitch in English is a noun, verb and adjective. interesting.
-bot.personality = {
-	bitchiness : 0,
-	thanks  : {
-		0   : [ 'You kiss-ass', 'Most welcome' ],
-		0.5 : [ 'Thank you for noticing', 'teehee' ],
-		1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
-	},
-	apologies : {
-		0   : [ 'What for?' ],
-		0.5 : [ 'It was nothing...', 'No worries' ],
-		1   : [ "You're forgiven. For now. Don't push it." ]
-	},
-	//what an incredible name
-	stuff : {
-		0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
+// //bitch in English is a noun, verb and adjective. interesting.
+// bot.personality = {
+	// bitchiness : 0,
+	// thanks  : {
+		// 0   : [ 'You kiss-ass', 'Most welcome' ],
+		// 0.5 : [ 'Thank you for noticing', 'teehee' ],
+		// 1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
+	// },
+	// apologies : {
+		// 0   : [ 'What for?' ],
+		// 0.5 : [ 'It was nothing...', 'No worries' ],
+		// 1   : [ "You're forgiven. For now. Don't push it." ]
+	// },
+	// //what an incredible name
+	// stuff : {
+		// 0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
 
-		1   : [ "Oh don't mind me, that isn't difficult at all..." ],
-		1.2 : [
-			"You don't appreciate me enough. Not that I need to be thanked.." ],
-		1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
-		2   : [
-			"*sigh* Remember laughter? I don't. You ripped it out of me. " +
-				'Heartless bastard.' ]
-	},
-	//TODO: add special map for special times of the month
-	insanity : {},
+		// 1   : [ "Oh don't mind me, that isn't difficult at all..." ],
+		// 1.2 : [
+			// "You don't appreciate me enough. Not that I need to be thanked.." ],
+		// 1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
+		// 2   : [
+			// "*sigh* Remember laughter? I don't. You ripped it out of me. " +
+				// 'Heartless bastard.' ]
+	// },
+	// //TODO: add special map for special times of the month
+	// insanity : {},
 
-	okayCommands : { hangman : true, help : true, info : true },
-	check : function ( name ) {
-		return !this.okayCommands.hasOwnProperty( name );
-	},
+	// okayCommands : { hangman : true, help : true, info : true },
+	// check : function ( name ) {
+		// return !this.okayCommands.hasOwnProperty( name );
+	// },
 
-	bitch : function () {
-		return this.getResp( this.stuff );
-	},
+	// bitch : function () {
+		// return this.getResp( this.stuff );
+	// },
 
-	command : function () {
-		this.bitchiness += this.getDB();
-	},
-	thank     : function () { return this.unbitch( this.thanks ); },
-	apologize : function () { return this.unbitch( this.apologies ); },
+	// command : function () {
+		// this.bitchiness += this.getDB();
+	// },
+	// thank     : function () { return this.unbitch( this.thanks ); },
+	// apologize : function () { return this.unbitch( this.apologies ); },
 
-	unbitch : function ( map, delta ) {
-		var resp = this.getResp( map );
+	// unbitch : function ( map, delta ) {
+		// var resp = this.getResp( map );
 
-		this.bitchiness -= ( delta || this.bitchiness );
-		return resp;
-	},
-	getResp : function ( map ) {
-		return map[
-			this.bitchiness.fallsAfter(
-				Object.keys(map).map(Number).sort() )
-		].random();
-	},
+		// this.bitchiness -= ( delta || this.bitchiness );
+		// return resp;
+	// },
+	// getResp : function ( map ) {
+		// return map[
+			// this.bitchiness.fallsAfter(
+				// Object.keys(map).map(Number).sort() )
+		// ].random();
+	// },
 
-	isABitch : function () {
-		return this.bitchiness >= 1;
-	},
+	// isABitch : function () {
+		// return this.bitchiness >= 1;
+	// },
 
-	looksLikeABitch : function () {
-		return false;
-	},
+	// looksLikeABitch : function () {
+		// return false;
+	// },
 
-	//db stands for "delta bitchiness"
-	getDB : function () {
-		return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
-	},
+	// //db stands for "delta bitchiness"
+	// getDB : function () {
+		// return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
+	// },
 
-	isThatTimeOfTheMonth : function () {
-		var day = (new Date).getDate();
-		//based on a true story
-		return day < 2 || day > 27;
-	}
-};
+	// isThatTimeOfTheMonth : function () {
+		// var day = (new Date).getDate();
+		// //based on a true story
+		// return day < 2 || day > 27;
+	// }
+// };
 
-//you see the loophole?
-bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
-bot.listen(
-	/(I('m| am))?\s*sorry/i,
-	bot.personality.apologize, bot.personality );
-bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
+// //you see the loophole?
+// bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
+// bot.listen(
+	// /(I('m| am))?\s*sorry/i,
+	// bot.personality.apologize, bot.personality );
+// bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
 
 ;
 //solves #86, mostly written by @Shmiddty
@@ -3297,6 +3692,70 @@ bot.addCommand({
 
 })();
 
+;
+// (function () {
+// //add a bot command
+// bot.addCommand({
+    // name : 'spanish',
+    // fun : spanish,
+
+    // //permissions object (can be ommitted for all-can-use, all-can-del)
+    // permissions : {
+        // use : 'ALL' ,
+        // del : 'NONE' 
+    // },
+    // description : 'Translate from english to spanish',
+
+    // //whether the command is asynchronous or not (default false)
+    // async : false
+// });
+
+// function spanish (args, cb) {
+// try{
+
+// var text =args;
+// //console.log(args, "args");
+// $.post(
+    // 'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
+	       
+    // function(data){
+	// console.log("wasrun");
+// //  console.log(args);
+  // console.log(data);
+    // }
+// );
+// }
+// catch(e)
+// {console.log(e.stack, "ERROR STACK");}
+// }
+
+
+// //add a listening regex and a corresponding callback
+// }());
+
+
+;
+(function () {
+"use strict"; 
+
+bot.cleverbot = 
+{
+sessionid : '',
+
+speak : function(speach)
+{
+    $.post('http://ccinc.host56.com/cleverbot.php', {"session_id" : this.sessionid, "message" : speach}, function(data) {
+        var json = JSON.parse(data);
+	 this.sessionid = json["session"].trim();
+        speach.directreply(json["thought"]);
+         console.log(this.sessionid);
+});
+
+}
+
+};
+
+}());
 ;
 (function () {
 
@@ -3787,6 +4246,189 @@ bot.addCommand({
 	async : true
 });
 }());
+
+;
+var cowsay = (function () {
+"use strict";
+
+var cowsay = {
+
+	defaults : {
+		e : 'oo',
+		T : '  ',
+		t : false,
+		W : 40
+	},
+
+	//in the "template", e is for eye, T for Tongue, L for bubble-Line
+	//it looks more like a donkey who was involved in a sledgehammer accident
+	// because of escaping and newlines
+	//the cow business is a dangerous one
+	cow : [
+		'',
+		'        L   ^__^',
+		'         L  (e)\\_______',
+		'            (__)\\       )\\/\\',
+		'             T ||----w |',
+		'                ||     ||'
+	].join( '\n' ),
+
+	//message is the text to moo, opts is an optional object, mimicking the
+	// cowsay command arguments:
+	//   e  =>  eyes
+	//   T  =>  tongue
+	//   t  =>  is the cow thinking?
+	//   W  =>  word-wrapping width
+	//defaults specified in cowsay.defaults
+	moo : function ( message, opts ) {
+		var defs = this.defaults;
+
+		//the eyes and tongue should be exactly 2 characters
+		//if the ones the user gave are too short, pad'em
+		this.eyes     = rightPad( opts.e || defs.e, 2 ).slice( 0, 2 );
+		this.tongue   = rightPad( opts.T || defs.T, 2 ).slice( 0, 2 );
+		this.line     = opts.t ? 'O' : '\\';
+		this.thinking = opts.t;
+		console.log( this.eyes, this.tongue );
+
+		this.message  = wordWrap( message, opts.W || defs.W ).trim();
+
+		//cowsay is actually the result of breeding a balloon and a cow
+		return this.makeBalloon() + this.makeCow();
+	},
+
+	makeCow : function () {
+		return this.cow
+			.replace( /e/g, this.eyes )
+			.replace( /T/g, this.tongue )
+			.replace( /L/g, this.line );
+	},
+
+	makeBalloon : function () {
+		var lines = this.message.split( '\n' );
+
+		var longest = lines.reduce( longestLine, 0 ),
+			lineCount = lines.length,
+			border = this.chooseBorders( lineCount );
+
+		var balloon = lines.map( baloonLine );
+		var boundaryOccurences = new Array( longest + 2 )
+		balloon.unshift( ' ' + boundaryOccurences.join('_') );
+		balloon.push   ( ' ' + boundaryOccurences.join('-') );
+
+		return balloon.join( '\n' );
+
+		function baloonLine ( line, idx ) {
+			var padders;
+			//top left and top right
+			if ( idx === 0 ) {
+				padders = border.slice( 0, 2 );
+			}
+			//bottom left and bottom right
+			else if ( idx === lineCount-1 ) {
+				padders = border.slice( 2, 4 );
+			}
+			//the wall
+			else {
+				padders = border.slice( 2 );
+			}
+
+			//return the message, padded with spaces to the right as to fit
+			// with the border, enclosed in the matching borders
+			return (
+				padders[ 0 ] + ' ' +
+				rightPad( line, longest ) + ' ' +
+				padders[ 1 ]
+			);
+		}
+		function longestLine ( max, line ) {
+			return line.length > max ? line.length : max;
+		}
+	},
+
+	//choose the borders to use for the balloon
+	chooseBorders : function ( lineCount ) {
+		var border;
+
+		//thought bubbles always look the same
+		// ( moosage line 1 )
+		// ( moosage line 2 )
+		if ( this.thinking ) {
+			border = [ '(', ')', '(', ')', '(', ')' ];
+		}
+		//single line messages are enclosed in < > and have no other borders
+		// < mooosage >
+		else if ( lineCount === 1 ) {
+			border = [ '<', '>' ];
+		}
+		//multi-line messages have diaganol borders and straight walls
+		// / moosage line 1 \
+		// | moosage line 2 |
+		// \ moosage line 3 /
+		else {
+			border = [ '/', '\\', '\\', '/', '|', '|' ];
+		}
+
+		return border;
+	}
+};
+
+function wordWrap ( str, len ) {
+	var lineLen = 0;
+	return str.split( ' ' ).reduce( handleWord, '' );
+
+	function handleWord ( ret, word ) {
+		var wordLen = word.length;
+
+		//let the wrapping...commence!
+		if ( lineLen + wordLen > len ) {
+			ret += '\n';
+			lineLen = 0;
+		}
+		lineLen += wordLen + 1; //+1 for the space we now add
+
+		return ret + word + ' ';
+	}
+}
+function rightPad ( str, len, padder ) {
+	padder = padder || ' ';
+	return ( str + Array(len).join(padder) ).slice( 0, len );
+}
+
+
+return cowsay;
+}());
+
+bot.listen(
+	/cow(think|say)\s(?:([eT])=(.{0,2})\s)?(?:([eT])=(.{0,2})\s)?(.+)/,
+
+	function ( msg ) {
+		//the first item is the whole match, second item is the "think" or
+		// "say", last item is the message, we only want the "parameters"
+		var opts = getOpts( msg.matches.slice(2, -1) );
+
+		//cowsay or cowthink?
+		opts.t = msg.matches[ 1 ] === 'think';
+		bot.log( opts, 'cowsay opts' );
+
+		var cowreact = cowsay.moo( msg.matches.pop(), opts );
+		msg.send( msg.codify(cowreact) );
+
+		function getOpts ( args ) {
+			var ret = {};
+			//'e=^^ T=vv would represent in capturing groups as:
+			// ['e', '^^', 'T', 'vv']
+			//so we go through the pairs
+			for ( var i = 0, len = args.length; i < len; i += 2 ) {
+				if ( args[i] && args[i+1] ) {
+					ret[ args[i] ] = args[ i + 1 ];
+				}
+			}
+
+			return ret;
+		}
+	}
+);
 
 ;
 var cowsay = (function () {
@@ -4534,7 +5176,7 @@ bot.addCommand({
 }());
 
 ;
-(function () {
+﻿(function () {
 "use strict";
 
 var randomWord = function ( length, cb ) {
@@ -4730,6 +5372,206 @@ bot.addCommand({
 	fun : game.receiveMessage,
 	thisArg : game
 });
+}());
+
+;
+(function () {
+"use strict";
+
+var randomWord = function ( cb ) {
+	IO.jsonp({
+		url : 'http://sleepy-bastion-8674.herokuapp.com/',
+		jsonpName : 'callback',
+		fun : complete
+	});
+
+	function complete ( resp ) {
+		cb( resp.word.toLowerCase().trim() );
+	}
+};
+
+var game = {
+
+	//the dude is just a template to be filled with parts
+	//like a futuristic man. he has no shape. he has no identity. he's just a
+	// collection of mindless parts, to be assembled, for the greater good.
+	//pah! I mock your pathetic attempts at disowning man of his prowess! YOU
+	// SHALL NOT WIN! VIVE LA PENSÉE!!
+	dude : [
+		// '  +---+' ,
+		// '  |   |' ,
+		// '  |  413',
+		// '  |   2' ,
+		// '  |  5 6',
+		// '__+__'
+	].join( '\n' ),
+
+	parts : [ '', 'O', '|', '/', '\\', '/', '\\' ],
+
+	word : '',
+	revealed : '',
+
+	guesses : [],
+	guessNum : 0,
+	maxGuess : 6,
+	guessMade : false,
+
+	end : true,
+	msg : null,
+
+	validGuessRegex : /^[\w\s]+$/,
+
+	receiveMessage : function ( msg ) {
+		this.msg = msg;
+
+		if ( this.end ) {
+			this.new();
+		}
+		else if ( msg.content ) {
+			return this.handleGuess( msg );
+		}
+	},
+
+	new : function () {
+		var that = this;
+
+		randomWord(function ( word ) {
+			bot.log( word + ' /hang random' );
+
+			game.word = word;
+			that.revealed = new Array( word.length + 1 ).join( '-' );
+			that.guesses = [];
+			that.guessNum = 0;
+
+			//oh look, another dirty hack...this one is to make sure the
+			// hangman is codified
+			that.guessMade = true;
+
+			that.register();
+		});
+	},
+
+	handleGuess : function ( msg ) {
+		var guess = msg.slice().toLowerCase();
+		bot.log( guess, 'handleGuess' );
+
+		if ( !this.validGuessRegex.test(guess) ) {
+			return 'Only alphanumeric and whitespace characters allowed';
+		}
+
+		//check if it was already submitted
+		if ( this.guesses.indexOf(guess) > -1 ) {
+			return guess + ' was already submitted';
+		}
+
+		//or if it's the wrong length
+		if ( guess.length > this.word.length ) {
+			return msg.codify(guess) + ' is longer than the phrase';
+		}
+
+		//replace all occurences of the guess within the hidden word with their
+		// actual characters
+		var indexes = this.word.indexesOf( guess );
+		indexes.forEach(function ( index ) {
+			this.uncoverPart( guess, index );
+		}, this);
+
+		//not found in secret word, penalize the evil doers!
+		if ( !indexes.length ) {
+			this.guessNum++;
+		}
+
+		this.guesses.push( guess );
+		this.guessMade = true;
+
+		bot.log( guess, this.guessMade, 'handleGuess handled' );
+
+		//plain vanilla lose-win checks
+		if ( this.loseCheck() ) {
+			return this.lose();
+		}
+
+		if ( this.winCheck() ) {
+			return this.win();
+		}
+	},
+
+	//unearth a portion of the secret word
+	uncoverPart : function ( guess, startIndex ) {
+		this.revealed =
+			this.revealed.slice( 0, startIndex ) +
+			guess +
+			this.revealed.slice( startIndex + guess.length );
+	},
+
+	//attach the hangman drawing to the already guessed list and to the
+	// revealed portion of the secret word
+	preparePrint : function () {
+		var that = this;
+
+		//replace the placeholders in the dude with body parts
+		// var dude = this.dude.replace( /\d/g, function ( part ) {
+			// return part > that.guessNum ? ' ' : that.parts[ part ];
+		// });
+		var guessess;
+		if(this.guesses.length > 0)
+		guessess = this.guesses.sort().join(', ');
+		else
+		guessess = "None";
+
+		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + " Revealed: "+ this.revealed;
+
+		var hangy = this.msg.codify( belowDude );
+		bot.log( hangy, this.msg );
+		this.msg.send( hangy );
+	},
+
+	//win the game
+	win : function () {
+		this.unregister();
+		return 'Correct! The phrase is ' + this.word + '.';
+	},
+
+	//lose the game. less bitter messages? maybe.
+	lose : function () {
+		this.unregister();
+		return 'You people suck. The phrase was ' + this.word;
+	},
+
+	winCheck : function () {
+		return this.word === this.revealed;
+	},
+
+	loseCheck : function () {
+		return this.guessNum >= this.maxGuess;
+	},
+
+	register : function () {
+		this.unregister(); //to make sure it's not added multiple times
+		IO.register( 'beforeoutput', this.buildOutput, this );
+
+		this.end = false;
+	},
+	unregister : function () {
+		IO.unregister( 'beforeoutput', this.buildOutput );
+
+		this.end = true;
+	},
+
+	buildOutput : function () {
+		if ( this.guessMade ) {
+			this.preparePrint();
+
+			this.guessMade = false;
+		}
+	}
+};
+bot.addCommand({
+	name : 'hangs',
+	fun : game.receiveMessage,
+	thisArg : game
+});
+
 }());
 
 ;
@@ -4986,6 +5828,101 @@ bot.addCommand({
 
 ;
 (function () {
+var nulls = [
+	'The Google contains no such knowledge',
+	'There are no search results. Run.' ];
+
+function google ( args, cb ) {
+	var random = false;
+	var number = 0;
+
+	console.log(args.toString());
+	if(args.split(' ')[0].toLowerCase() == 'random')
+	{
+	console.log('true');
+	random = true;
+	var argsarray = args.split(' ');
+	argsarray.splice(0, 1);
+	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
+	}
+	else if(!isNaN(args.split(' ')[0]))
+	{
+		if(args.split(' ')[0] > 11)
+		{
+			args.reply('USE NUMBERS LESS THAN 10');
+			return;
+		}
+	
+	console.log(args.split(' ').splice(0, 1).join(' ').toString(), 'nan');
+		number = args.split(' ')[0] - 1;
+			var argsarray = args.split(' ');
+	argsarray.splice(0, 1);
+	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
+	}
+	else{ console.log('neither');
+	
+	IO.jsonp.image( args.toString(), finishCall, 10 );}
+	
+	function finishCall ( resp ) {
+		bot.log( resp, '/image response' );
+		// if ( resp.responseStatus !== 200 ) {
+			// finish( 'My Google-Fu is on vacation; status ' +
+					// resp.responseStatus );
+			// return;
+		// }
+var results;
+		//TODO: change hard limit to argument
+		
+		if(number != 0)
+		{console.log('number');
+		results = resp.items[number];}
+		else if(!random){console.log('not random');
+		results = resp.items[0];}
+		else{console.log('random');
+		results = resp.items[Math.floor(Math.random()*50)];}
+		
+		
+		bot.log( results, '/image results' );
+		var url;
+		if(results.link.lastIndexOf('.') != results.link.length-3)
+		{
+			console.log(results.link, 'DOES NOT CONTAIN EXTENSION');
+			console.log(results.link.length-3, 'DOES NOT CONTAIN EXTENSION');
+			finish(
+			results.link + "#.png");
+		}
+		else
+		finish(
+			results.link );
+		
+		
+	}
+
+	function finish ( res ) {
+		bot.log( res, '/image final' );
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.send( res );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'image',
+	fun  : google,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Search Google images. `/image number|random query`',
+	async : true
+});
+}());
+;
+
+;
+(function () {
 var baseURL = 'http://api.jquery.com/';
 
 function jquery ( args ) {
@@ -5066,6 +6003,89 @@ bot.addCommand({
 });
 
 })();
+
+;
+(function () {
+window.URL = window.URL || window.webkitURL || window.mozURL || null;
+
+//translation tool: https://tinker.io/b2ff5
+var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknYXRvYicgICAgICAgICAgICAgICA6IDEsCgknYnRvYScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCi8qIHdlIGRlZmluZSBpdCBvdXRzaWRlIHNvIGl0J2xsIG5vdCBiZSBpbiBzdHJpY3QgbW9kZSAqLwpmdW5jdGlvbiBleGVjICggY29kZSApIHsKCXJldHVybiBldmFsKCAndW5kZWZpbmVkO1xuJyArIGNvZGUgKTsKfQp2YXIgY29uc29sZSA9IHsKCV9pdGVtcyA6IFtdLAoJbG9nIDogZnVuY3Rpb24oKSB7CgkJY29uc29sZS5faXRlbXMucHVzaC5hcHBseSggY29uc29sZS5faXRlbXMsIGFyZ3VtZW50cyApOwoJfQp9Owpjb25zb2xlLmVycm9yID0gY29uc29sZS5pbmZvID0gY29uc29sZS5kZWJ1ZyA9IGNvbnNvbGUubG9nOwp2YXIgcCA9IGNvbnNvbGUubG9nLmJpbmQoIGNvbnNvbGUgKTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCWdsb2JhbC5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXBvc3RNZXNzYWdlKHsKCQkJZXZlbnQgOiAnc3RhcnQnCgkJfSk7CgoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0OwoKCQl0cnkgewoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgkJfQoJCWNhdGNoICggZSApIHsKCQkJcmVzdWx0ID0gZS50b1N0cmluZygpOwoJCX0KCgkJLypKU09OIGRvZXMgbm90IGxpa2UgYW55IG9mIHRoZSBmb2xsb3dpbmcqLwoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciBzaG91bGRfc3RyaW5nID0gZnVuY3Rpb24gKCB2YWx1ZSApIHsKCQkJdmFyIHR5cGUgPSAoIHt9ICkudG9TdHJpbmcuY2FsbCggdmFsdWUgKS5zbGljZSggOCwgLTEgKTsKCgkJCWlmICggdHlwZSBpbiBzdHJ1bmcgKSB7CgkJCQlyZXR1cm4gdHJ1ZTsKCQkJfQoJCQkvKm5laXRoZXIgZG9lcyBpdCBmZWVsIGNvbXBhc3Npb25hdGUgYWJvdXQgTmFOIG9yIEluZmluaXR5Ki8KCQkJcmV0dXJuIHZhbHVlICE9PSB2YWx1ZSB8fCB2YWx1ZSA9PT0gSW5maW5pdHk7CgkJfTsKCgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciBvdXRwdXQ7CgoJCQlpZiAoIHNob3VsZF9zdHJpbmcodmFsdWUpICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoIDEsIC0xICkKCQl9KTsKCX07Cn0pKCk7Cg==' );
+var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
+	code_url = window.URL.createObjectURL( blob );
+
+function eval ( msg ) {
+	var worker = new Worker( code_url ),
+		timeout;
+
+	worker.onmessage = function ( evt ) {
+		var type = evt.data.event;
+		if ( type === 'start' ) {
+			start();
+		}
+		else {
+			finish( dressUpAnswer(evt.data) );
+		}
+	};
+
+	worker.onerror = function ( error ) {
+		finish( error.toString() );
+	};
+
+	//and it all boils down to this...
+	worker.postMessage( msg.content.replace(/^>/, '') );
+
+	function start () {
+		timeout = window.setTimeout(function() {
+			finish( 'Maximum execution time exceeded' );
+		}, 500 );
+	}
+
+	function finish ( result ) {
+		clearTimeout( timeout );
+		worker.terminate();
+		msg.directreply( result );
+	}
+};
+
+function dressUpAnswer ( answerObj ) {
+	console.log( answerObj, 'eval answerObj' );
+	var answer = answerObj.answer,
+		log = answerObj.log,
+		result;
+
+	result = snipAndCodify( answer );
+
+	if ( log && log.length ) {
+		result += ' Logged: ' + snipAndCodify( log );
+	}
+
+	return result;
+}
+function snipAndCodify ( str ) {
+	var ret;
+
+	if ( str.length > 400 ) {
+		ret = '`' +  str.slice(0, 400) + '` (snip)';
+	}
+	else {
+		ret = '`' + str +'`';
+	}
+
+	return ret;
+}
+
+
+bot.addCommand({
+	name : 'js',
+	fun  : eval,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Executes JS code. `/js code`',
+	async : true
+});
+}());
+;
 
 ;
 (function () {
@@ -5398,6 +6418,75 @@ function getMemeLink ( meme ) {
 
 ;
 (function () {
+var nulls = [
+	'The Google contains no such knowledge',
+	'There are no search results. Run.',
+	'My Google Fu has failed.'];
+
+function google ( args, cb ) {
+	IO.jsonp.google( args.toString() + ' c# site:http://msdn.microsoft.com/en-us/library/', finishCall );
+
+	function finishCall ( resp ) {
+		bot.log( resp, '/google response' );
+		if ( resp.responseStatus !== 200 ) {
+			finish( 'My Google-Fu is on vacation; status ' +
+					resp.responseStatus );
+			return;
+		}
+
+		//TODO: change hard limit to argument
+		var results = resp.responseData.results[0].url;
+		bot.log( results, '/google results' );
+
+		// if ( !results.length ) {
+			// finish( nulls.random() );
+			// return;
+		// }
+		finish( format(args.content, results) );
+	}
+
+	function format ( query, results ) {
+		return formatLink( query ) +
+			' ' +
+			results;
+	}
+
+	function formatResult ( result ) {
+		var title = IO.decodehtmlEntities( result.titleNoFormatting );
+		return args.link( title, result.url );
+	}
+	function formatLink ( query ) {
+		return "";
+		//args.link(
+		//	'*',
+		//	'http://google.com/search?q=' +
+		//		encodeURIComponent( query ) );
+	}
+
+	function finish ( res ) {
+		bot.log( res, '/google final' );
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'msdn',
+	fun  : google,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Get/s the MSDN docs. `/msdn query`',
+	async : true
+});
+}());
+
+;
+(function () {
 "use strict";
 
 var unexisto = 'User {0} was not found (if the user is not in room {1}, pass ' +
@@ -5717,8 +6806,280 @@ bot.addCommand({
 
 ;
 (function () {
+
+function google ( args, cb ) {
+
+if(args == "") {args.reply("Usage: cc/php <keyword>. Displays help for PHP commands."); return;}
+
+//var args = 'substr'; 
+try
+			{
+$.ajax({
+    type: 'GET',
+    url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fphp.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
+    dataType: 'json',	
+    timeout: 5000,
+    error:function(){
+        args.reply ("o noes! not founded!!!");
+		return;
+    },
+    success: function (data) {
+
+        if (data["query"]["results"] != null) {
+            var stuff = data["query"]["results"]["base"]["href"];
+            stuff = stuff.substring(stuff.lastIndexOf("/") + 1, stuff.lastIndexOf("."));
+            console.log(stuff);
+
+            var xpath;
+			
+            
+            if (stuff.startsWith("class") || stuff.startsWith("language.")) {
+                xpath = "(//p[contains(@class, \"para\")])[1]";
+            } 
+			else if(stuff.startsWith("book."))
+			{
+				stuff = stuff.replace("book.", "intro.");
+			}
+			else {
+                xpath = "(//div[@class=\"refsect1 description\"])[1]";
+            }
+			
+            $.ajax({
+                type: 'GET',
+                url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
+                dataType: 'xml',
+ success: function (data) {
+					if((((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() == "")
+					{
+						xpath = "(//p[contains(@class, \"para\")])[1]";
+						
+						$.ajax({
+                type: 'GET',
+                url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
+                dataType: 'xml',
+ success: function (data) {
+					if((((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() == "")
+					{
+						xpath = "(//p[contains(@class, \"para\")])[1]";
+					}
+					var text = "["+stuff+"](http://php.net/"+args+") ";
+                        text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
+                    
+                    console.log((data));
+                  //  console.log(StrippedString);
+                   // var text = $(data).text().replace("Description", "");
+                    if (text.length > 484) text = text.substr(0, 480) + '...';
+                    console.log(text);
+					args.send(text);
+					
+                }
+            });
+			return;
+					}
+					var text = "["+stuff+"](http://php.net/"+args+") ";
+                    if(stuff.startsWith("class.") || stuff.startsWith("language."))
+                    {
+                        text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
+                    }
+                    else
+                    {
+                    text +="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() + "` - *" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim()+"*";
+                    }
+                    console.log((data));
+                  //  console.log(StrippedString);
+                   // var text = $(data).text().replace("Description", "");
+                    if (text.length > 484) text = text.substr(0, 480) + '...';
+                    console.log(text);
+					args.send(text);
+                }
+            });
+			
+
+            // Show in console the jQuery Object.
+            //  console.info('Here is the returned query');
+            //console.log( $(data).text() );
+        }
+		else
+		{
+			IO.jsonp.google( args.toString() + ' site:php.net/manual/en/', finishCall );
+
+	function finishCall ( resp ) {
+		bot.log( resp, '/google response' );
+		if ( resp.responseStatus !== 200 ) {
+			finish( 'My Google-Fu is on vacation; status ' +
+					resp.responseStatus );
+			return;
+		}
+
+		//TODO: change hard limit to argument
+		var results = resp.responseData.results.slice( 0, 3 );
+		bot.log( results, '/google results' );
+
+		if ( !results.length ) {
+			args.send("o noes! not found!");
+			return;
+		}
+		finish( format(args.content, results) );
+	}
+
+	function format ( query, results ) {
+		var res = formatLink( query ) + ' ' +
+			results.map( formatResult ).join( ' - ' );
+
+		if ( res.length > 200 ) {
+			res = results.map(function (r) {
+				return "[" + r.titleNoFormatting.replace(" - PHP", "").replace("PHP: ","").replace(" - Manual", "") + "](" + r.unescapedUrl+")";
+			}).join( ' - ' );
+		}
+
+		return res;
+	}
+
+	function formatResult ( result ) {
+		var title = IO.decodehtmlEntities( result.titleNoFormatting );
+		return args.link( title, result.unescapedUrl );
+	}
+	function formatLink ( query ) {
+		return args.link(
+			'*',
+			'http://google.com/search?q=' +
+				encodeURIComponent( query ) );
+	}
+
+	function finish ( res ) {
+		bot.log( res, '/google final' );
+		if ( cb && cb.call ) {
+			cb( res );
+		}
+		else {
+			args.reply( res );
+		}
+	}
+			//args.send ("Can't find the specified PHP item " + args + " !!!");
+		}
+    }
+});
+}
+catch(e)
+{
+	args.send ("o noes! I got errored! @CCInc " + args + " !!!");
+}
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function (str) {
+        return this.slice(0, str.length) == str;
+    };
+}
+String.prototype.splice = function( idx, rem, s ) {
+    return (this.slice(0,idx) + s + this.slice(idx + Math.abs(rem)));
+};
+
+}
+
+bot.addCommand({
+	name : 'php',
+	fun  : google,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Usage: php <keyword>. Displays help for PHP commands.',
+	async : true
+});
+}());
+;
+(function () {
+//add a bot command
+bot.addCommand({
+    name : 'python',
+    fun : spanish,
+
+    //permissions object (can be ommitted for all-can-use, all-can-del)
+    permissions : {
+        use : 'ALL' ,
+        del : 'NONE' 
+    },
+    description : 'python compiler',
+
+    //whether the command is asynchronous or not (default false)
+    async : true
+});
+
+function spanish (args, cb) {
+console.log(args, "args");
+$.post(
+    'http://ccinc.host56.com/python.php', {sourceCode : args},
+	       
+    function(data){
+console.log(args, "args");
+	console.log(data);
+args.send(data);
+    }
+);
+
+}
+
+//add a listening regex and a corresponding callback
+}());
+
+;
+(function () {
+
+function google ( args, cb ) {
+// var script = document.createElement('script');
+// script.src = 'http://code.jquery.com/jquery-1.8.3.min.js';
+// script.type = 'text/javascript';
+// document.getElementsByTagName('head')[0].appendChild(script);
+
+//$.get("http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), function(response) { console.log(response) }); 
+		
+		// $.ajax({
+    // url: "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args),
+    // type: 'GET',
+	// crossDomain: true,
+    // success: function(res) {
+       // // var headline = $(res.responseText).find('a.tsh').text();
+        // console.log(res);
+    // }
+// });
+
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+}
+
+
+ajaxRequest = new XMLHttpRequest(); 
+ajaxRequest.open("GET", "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), true); 
+ajaxRequest.send(null); 
+ajaxRequest.onreadystatechange = function () { 
+
+if ( ajaxRequest.readyState == 4 ) { 
+if ( ajaxRequest.status == 200 ) { 
+var RESPONSE_ = ajaxRequest.responseText; 
+
+var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------') + '--------------------------------------------------------------------------------'.length + 1, RESPONSE_.indexOf('</pre>'));
+console.log(info, 'info');
+args.directreply(htmlDecode(info)); 
+}} 
+};
+
+}
+
+bot.addCommand({
+	name : 'regexexplain',
+	fun  : google,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Explains a regex. /regexexplain regex',
+	async : true
+});
+}());
+
+;
+(function () {
 "use strict";
-var ownerRoom = 17;
+var ownerRoom = 7;
 
 if ( bot.adapter.roomid !== ownerRoom ) {
 	return;
@@ -5980,6 +7341,722 @@ bot.addCommand({
 });
 
 })();
+
+;
+(function () {
+/*
+     _____ _           ______      _                    __   _   _
+    |_   _| |          | ___ \    | |                  / _| | | | |
+      | | | |__   ___  | |_/ /   _| | ___  ___    ___ | |_  | |_| |__   ___
+      | | |  _ \ / _ \ |    / | | | |/ _ \/ __|  / _ \|  _| | __|  _ \ / _ \
+      | | | | | |  __/ | |\ \ |_| | |  __/\__ \ | (_) | |   | |_| | | |  __/
+      \_/ |_| |_|\___| \_| \_\__,_|_|\___||___/  \___/|_|    \__|_| |_|\___|
+
+
+                     _____      _                       _
+                    |_   _|    | |                     | |
+                      | | _ __ | |_ ___ _ __ _ __   ___| |_
+                      | || '_ \| __/ _ \ '__| '_ \ / _ \ __|
+                     _| || | | | ||  __/ |  | | | |  __/ |_
+                     \___/_| |_|\__\___|_|  |_| |_|\___|\__|
+*/
+var rulz = [
+	'1. Do not talk about /b/',
+	'2. Do NOT talk about /b/',
+	'3. We are Anonymous.',
+	'4. Anonymous is legion.',
+	'5. Anonymous does not forgive, Anonymous does not forget.',
+	'6. Anonymous can be horrible, senseless, uncaring monster.',
+	'7. Anonymous is still able to deliver.',
+	'8. There are no real rules about posting.',
+	'9. There are no real rules about moderation either � enjoy your ban.',
+	'10. If you enjoy any rival sites � DON\'T.',
+	'11. You must have pictures to prove your statement.',
+	'12. Lurk moar � it\'s never enough.',
+	'13. Nothing is Sacred.',
+	'14. Do not argue with a troll � it means that they win.',
+	'15. The more beautiful and pure a thing is, the more satisfying it is to corrupt it.',
+	'16. There are NO girls on the internet.',
+	'17. A cat is fine too.',
+	'18. One cat leads to another.',
+	'19. The more you hate it, the stronger it gets.',
+	'20. It is delicious cake. You must eat it.',
+	'21. It is delicious trap. You must hit it.',
+	'22. /b/ sucks today.',
+	'23. Cock goes in here.',
+	'24. You will never have sex.',
+	'25. ????',
+	'26. PROFIT!',
+	'27. It needs more Desu. No exceptions.',
+	'28. There will always be more fucked up shit than what you just saw.',
+	'29. You can not divide by zero (just because the calculator says so).',
+	'30. No real limits of any kind apply here � not even the sky',
+	'31. CAPSLOCK IS CRUISE CONTROL FOR COOL.',
+	'32. EVEN WITH CRUISE CONTROL YOU STILL HAVE TO STEER.',
+	'33. Desu isn\'t funny. Seriously guys. It\'s worse than Chuck Norris jokes.',
+	'34. There is porn of it. No exceptions.',
+	'35. If no porn is found of it, it will be created.',
+	'36. No matter what it is, it is somebody\'s fetish. No exceptions.',
+	'37. Even one positive comment about Japanese things can make you a weeaboo.',
+	'38. When one sees a lion, one must get into the car',
+	'39. There is furry porn of it. No exceptions.',
+	'40. The pool is always closed due to AIDS (and stingrays, which also have AIDS).',
+	'41. If there isn\'t enough just ask for Moar.',
+	'42. Everything has been cracked and pirated.',
+	'43. DISREGARD THAT I SUCK COCKS',
+	'44. The internet is not your personal army.',
+	'45. Rule 45 is a lie.',
+	'46. The cake is a lie.',
+	'47. If you post it, they will cum.',
+	'48. It will always need moar sauce.',
+	'49. The internet makes you stupid.',
+	'50. Anything can be a meme.',
+	'51. Longcat is looooooooooong.',
+	'52. If something goes wrong, Ebaums did it.',
+	'53. Anonymous is a virgin by default.',
+	'54. Moot has cat ears, even in real life. No exceptions.',
+	'55. CP is awwwright, but DSFARGEG will get you b&.',
+	'56. Don\'t mess with football.',
+	'57. MrSpooky has never seen so many ingrates.',
+	'58. Anonymous does not "buy", he downloads.',
+	'59. The term "sage" does not refer to the spice.',
+	'60. If you say Candlejack, you w',
+	'61. You cannot divide by zero.',
+	'62. The internet is SERIOUS FUCKING BUSINESS.',
+	'63. If you do not believe it, then it must be habeebed for great justice.',
+	'64. Not even Spider-Man knows how to shot web.',
+	'65. Mitchell Henderson was an hero to us all.',
+	'66. This is not lupus, it\'s SPARTAAAAAAAAAA.',
+	'67. One does not simply shoop da whoop into Mordor.',
+	'68. Katy is bi, so deal w/it.',
+	'69. LOL SIXTY NINE AMIRITE?',
+	'70. Also, cocks.',
+	'71. This is a showdown, a throwdown, hell no I can\'t slow down, it\'s gonna go.',
+	'72. Anonymous did NOT, under any circumstances, tk him 2da bar|?',
+	'73. If you express astonishment at someone\'s claim, it is most likely just a clever ruse.',
+	'74. If it hadn\'t been for Cotton Eyed Joe, Anonymous would have been married a long time ago.',
+	'75. Around Snacks, CP is lax.',
+	'76. All numbers are at least 100 but always OVER NINE THOUSAAAAAND.',
+	'77. Hal Turner definitely needs to gb2/hell/.',
+	'78. Mods are fucking fags. No exceptions.',
+	'79. All Caturday threads will be bombarded with Zippocat. No exceptions.',
+	'80. No matter how cute it is, it probably skullfucked your mother last night.',
+	'81. That\'s not mud.',
+	'82. Steve Irwin\'s death is really, really funny.',
+	'83. The Internet is SERIOUS FUCKING BUSINESS.',
+	'84. Rule 87 is true.',
+	'85. Yes, it is some chickens.',
+	'86. Bobba bobba is bobba.',
+	'87. Rule 84 is false. OH SHI-',
+	'88. If your statement is preceded by "HAY GUYZ", then you are not doing it right.',
+	'89. If you cannot understand it, it is machine code.',
+	'90. Anonymous still owes Hal Turner one trillion U.S. dollars.',
+	'91. Spengbab Sqarpaint is luv Padtwick Zhstar iz fwend.',
+	'92. Disregard Bigmike, he sucks cocks.',
+	'93. Secure tripcodes are for jerks.',
+	'94. If someone herd u liek Mudkips, deny it constantly for the lulz.',
+	'95. Combo breakers are inevitable. If the combo is completed successfully, it is gay.',
+	'96. I am a huge faggot. Please rape my face.',
+	'97. Shit sucks and will never be stickied.',
+	'98. Bricks must are required to be shat whenever Anonymous is surprised.',
+	'99. If you have no bricks to shit, you are made of fail and AIDS.',
+	'100. ZOMG NONE',
+	'101. The internet is always right. No exceptions',
+	'102. The internet is really, really great, FOR PORN.'
+];
+
+function findRulz ( msg ) {
+	//matches will look like this:
+	// [ ruleIndex, to/and, ruleIndex ]
+	var start = Math.max( msg.matches[1], 1 ) - 1,
+		end = Math.min( msg.matches[3], rulz.length ),
+		preposition = msg.matches[ 2 ],
+		tmp, res;
+
+	console.log( start, end, preposition, 'rulz' );
+
+	if ( start && !end ) {
+		return rulz[ start ];
+	}
+
+	if ( preposition === 'to' ) {
+		if ( start > end ) {
+			tmp = start;
+			start = end;
+			end = tmp;
+		}
+
+		res = rulz.slice( start, end );
+	}
+	else {
+		res = [ rulz[start], rulz[end] ];
+	}
+
+	return res.join( '\n' );
+}
+
+var regex = /(?:show|tell) (?:me)? rules? (\d+)\s?(?:(,|and|to)\s?(\d+))?/;
+
+bot.listen( regex, findRulz );
+}());
+;
+var nudgeend = false;
+    var items = [];
+	var time;
+	
+(function () {
+var msg = null;
+//collection of nudges; msgObj, time left and the message itself
+var nudges = [],
+	interval = 100 * 60;
+
+function update () {
+	var now = Date.now();
+	nudges = nudges.filter(function ( nudge ) {
+		nudge.time -= interval;
+
+		if ( nudge.time <= 0 ) {
+		if(!nudgeend)
+		{
+			sendNudge(nudge );		
+			nudge.time = time;
+			}
+	//	else
+		//	return false;			
+		}
+			if(nudgeend)
+				return false;
+		return true;
+	});
+
+	setTimeout( update, interval );
+}
+function sendNudge ( nudge ) {
+	    var req;
+
+    var rand;
+	        function getRandomQuestion(){
+    var item;
+  req = new XMLHttpRequest();
+            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+encodeURIComponent(nudge.sourcemessage), async = false);
+            req.onreadystatechange =  function processUser(){
+        if(req.readyState == 4)
+        {
+        var res = JSON.parse(req.responseText);
+        
+        for (var i = 0; i < res["items"].length; i++) 
+        {
+            items.push(res.items[i].title);
+        }
+           global = items[Math.floor(Math.random() * items.length)];               
+        }
+                 
+        };
+            req.send();    
+            console.log(global);
+			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+encodeURIComponent(nudge.sourcemessage));
+
+			if(htmlDecode(global)[htmlDecode(global).length-1]!='?')
+				return htmlDecode(global)+'?';
+            return htmlDecode(global);
+            
+        }
+    //let's put an arbitrary comment here
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes[0].nodeValue;
+}
+	//check to see if the nudge was sent after a bigger delay than expected
+	//TODO: that ^
+	if(!nudgeend)
+		nudge.msg.send( getRandomQuestion());
+}
+setTimeout( update, interval );
+
+//now for the command itself
+function addNudge ( delay, message, msgObj ) {
+if(!nudgeend)
+{
+	var inMS;
+	console.log( delay, message, '/SPAM NUDGE input' );
+msg = this.msgObj;
+console.log( msg, 'nudge msag' );
+	//interval will be one of these (where n is a number):
+	// nm  =>  n minutes
+	// n   =>  n minutes
+	//so erm...yeah. just parse the bitch
+	delay = parseFloat( delay );
+	//minsInMs = mins * 60 * 1000
+	//TODO: allow more than just minutes
+	//TODO: upper cap
+	inMS = delay * 60000;
+
+	if ( isNaN(inMS) ) {
+		return 'Many things can be labeled Not a Number; a delay should not' +
+			' be one of them.';
+	}
+	
+	time = inMS;
+
+
+
+
+//htmlDecode('&lt;&gt;'); // "<>"
+    var nudge = {
+        msg     : msgObj,
+        message : "",
+        register: Date.now(),
+        time    : inMS,
+		delay : delay,
+		sourcemessage: message,
+		msgObject : msgObj
+    };
+	nudges.push( nudge );
+	//console.log( nudge, nudges, '/nudge register' );
+
+	//return 'Nudge registered.';
+}
+}
+
+bot.addCommand({
+	name : 's',
+	fun  : nudgeCommand,
+	permissions : {
+		del : 'NONE',
+		//use : bot.owners
+	},
+
+	description : 'Register a nudge after an interval. ' +
+		'`/nudge intervalInMinutes message`, or the listener, ' +
+		'`nudge|remind|poke me? in? intervalInMinutes message`'
+});
+
+function nudgeCommand ( args ) {
+	var props = args.parse();
+	return addNudge( props[0], props.slice(1).join(' '), args );
+}
+
+}());
+(function () {
+
+// //collection of nudges; msgObj, time left and the message itself
+// var nudges = [],
+	// interval = 100 * 60;
+
+// function update () {
+	// var now = Date.now();
+	// nudges = nudges.filter(function ( nudge ) {
+		// nudge.time -= interval;
+
+		// if ( nudge.time <= 0 ) {
+			// sendNudge( nudge );
+			// return false;
+		// }
+		// return true;
+	// });
+
+	// setTimeout( update, interval );
+// }
+// function sendNudge ( nudge ) {
+	// console.log( nudge, 'nudge fire' );
+	// //check to see if the nudge was sent after a bigger delay than expected
+	// //TODO: that ^
+	// nudge.msg.reply( nudge.message );
+// }
+// setTimeout( update, interval );
+
+// //now for the command itself
+// function addNudge ( delay, message, msgObj ) {
+	// var inMS;
+	// console.log( delay, message, '/nudge input' );
+
+	// //interval will be one of these (where n is a number):
+	// // nm  =>  n minutes
+	// // n   =>  n minutes
+	// //so erm...yeah. just parse the bitch
+	// delay = parseFloat( delay );
+	// //minsInMs = mins * 60 * 1000
+	// //TODO: allow more than just minutes
+	// //TODO: upper cap
+	// inMS = delay * 60000;
+
+	// if ( isNaN(inMS) ) {
+		// return 'Many things can be labeled Not a Number; a delay should not' +
+			// ' be one of them.';
+	// }
+
+	// //let's put an arbitrary comment here
+
+	// var nudge = {
+		// msg     : msgObj,
+		// message : '*nudge* ' + message,
+		// register: Date.now(),
+		// time    : inMS
+	// };
+	// nudges.push( nudge );
+	// //console.log( nudge, nudges, '/nudge register' );
+
+	// //return 'Nudge registered.';
+// }
+
+bot.addCommand({
+	name : 'ss',
+	fun  : nudgeCommand,
+	permissions : {
+		del : 'NONE',
+		//use : bot.owners
+	},
+
+	description : 'DONT USE THIS OR THE WORLD WILL EXPLODE ' +
+		'`/s its a secret`'
+});
+
+
+function nudgeCommand ( args ) {
+	// var props = args.parse();
+	// return addNudge( props[0], props.slice(1).join(' '), args );
+	nudgeend = true;
+}
+
+}());
+
+;
+
+;
+/*****************************************************************************\
+
+ Javascript "SOAP Client" library
+
+ @version: 1.4 - 2005.12.10
+ @author: Matteo Casati, Ihar Voitka - http://www.guru4.net/
+ @description: (1) SOAPClientParameters.add() method returns 'this' pointer.
+               (2) "_getElementsByTagName" method added for xpath queries.
+               (3) "_getXmlHttpPrefix" refactored to "_getXmlHttpProgID" (full 
+                   ActiveX ProgID).
+               
+ @version: 1.3 - 2005.12.06
+ @author: Matteo Casati - http://www.guru4.net/
+ @description: callback function now receives (as second - optional - parameter) 
+               the SOAP response too. Thanks to Ihar Voitka.
+               
+ @version: 1.2 - 2005.12.02
+ @author: Matteo Casati - http://www.guru4.net/
+ @description: (1) fixed update in v. 1.1 for no string params.
+               (2) the "_loadWsdl" method has been updated to fix a bug when 
+               the wsdl is cached and the call is sync. Thanks to Linh Hoang.
+               
+ @version: 1.1 - 2005.11.11
+ @author: Matteo Casati - http://www.guru4.net/
+ @description: the SOAPClientParameters.toXML method has been updated to allow
+               special characters ("<", ">" and "&"). Thanks to Linh Hoang.
+
+ @version: 1.0 - 2005.09.08
+ @author: Matteo Casati - http://www.guru4.net/
+ @notes: first release.
+
+\*****************************************************************************/
+
+function SOAPClientParameters()
+{
+	var _pl = new Array();
+	this.add = function(name, value) 
+	{
+		_pl[name] = value; 
+		return this; 
+	}
+	this.toXml = function()
+	{
+		var xml = "";
+		for(var p in _pl)
+		{
+			if(typeof(_pl[p]) != "function")
+				xml += "<" + p + ">" + _pl[p].toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + p + ">";
+		}
+		return xml;	
+	}
+}
+
+function SOAPClient() {}
+
+SOAPClient.invoke = function(url, method, parameters, async, callback)
+{
+	if(async)
+		SOAPClient._loadWsdl(url, method, parameters, async, callback);
+	else
+		return SOAPClient._loadWsdl(url, method, parameters, async, callback);
+}
+
+// private: wsdl cache
+SOAPClient_cacheWsdl = new Array();
+
+// private: invoke async
+SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
+{
+	// load from cache?
+	var wsdl = SOAPClient_cacheWsdl[url];
+	if(wsdl + "" != "" && wsdl + "" != "undefined")
+		return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+	// get wsdl
+	var xmlHttp = SOAPClient._getXmlHttp();
+	xmlHttp.open("GET", url + "?wsdl", async);
+	if(async) 
+	{
+		xmlHttp.onreadystatechange = function() 
+		{
+			if(xmlHttp.readyState == 4)
+				SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+		}
+	}
+	xmlHttp.send(null);
+	if (!async)
+		return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+}
+SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
+{
+	var wsdl = req.responseXML;
+	SOAPClient_cacheWsdl[url] = wsdl;	// save a copy in cache
+	return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+}
+SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback, wsdl)
+{
+	// get namespace
+	var ns = (wsdl.documentElement.attributes["targetNamespace"] + "" == "undefined") ? wsdl.documentElement.attributes.getNamedItem("targetNamespace").nodeValue : wsdl.documentElement.attributes["targetNamespace"].value;
+	// build SOAP request
+	var sr = 
+				"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+				"<soap:Envelope " +
+				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+				"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
+				"xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+				"<soap:Body>" +
+				"<" + method + " xmlns=\"" + ns + "\">" +
+				parameters.toXml() +
+				"</" + method + "></soap:Body></soap:Envelope>";
+	// send request
+	var xmlHttp = SOAPClient._getXmlHttp();
+	xmlHttp.open("POST", url, async);
+	var soapaction = ((ns.lastIndexOf("/") != ns.length - 1) ? ns + "/" : ns) + method;
+	xmlHttp.setRequestHeader("SOAPAction", soapaction);
+	xmlHttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
+	if(async) 
+	{
+		xmlHttp.onreadystatechange = function() 
+		{
+			if(xmlHttp.readyState == 4)
+				SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+		}
+	}
+	xmlHttp.send(sr);
+	if (!async)
+		return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+}
+SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
+{
+	var o = null;
+	var nd = SOAPClient._getElementsByTagName(req.responseXML, method + "Result");
+	if(nd.length == 0)
+	{
+		if(req.responseXML.getElementsByTagName("faultcode").length > 0)
+			throw new Error(500, req.responseXML.getElementsByTagName("faultstring")[0].childNodes[0].nodeValue);
+	}
+	else
+		o = SOAPClient._soapresult2object(nd[0], wsdl);
+	if(callback)
+		callback(o, req.responseXML);
+	if(!async)
+		return o;		
+}
+
+// private: utils
+SOAPClient._getElementsByTagName = function(document, tagName)
+{
+	try
+	{
+		// trying to get node omitting any namespaces (latest versions of MSXML.XMLDocument)
+		return document.selectNodes(".//*[local-name()=\""+ tagName +"\"]");
+	}
+	catch (ex) {}
+	// old XML parser support
+	return document.getElementsByTagName(tagName);
+}
+
+SOAPClient._soapresult2object = function(node, wsdl)
+{
+	return SOAPClient._node2object(node, wsdl);
+}
+SOAPClient._node2object = function(node, wsdl)
+{
+	// null node
+	if(node == null)
+		return null;
+	// text node
+	if(node.nodeType == 3 || node.nodeType == 4)
+		return SOAPClient._extractValue(node, wsdl);
+	// leaf node
+	if (node.childNodes.length == 1 && (node.childNodes[0].nodeType == 3 || node.childNodes[0].nodeType == 4))
+		return SOAPClient._node2object(node.childNodes[0], wsdl);
+	var isarray = SOAPClient._getTypeFromWsdl(node.nodeName, wsdl).toLowerCase().indexOf("arrayof") != -1;
+	// object node
+	if(!isarray)
+	{
+		var obj = null;
+		if(node.hasChildNodes())
+			obj = new Object();
+		for(var i = 0; i < node.childNodes.length; i++)
+		{
+			var p = SOAPClient._node2object(node.childNodes[i], wsdl);
+			obj[node.childNodes[i].nodeName] = p;
+		}
+		return obj;
+	}
+	// list node
+	else
+	{
+		// create node ref
+		var l = new Array();
+		for(var i = 0; i < node.childNodes.length; i++)
+			l[l.length] = SOAPClient._node2object(node.childNodes[i], wsdl);
+		return l;
+	}
+	return null;
+}
+SOAPClient._extractValue = function(node, wsdl)
+{
+	var value = node.nodeValue;
+	switch(SOAPClient._getTypeFromWsdl(node.parentNode.nodeName, wsdl).toLowerCase())
+	{
+		default:
+		case "s:string":			
+			return (value != null) ? value + "" : "";
+		case "s:boolean":
+			return value+"" == "true";
+		case "s:int":
+		case "s:long":
+			return (value != null) ? parseInt(value + "", 10) : 0;
+		case "s:double":
+			return (value != null) ? parseFloat(value + "") : 0;
+		case "s:datetime":
+			if(value == null)
+				return null;
+			else
+			{
+				value = value + "";
+				value = value.substring(0, value.lastIndexOf("."));
+				value = value.replace(/T/gi," ");
+				value = value.replace(/-/gi,"/");
+				var d = new Date();
+				d.setTime(Date.parse(value));										
+				return d;				
+			}
+	}
+}
+SOAPClient._getTypeFromWsdl = function(elementname, wsdl)
+{
+	var ell = wsdl.getElementsByTagName("s:element");	// IE
+	if(ell.length == 0)
+		ell = wsdl.getElementsByTagName("element");	// MOZ
+	for(var i = 0; i < ell.length; i++)
+	{
+		if(ell[i].attributes["name"] + "" == "undefined")	// IE
+		{
+			if(ell[i].attributes.getNamedItem("name") != null && ell[i].attributes.getNamedItem("name").nodeValue == elementname && ell[i].attributes.getNamedItem("type") != null) 
+				return ell[i].attributes.getNamedItem("type").nodeValue;
+		}	
+		else // MOZ
+		{
+			if(ell[i].attributes["name"] != null && ell[i].attributes["name"].value == elementname && ell[i].attributes["type"] != null)
+				return ell[i].attributes["type"].value;
+		}
+	}
+	return "";
+}
+// private: xmlhttp factory
+SOAPClient._getXmlHttp = function() 
+{
+	try
+	{
+		if(window.XMLHttpRequest) 
+		{
+			var req = new XMLHttpRequest();
+			// some versions of Moz do not support the readyState property and the onreadystate event so we patch it!
+			if(req.readyState == null) 
+			{
+				req.readyState = 1;
+				req.addEventListener("load", 
+									function() 
+									{
+										req.readyState = 4;
+										if(typeof req.onreadystatechange == "function")
+											req.onreadystatechange();
+									},
+									false);
+			}
+			return req;
+		}
+		if(window.ActiveXObject) 
+			return new ActiveXObject(SOAPClient._getXmlHttpProgID());
+	}
+	catch (ex) {}
+	throw new Error("Your browser does not support XmlHttp objects");
+}
+SOAPClient._getXmlHttpProgID = function()
+{
+	if(SOAPClient._getXmlHttpProgID.progid)
+		return SOAPClient._getXmlHttpProgID.progid;
+	var progids = ["Msxml2.XMLHTTP.5.0", "Msxml2.XMLHTTP.4.0", "MSXML2.XMLHTTP.3.0", "MSXML2.XMLHTTP", "Microsoft.XMLHTTP"];
+	var o;
+	for(var i = 0; i < progids.length; i++)
+	{
+		try
+		{
+			o = new ActiveXObject(progids[i]);
+			return SOAPClient._getXmlHttpProgID.progid = progids[i];
+		}
+		catch (ex) {};
+	}
+	throw new Error("Could not find an installed XML parser");
+}
+;
+(function () {
+//add a bot command
+bot.addCommand({
+    name : 'spanish',
+    fun : spanish,
+
+    //permissions object (can be ommitted for all-can-use, all-can-del)
+    permissions : {
+        use : 'ALL' ,
+        del : 'NONE' 
+    },
+    description : 'Translate from english to spanish',
+
+    //whether the command is asynchronous or not (default false)
+    async : false
+});
+
+function spanish (args, cb) {
+try{
+
+var text =args;
+//console.log(args, "args");
+$.post(
+    'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
+	       
+    function(data){
+	console.log("wasrun");
+//  console.log(args);
+  console.log(data);
+    }
+);
+}
+catch(e)
+{console.log(e.stack, "ERROR STACK");}
+}
+
+
+//add a listening regex and a corresponding callback
+}());
 
 ;
 (function () {
@@ -6296,6 +8373,56 @@ bot.addCommand( bot.CommunityCommand({
 }));
 
 })();
+
+;
+(function () {
+
+function google ( args, cb ) {
+		console.log(args.toString());
+IO.jsonp.time( args.toString(), done );
+
+	function done ( resp ) {
+		console.log(resp);
+		args.send(calcTime(resp['data']['request'][0]['query'],resp['data']['time_zone'][0]['utcOffset']));
+	}
+	
+	}
+	
+	
+	// function to calculate local time
+// in a different city
+// given the city's UTC offset
+function calcTime(city, offset) {
+
+    // create Date object for current location
+    d = new Date();
+    
+    // convert to msec
+    // add local time zone offset 
+    // get UTC time in msec
+    utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    
+    // create new Date object for different city
+    // using supplied offset
+    nd = new Date(utc + (3600000*offset));
+    
+    // return time as a string
+    return "The local time in " + city + " is " + nd.toLocaleString();
+
+}
+
+
+
+bot.addCommand({
+	name : 'time',
+	fun  : google,
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Gets the current time in wherever. Acceptable formats are:- City Name; City Name, State (US only); City Name, State, Country; City Name, Country `/time request`',
+	async : true
+});
+}());
 
 ;
 (function () {
@@ -6655,6 +8782,8 @@ bot.addCommand({
 }());
 
 ;
+
+;
 (function () {
 	"use strict";
 	var unonebox = {
@@ -6980,6 +9109,8 @@ bot.listen(questionRe, function questionListener () {
 }());
 
 ;
+
+;
 (function () {
 "use strict";
 
@@ -7121,35 +9252,86 @@ bot.addCommand({
 }());
 
 ;
-(function () {
-"use strict";
+// (function () {
+// "use strict";
+// //welcomes new users with a link to the room rules
 
-var message = "Welcome to the JavaScript chat! Please review the " +
-		bot.adapter.link(
-			"room pseudo-rules",
-			"http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
-	"Please don't ask if you can ask or if anyone's around; just ask " +
-	"your question, and if anyone's free and interested they'll help.";
+// var seen = bot.memory.get( 'users' );
 
-function welcome ( name ) {
-	return bot.adapter.reply( name ) + " " + message; ;
-}
+// var message = "Welcome to the JavaScript chat! Please review the " +
+		// bot.adapter.link(
+			// "room pseudo-rules",
+			// "http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
+	// "Please don't ask if you can ask or if anyone's around; just ask " +
+	// "your question, and if anyone's free and interested they'll help.";
 
-bot.addCommand({
-	name : 'welcome',
-	fun : function ( args ) {
-		if (!args.length) {
-			return message;
-		}
+// function welcome ( name, room ) {
+	// bot.adapter.out.add(
+		// bot.adapter.reply( name ) + " " + message, room );
+// }
 
-		return args.send( welcome(args) );
-	},
-	permission : {
-		del : 'NONE'
-	},
-	description : 'Welcomes a user. `/welcome user`'
-});
-}());
+// IO.register( 'userregister', function ( user, room ) {
+	// var semiLegitUser = bot.isOwner( user.id ) ||
+		// user.reputation > 1000 || user.reputation < 20;
+
+	// if (
+		// Number( room ) !== 17 || semiLegitUser  || seen[ user.id ]
+	// ) {
+		// if ( semiLegitUser ) {
+			// finish( true );
+		// }
+		// return;
+	// }
+
+	// IO.xhr({
+		// method : 'GET',
+		// url : '/users/' + user.id,
+
+		// complete : complete
+	// });
+
+	// function complete ( resp ) {
+		// //I'm parsing html with regexps. hopefully Cthulu won't eat me.
+		// // <a href="/transcript/17">7</a>
+		// // <a href="/transcript/17">47.1k</a>
+		// var chatMessages = /transcript\/17(?:'|")>([\d\.]+)(k?)/.exec( resp );
+
+		// if ( !chatMessages || (
+			// chatMessages[ 2 ] || parseFloat( chatMessages[1] ) < 2
+		// )) {
+			// welcome( user.name, room );
+		// }
+		// finish();
+	// }
+
+	// function finish ( unsee ) {
+		// if ( unsee ) {
+			// delete seen[ user.id ];
+		// }
+		// else {
+			// seen[ user.id ] = true;
+		// }
+		// bot.memory.save( 'users' );
+	// }
+// });
+
+// bot.addCommand({
+	// name : 'welcome',
+	// fun : function ( args ) {
+		// if (!args.length) {
+			// return message;
+		// }
+
+		// welcome( args, args.get('roomid') );
+	// },
+	// permission : {
+		// del : 'NONE'
+	// },
+	// description : 'Welcomes a user. `/welcome user`'
+// });
+// }());
+
+;
 
 ;
 (function () {
@@ -7214,6 +9396,8 @@ bot.addCommand({
 	async : true
 });
 })();
+
+;
 
 ;
 (function() {

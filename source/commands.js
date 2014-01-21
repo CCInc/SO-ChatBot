@@ -629,7 +629,7 @@ var descriptions = {
 	refresh : 'Reloads the browser window I live in',
 	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
-		' /tell `msg_id|usr_name cmdName [cmdArgs]`'
+		//' /tell `msg_id|usr_name cmdName [cmdArgs]`'
 		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
 	unban : 'Removes a user from my mindjail. `/unban usr_id|usr_name`',
 	urban : 'Fetches UrbanDictionary definition. `/urban something`',
