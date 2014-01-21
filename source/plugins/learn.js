@@ -1,10 +1,10 @@
 (function () {
 "use strict";
-var parse = bot.getCommand( 'parse' );
 var storage = bot.memory.get( 'learn' );
 
 var replyPatterns = /^(<>|<user>|<msg>)/i,
 	onlyReply = new RegExp( replyPatterns.source + '$', 'i' );
+var mismatchErrMessage = 'Input not matching `{input}`. Help: {description}';
 
 function learn ( args ) {
 	bot.log( args, '/learn input' );
@@ -18,11 +18,6 @@ function learn ( args ) {
 		creator: args.get( 'user_name' ),
 		date   : new Date()
 	};
-	command.description = [
-		'User-taught command:',
-		commandParts[3] || '',
-		args.codify( command.output )
-	].join( ' ' );
 
 	//a truthy value, unintuitively, means it isn't valid, because it returns
 	// an error message
@@ -30,8 +25,14 @@ function learn ( args ) {
 	if ( errorMessage ) {
 		return errorMessage;
 	}
+
 	command.name = command.name.toLowerCase();
 	command.input = new RegExp( command.input );
+	command.description = [
+		'User-taught command:',
+		commandParts[3] || '',
+		args.codify( command.output )
+	].join( ' ' );
 
 	bot.log( command, '/learn parsed' );
 
@@ -74,11 +75,18 @@ function makeCustomCommand ( command ) {
 
 	bot.log( command, '/learn makeCustomCommand' );
 
-	return function ( args ) {
+	return function userLearnedCommand ( args ) {
 		bot.log( args, command.name + ' input' );
 
 		var cmdArgs = bot.Message( output, args.get() ),
-			res = parse.exec( cmdArgs, command.input.exec(args) );
+			parts = command.input.exec( args );
+
+		//reply with the desc if there's incorrect usage (#102)
+		if ( !parts ) {
+			return mismatchErrMessage.supplant( command );
+		}
+
+		var res = bot.parseMacro( cmdArgs, parts );
 
 		switch ( replyMethod ) {
 		case '':
@@ -109,7 +117,7 @@ function checkCommand ( cmd ) {
 		error;
 
 	if ( somethingUndefined ) {
-		error = 'Illegal /learn object; see `/help learn`';
+		error = 'Illegal `/learn` object; see `/help learn`';
 	}
 	//not very possible, I know, but...uh...yes. definitely. I agree. spot on,
 	// Mr. Pips.

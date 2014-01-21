@@ -102,9 +102,51 @@ var IO = window.IO = {
 	}
 };
 
-IO.decodehtmlEntities = (function (){
+//turns some html tags into markdown. a major assumption is that the input is
+// properly sanitised - that is, all <, &, etc entered by the user got turned
+// into html entities.
+IO.htmlToMarkdown = (function () {
+
+// A string value is the delimiter (what replaces the tag)
+var markdown = {
+	i : '*',
+	b : '**',
+	strike : '---',
+	code : '`',
+
+	a : function ( $0, $1, text ) {
+		var href = /href="([^"]+?)"/.exec( $0 );
+
+		if ( !href ) {
+			return $0;
+		}
+		return '[' + text + '](' + href[1] + ')';
+	},
+};
+var htmlRe = /<(\S+)[^\>]*>([^<]+)<\/\1>/g;
+
+return function ( html ) {
+	var delim;
+
+	return html.replace( htmlRe, decodeHtml );
+
+	function decodeHtml ( $0, tag, text ) {
+		if ( !markdown.hasOwnProperty(tag) ) {
+			return $0;
+		}
+
+		delim = markdown[ tag ];
+
+		return delim.apply ?
+			markdown[ tag ].apply( markdown, arguments ) :
+			delim + text + delim;
+	}
+};
+}());
+
+IO.decodehtmlEntities = (function () {
 var entities; //will be filled in the following line
-entities = {"quot":"\"","amp":"&","apos":"'","lt":"<","gt":">","nbsp":" ","iexcl":"¡","cent":"¢","pound":"£","curren":"¤","yen":"¥","brvbar":"¦","sect":"§","uml":"¨","copy":"©","ordf":"ª","laquo":"«","not":"¬","reg":"®","macr":"¯","deg":"°","plusmn":"±","sup2":"²","sup3":"³","acute":"´","micro":"µ","para":"¶","middot":"·","cedil":"¸","sup1":"¹","ordm":"º","raquo":"»","frac14":"¼","frac12":"½","frac34":"¾","iquest":"¿","Agrave":"À","Aacute":"Á","Acirc":"Â","Atilde":"Ã","Auml":"Ä","Aring":"Å","AElig":"Æ","Ccedil":"Ç","Egrave":"È","Eacute":"É","Ecirc":"Ê","Euml":"Ë","Igrave":"Ì","Iacute":"Í","Icirc":"Î","Iuml":"Ï","ETH":"Ð","Ntilde":"Ñ","Ograve":"Ò","Oacute":"Ó","Ocirc":"Ô","Otilde":"Õ","Ouml":"Ö","times":"×","Oslash":"Ø","Ugrave":"Ù","Uacute":"Ú","Ucirc":"Û","Uuml":"Ü","Yacute":"Ý","THORN":"Þ","szlig":"ß","agrave":"à","aacute":"á","acirc":"â","atilde":"ã","auml":"ä","aring":"å","aelig":"æ","ccedil":"ç","egrave":"è","eacute":"é","ecirc":"ê","euml":"ë","igrave":"ì","iacute":"í","icirc":"î","iuml":"ï","eth":"ð","ntilde":"ñ","ograve":"ò","oacute":"ó","ocirc":"ô","otilde":"õ","ouml":"ö","divide":"÷","oslash":"ø","ugrave":"ù","uacute":"ú","ucirc":"û","uuml":"ü","yacute":"ý","thorn":"þ","yuml":"ÿ","OElig":"Œ","oelig":"œ","Scaron":"Š","scaron":"š","Yuml":"Ÿ","fnof":"ƒ","circ":"ˆ","tilde":"˜","Alpha":"Α","Beta":"Β","Gamma":"Γ","Delta":"Δ","Epsilon":"Ε","Zeta":"Ζ","Eta":"Η","Theta":"Θ","Iota":"Ι","Kappa":"Κ","Lambda":"Λ","Mu":"Μ","Nu":"Ν","Xi":"Ξ","Omicron":"Ο","Pi":"Π","Rho":"Ρ","Sigma":"Σ","Tau":"Τ","Upsilon":"Υ","Phi":"Φ","Chi":"Χ","Psi":"Ψ","Omega":"Ω","alpha":"α","beta":"β","gamma":"γ","delta":"δ","epsilon":"ε","zeta":"ζ","eta":"η","theta":"θ","iota":"ι","kappa":"κ","lambda":"λ","mu":"μ","nu":"ν","xi":"ξ","omicron":"ο","pi":"π","rho":"ρ","sigmaf":"ς","sigma":"σ","tau":"τ","upsilon":"υ","phi":"φ","chi":"χ","psi":"ψ","omega":"ω","thetasym":"ϑ","upsih":"ϒ","piv":"ϖ","ensp":" ","emsp":" ","thinsp":" ","ndash":"–","mdash":"—","lsquo":"‘","rsquo":"’","sbquo":"‚","ldquo":"“","rdquo":"”","bdquo":"„","dagger":"†","Dagger":"‡","bull":"•","hellip":"…","permil":"‰","prime":"′","Prime":"″","lsaquo":"‹","rsaquo":"›","oline":"‾","frasl":"⁄","euro":"€","image":"ℑ","weierp":"℘","real":"ℜ","trade":"™","alefsym":"ℵ","larr":"←","uarr":"↑","rarr":"→","darr":"↓","harr":"↔","crarr":"↵","lArr":"⇐","uArr":"⇑","rArr":"⇒","dArr":"⇓","hArr":"⇔","forall":"∀","part":"∂","exist":"∃","empty":"∅","nabla":"∇","isin":"∈","notin":"∉","ni":"∋","prod":"∏","sum":"∑","minus":"−","lowast":"∗","radic":"√","prop":"∝","infin":"∞","ang":"∠","and":"∧","or":"∨","cap":"∩","cup":"∪","int":"∫","there4":"∴","sim":"∼","cong":"≅","asymp":"≈","ne":"≠","equiv":"≡","le":"≤","ge":"≥","sub":"⊂","sup":"⊃","nsub":"⊄","sube":"⊆","supe":"⊇","oplus":"⊕","otimes":"⊗","perp":"⊥","sdot":"⋅","lceil":"⌈","rceil":"⌉","lfloor":"⌊","rfloor":"⌋","lang":"〈","rang":"〉","loz":"◊","spades":"♠","clubs":"♣","hearts":"♥","diams":"♦", "zwnj":""};
+entities = {"quot":"\"","amp":"&","apos":"'","lt":"<","gt":">","nbsp":" ","iexcl":"¡","cent":"¢","pound":"£","curren":"¤","yen":"¥","brvbar":"¦","sect":"§","uml":"¨","copy":"©","ordf":"ª","laquo":"«","not":"¬","reg":"®","macr":"¯","deg":"°","plusmn":"±","sup2":"²","sup3":"³","acute":"´","micro":"µ","para":"¶","middot":"·","cedil":"¸","sup1":"¹","ordm":"º","raquo":"»","frac14":"¼","frac12":"½","frac34":"¾","iquest":"¿","Agrave":"À","Aacute":"Á","Acirc":"Â","Atilde":"Ã","Auml":"Ä","Aring":"Å","AElig":"Æ","Ccedil":"Ç","Egrave":"È","Eacute":"É","Ecirc":"Ê","Euml":"Ë","Igrave":"Ì","Iacute":"Í","Icirc":"Î","Iuml":"Ï","ETH":"Ð","Ntilde":"Ñ","Ograve":"Ò","Oacute":"Ó","Ocirc":"Ô","Otilde":"Õ","Ouml":"Ö","times":"×","Oslash":"Ø","Ugrave":"Ù","Uacute":"Ú","Ucirc":"Û","Uuml":"Ü","Yacute":"Ý","THORN":"Þ","szlig":"ß","agrave":"à","aacute":"á","acirc":"â","atilde":"ã","auml":"ä","aring":"å","aelig":"æ","ccedil":"ç","egrave":"è","eacute":"é","ecirc":"ê","euml":"ë","igrave":"ì","iacute":"í","icirc":"î","iuml":"ï","eth":"ð","ntilde":"ñ","ograve":"ò","oacute":"ó","ocirc":"ô","otilde":"õ","ouml":"ö","divide":"÷","oslash":"ø","ugrave":"ù","uacute":"ú","ucirc":"û","uuml":"ü","yacute":"ý","thorn":"þ","yuml":"ÿ","OElig":"Œ","oelig":"œ","Scaron":"Š","scaron":"š","Yuml":"Ÿ","fnof":"ƒ","circ":"ˆ","tilde":"˜","Alpha":"Α","Beta":"Β","Gamma":"Γ","Delta":"Δ","Epsilon":"Ε","Zeta":"Ζ","Eta":"Η","Theta":"Θ","Iota":"Ι","Kappa":"Κ","Lambda":"Λ","Mu":"Μ","Nu":"Ν","Xi":"Ξ","Omicron":"Ο","Pi":"Π","Rho":"Ρ","Sigma":"Σ","Tau":"Τ","Upsilon":"Υ","Phi":"Φ","Chi":"Χ","Psi":"Ψ","Omega":"Ω","alpha":"α","beta":"β","gamma":"γ","delta":"δ","epsilon":"ε","zeta":"ζ","eta":"η","theta":"θ","iota":"ι","kappa":"κ","lambda":"λ","mu":"μ","nu":"ν","xi":"ξ","omicron":"ο","pi":"π","rho":"ρ","sigmaf":"ς","sigma":"σ","tau":"τ","upsilon":"υ","phi":"φ","chi":"χ","psi":"ψ","omega":"ω","thetasym":"ϑ","upsih":"ϒ","piv":"ϖ","ensp":" ","emsp":" ","thinsp":" ","ndash":"–","mdash":"—","lsquo":"‘","rsquo":"’","sbquo":"‚","ldquo":"“","rdquo":"”","bdquo":"„","dagger":"†","Dagger":"‡","bull":"•","hellip":"…","permil":"‰","prime":"′","Prime":"″","lsaquo":"‹","rsaquo":"›","oline":"‾","frasl":"⁄","euro":"€","image":"ℑ","weierp":"℘","real":"ℜ","trade":"™","alefsym":"ℵ","larr":"←","uarr":"↑","rarr":"→","darr":"↓","harr":"↔","crarr":"↵","lArr":"⇐","uArr":"⇑","rArr":"⇒","dArr":"⇓","hArr":"⇔","forall":"∀","part":"∂","exist":"∃","empty":"∅","nabla":"∇","isin":"∈","notin":"∉","ni":"∋","prod":"∏","sum":"∑","minus":"−","lowast":"∗","radic":"√","prop":"∝","infin":"∞","ang":"∠","and":"∧","or":"∨","cap":"∩","cup":"∪","int":"∫","there4":"∴","sim":"∼","cong":"≅","asymp":"≈","ne":"≠","equiv":"≡","le":"≤","ge":"≥","sub":"⊂","sup":"⊃","nsub":"⊄","sube":"⊆","supe":"⊇","oplus":"⊕","otimes":"⊗","perp":"⊥","sdot":"⋅","lceil":"⌈","rceil":"⌉","lfloor":"⌊","rfloor":"⌋","lang":"〈","rang":"〉","loz":"◊","spades":"♠","clubs":"♣","hearts":"♥","diams":"♦", "zwnj":"", "zwsp":""};
 
 
 /*
@@ -336,21 +378,6 @@ IO.jsonp.google = function ( query, cb ) {
 	});
 };
 
-IO.jsonp.image = function ( query, cb, number ) {
-	IO.jsonp({
-		url : 'https://www.googleapis.com/customsearch/v1',
-		jsonpName : 'callback',
-		data : {
-			q : query,
-			searchType: "image",
-			key: 'AIzaSyAHOOk144Q4ZQyRA0rxlmC8iZduc31Dnbo',
-			cx: '009867671278203221224:g1mxqhphcsk',
-			num: number,
-			safe: 'high'
-		},
-		fun : cb
-	});
-};
 ;
 //345678901234567890123456789012345678901234567890123456789012345678901234567890
 //small utility functions
@@ -380,11 +407,16 @@ Object.TruthMap = function ( props ) {
 	}
 };
 
+//turns a pseudo-array (like arguments) into a real array
+Array.from = function ( arrayLike, start ) {
+	return [].slice.call( arrayLike, start );
+};
+
 //SO chat uses an unfiltered for...in to iterate over an array somewhere, so
 // that I have to use Object.defineProperty to make these non-enumerable
 Object.defineProperty( Array.prototype, 'invoke', {
 	value : function ( funName ) {
-		var args = [].slice.call( arguments, 1 );
+		var args = Array.from( arguments, 1 );
 
 		return this.map( invoke );
 
@@ -505,7 +537,7 @@ Function.prototype.memoizeAsync = function ( hasher ) {
 	hasher = hasher || function (x) { return x; };
 
 	return function memoized () {
-		var args = [].slice.call( arguments ),
+		var args = Array.from( arguments ),
 			cb = args.pop(), //HEAVY assumption that cb is always passed last
 			hash = hasher.apply( null, arguments );
 
@@ -578,13 +610,13 @@ Math.gcd = function ( a, b ) {
 
 Math.rand = function ( min, max ) {
 	//rand() === rand( 0, 9 )
-	if ( !min ) {
+	if ( typeof min === 'undefined' ) {
 		min = 0;
 		max = 9;
 	}
 
 	//rand( max ) === rand( 0, max )
-	else if ( !max ) {
+	else if ( typeof max === 'undefined' ) {
 		max = min;
 		min = 0;
 	}
@@ -668,8 +700,7 @@ Date.timeSince = function ( d0, d1 ) {
 "use strict";
 
 var bot = window.bot = {
-	invocationPattern : 'cc',
-	botName: 'HangBot',
+	invocationPattern : '!!',
 
 	commands : {}, //will be filled as needed
 	commandDictionary : null, //it's null at this point, won't be for long
@@ -706,8 +737,9 @@ var bot = window.bot = {
 		try {
 			//it wants to execute some code
 			if ( /^c?>/.test(msg) ) {
-				this.eval( msg );
+				this.eval( msg.toString(), msg.directreply.bind(msg) );
 			}
+			//or maybe some other action.
 			else {
 				this.invokeAction( msg );
 			}
@@ -725,7 +757,7 @@ var bot = window.bot = {
 
 			msg.directreply( err );
 			//make sure we have it somewhere
-			console.dir( e );
+			console.error( e.stack );
 		}
 		finally {
 			this.info.invoked += 1;
@@ -762,11 +794,11 @@ var bot = window.bot = {
 		//man, I can't believe it worked...room full of nachos for me
 		var errMsg = 'That didn\'t make much sense.';
 		if ( guesses && guesses.length ) {
-			errMsg += ' Maybe you meant: ' + cmd.guesses.join( ', ' );
+			errMsg += ' Maybe you meant: ' + guesses.join( ', ' );
 		}
 		//mmmm....nachos
 		else {
-			errMsg += ' Use the help command to learn more.';
+			errMsg += ' Use the `!!/help` command to learn more.';
 		}
 		//wait a minute, these aren't nachos. these are bear cubs.
 		return errMsg;
@@ -801,7 +833,13 @@ var bot = window.bot = {
 	prepareMessage : function ( msgObj ) {
 		msgObj = this.adapter.transform( msgObj );
 
-		var msg = IO.decodehtmlEntities( msgObj.content );
+		//decode markdown and html entities.
+		var msg = IO.htmlToMarkdown( msgObj.content ); //#150
+		msg = IO.decodehtmlEntities( msg );
+
+		//fixes issues #87 and #90 globally
+		msg = msg.replace( /\u200b|\u200c/g, '' );
+
 		return this.Message(
 			msg.slice( this.invocationPattern.length ).trim(),
 			msgObj );
@@ -809,18 +847,16 @@ var bot = window.bot = {
 
 	validateMessage : function ( msgObj ) {
 		var msg = msgObj.content.trim();
-		
-		if( msg.startsWith( "@" + this.botName))
-		{
-		var message = msgObj.slice(("@" + this.botName).length +1);
-			console.log("cleverbot time " + message);
-			bot.cleverbot.speak();
+
+		//a bit js bot specific...make sure it isn't just !!! all round. #139
+		if ( this.invocationPattern === '!!' && (/^!!!+$/).test(msg) ) {
+			console.log('special skip');
 			return false;
 		}
 
 		return (
 			//make sure we don't process our own messages,
-			//msgObj.user_id !== bot.adapter.user_id &&
+			msgObj.user_id !== bot.adapter.user_id &&
 			//and the message begins with the invocationPattern
 			msg.startsWith( this.invocationPattern ) );
 	},
@@ -912,7 +948,17 @@ var bot = window.bot = {
 	},
 	continue : function () {
 		this.stopped = false;
-	}
+	},
+
+    devMode : false,
+    activateDevMode : function ( pattern ) {
+        this.devMode = true;
+        this.invocationPattern = pattern || 'beer!';
+        IO.events.userjoin.length = 0;
+        this.validateMessage = function ( msgObj ) {
+            return msgObj.content.trim().startsWith( this.invocationPattern );
+        };
+    }
 };
 
 //a place to hang your coat and remember the past. provides an abstraction over
@@ -975,11 +1021,12 @@ bot.banlist.contains = function ( id ) {
 };
 bot.banlist.add = function ( id ) {
 	this[ id ] = { told : false };
-	this.save();
+	bot.memory.save( 'ban' );
 };
 bot.banlist.remove = function ( id ) {
 	if ( this.contains(id) ) {
 		delete this[ id ];
+		bot.memory.save( 'ban' );
 	}
 };
 
@@ -1022,6 +1069,7 @@ bot.Command = function ( cmd ) {
 	cmd.del = function () {
 		bot.info.forgotten += 1;
 		delete bot.commands[ cmd.name ];
+		bot.commandDictionary.trie.del(cmd.name);
 	};
 
 	return cmd;
@@ -1212,18 +1260,22 @@ bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
 bot.eval = (function () {
 window.URL = window.URL || window.webkitURL || window.mozURL || null;
 
-//translation tool: https://tinker.io/b2ff5
-var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknYXRvYicgICAgICAgICAgICAgICA6IDEsCgknYnRvYScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCi8qIHdlIGRlZmluZSBpdCBvdXRzaWRlIHNvIGl0J2xsIG5vdCBiZSBpbiBzdHJpY3QgbW9kZSAqLwpmdW5jdGlvbiBleGVjICggY29kZSApIHsKCXJldHVybiBldmFsKCAndW5kZWZpbmVkO1xuJyArIGNvZGUgKTsKfQp2YXIgY29uc29sZSA9IHsKCV9pdGVtcyA6IFtdLAoJbG9nIDogZnVuY3Rpb24oKSB7CgkJY29uc29sZS5faXRlbXMucHVzaC5hcHBseSggY29uc29sZS5faXRlbXMsIGFyZ3VtZW50cyApOwoJfQp9Owpjb25zb2xlLmVycm9yID0gY29uc29sZS5pbmZvID0gY29uc29sZS5kZWJ1ZyA9IGNvbnNvbGUubG9nOwp2YXIgcCA9IGNvbnNvbGUubG9nLmJpbmQoIGNvbnNvbGUgKTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCWdsb2JhbC5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXBvc3RNZXNzYWdlKHsKCQkJZXZlbnQgOiAnc3RhcnQnCgkJfSk7CgoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0OwoKCQl0cnkgewoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgkJfQoJCWNhdGNoICggZSApIHsKCQkJcmVzdWx0ID0gZS50b1N0cmluZygpOwoJCX0KCgkJLypKU09OIGRvZXMgbm90IGxpa2UgYW55IG9mIHRoZSBmb2xsb3dpbmcqLwoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciBzaG91bGRfc3RyaW5nID0gZnVuY3Rpb24gKCB2YWx1ZSApIHsKCQkJdmFyIHR5cGUgPSAoIHt9ICkudG9TdHJpbmcuY2FsbCggdmFsdWUgKS5zbGljZSggOCwgLTEgKTsKCgkJCWlmICggdHlwZSBpbiBzdHJ1bmcgKSB7CgkJCQlyZXR1cm4gdHJ1ZTsKCQkJfQoJCQkvKm5laXRoZXIgZG9lcyBpdCBmZWVsIGNvbXBhc3Npb25hdGUgYWJvdXQgTmFOIG9yIEluZmluaXR5Ki8KCQkJcmV0dXJuIHZhbHVlICE9PSB2YWx1ZSB8fCB2YWx1ZSA9PT0gSW5maW5pdHk7CgkJfTsKCgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciBvdXRwdXQ7CgoJCQlpZiAoIHNob3VsZF9zdHJpbmcodmFsdWUpICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoIDEsIC0xICkKCQl9KTsKCX07Cn0pKCk7Cg==' );
+//translation tool: http://tinkerbin.heroku.com/84dPpGFr
+var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknY29uc29sZScgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknZXhlYycgICAgICAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknYXRvYicgICAgICAgICAgICAgICA6IDEsCgknYnRvYScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMSwKCSdXb3JrZXJNZXNzYWdlRXZlbnQnOiAxCn07CgpbIGdsb2JhbCwgT2JqZWN0LmdldFByb3RvdHlwZU9mKGdsb2JhbCkgXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoIHdoaXRleS5oYXNPd25Qcm9wZXJ0eShwcm9wKSApIHsKICAgICAgICAgICAgcmV0dXJuOwoJCX0KCiAgICAgICAgdHJ5IHsKICAgICAgICAgICAgT2JqZWN0LmRlZmluZVByb3BlcnR5KCBvYmosIHByb3AsIHsKICAgICAgICAgICAgICAgIGdldCA6IGZ1bmN0aW9uICgpIHsKICAgICAgICAgICAgICAgICAgICAvKiBURUUgSEVFICovCiAgICAgICAgICAgICAgICAgICAgdGhyb3cgbmV3IFJlZmVyZW5jZUVycm9yKCBwcm9wICsgJyBpcyBub3QgZGVmaW5lZCcgKTsKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgICBjb25maWd1cmFibGUgOiBmYWxzZSwKICAgICAgICAgICAgICAgIGVudW1lcmFibGUgOiBmYWxzZQogICAgICAgICAgICB9KTsKICAgICAgICB9CiAgICAgICAgY2F0Y2ggKCBlICkgewogICAgICAgICAgICBkZWxldGUgb2JqWyBwcm9wIF07CgogICAgICAgICAgICBpZiAoIG9ialsgcHJvcCBdICE9PSB1bmRlZmluZWQgKSB7CiAgICAgICAgICAgICAgICBvYmpbIHByb3AgXSA9IG51bGw7CiAgICAgICAgICAgIH0KICAgICAgICB9Cgl9KTsKfSk7CgpPYmplY3QuZGVmaW5lUHJvcGVydHkoIEFycmF5LnByb3RvdHlwZSwgJ2pvaW4nLCB7Cgl3cml0YWJsZTogZmFsc2UsCgljb25maWd1cmFibGU6IGZhbHNlLAoJZW51bXJhYmxlOiBmYWxzZSwKCgl2YWx1ZTogKGZ1bmN0aW9uICggb2xkICkgewoJCXJldHVybiBmdW5jdGlvbiAoIGFyZyApIHsKCQkJaWYgKCB0aGlzLmxlbmd0aCA+IDUwMCB8fCAoYXJnICYmIGFyZy5sZW5ndGggPiA1MDApICkgewoJCQkJdGhyb3cgJ0V4Y2VwdGlvbjogdG9vIG1hbnkgaXRlbXMnOwoJCQl9CgoJCQlyZXR1cm4gb2xkLmFwcGx5KCB0aGlzLCBhcmd1bWVudHMgKTsKCQl9OwoJfSggQXJyYXkucHJvdG90eXBlLmpvaW4gKSkKfSk7CgovKiB3ZSBkZWZpbmUgaXQgb3V0c2lkZSBzbyBpdCdsbCBub3QgYmUgaW4gc3RyaWN0IG1vZGUgKi8KdmFyIGV4ZWMgPSBmdW5jdGlvbiAoIGNvZGUgKSB7CglyZXR1cm4gZXZhbCggJ3VuZGVmaW5lZDtcbicgKyBjb2RlICk7Cn0KdmFyIGNvbnNvbGUgPSB7CglfaXRlbXMgOiBbXSwKCWxvZyA6IGZ1bmN0aW9uKCkgewoJCWNvbnNvbGUuX2l0ZW1zLnB1c2guYXBwbHkoIGNvbnNvbGUuX2l0ZW1zLCBhcmd1bWVudHMgKTsKCX0KfTsKY29uc29sZS5lcnJvciA9IGNvbnNvbGUuaW5mbyA9IGNvbnNvbGUuZGVidWcgPSBjb25zb2xlLmxvZzsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCWdsb2JhbC5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXBvc3RNZXNzYWdlKHsKCQkJZXZlbnQgOiAnc3RhcnQnCgkJfSk7CgoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0OwoKCQl0cnkgewoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgkJfQoJCWNhdGNoICggZSApIHsKCQkJcmVzdWx0ID0gZS50b1N0cmluZygpOwoJCX0KCgkJLypKU09OIGRvZXMgbm90IGxpa2UgYW55IG9mIHRoZSBmb2xsb3dpbmcqLwoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciBzaG91bGRfc3RyaW5nID0gZnVuY3Rpb24gKCB2YWx1ZSApIHsKCQkJdmFyIHR5cGUgPSAoIHt9ICkudG9TdHJpbmcuY2FsbCggdmFsdWUgKS5zbGljZSggOCwgLTEgKTsKCgkJCWlmICggdHlwZSBpbiBzdHJ1bmcgKSB7CgkJCQlyZXR1cm4gdHJ1ZTsKCQkJfQoJCQkvKm5laXRoZXIgZG9lcyBpdCBmZWVsIGNvbXBhc3Npb25hdGUgYWJvdXQgTmFOIG9yIEluZmluaXR5Ki8KCQkJcmV0dXJuIHZhbHVlICE9PSB2YWx1ZSB8fCB2YWx1ZSA9PT0gSW5maW5pdHk7CgkJfTsKCgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciBvdXRwdXQ7CgoJCQlpZiAoIHNob3VsZF9zdHJpbmcodmFsdWUpICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoIDEsIC0xICkKCQl9KTsKCX07Cn0pKCk7Cg==' );
 var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
 	code_url = window.URL.createObjectURL( blob );
 
-IO.injectScript( 'https://raw.github.com/jashkenas/coffee-script/master/extras/coffee-script.js' );
+setTimeout(function () {
+    if (bot.devMode) {
+        return;
+    }
+    IO.injectScript( 'https://raw.github.com/jashkenas/coffee-script/master/extras/coffee-script.js' );
+}, 1000);
 
-return function ( msg, cb ) {
+return function ( code, cb ) {
 	var worker = new Worker( code_url ),
 		timeout;
 
-	var code = msg.toString();
 	if ( code[0] === 'c' ) {
 		code = CoffeeScript.compile( code.replace(/^c>/, ''), {bare:1} );
 	}
@@ -1242,14 +1294,20 @@ return function ( msg, cb ) {
 	};
 
 	worker.onerror = function ( error ) {
+        bot.log( error, 'eval worker.onerror' );
 		finish( error.toString() );
 	};
 
 	//and it all boils down to this...
 	worker.postMessage( code );
+	//so fucking cool.
 
 	function start () {
-		timeout = window.setTimeout(function() {
+		if ( timeout ) {
+			return;
+		}
+
+		timeout = window.setTimeout(function () {
 			finish( 'Maximum execution time exceeded' );
 		}, 500 );
 	}
@@ -1262,7 +1320,7 @@ return function ( msg, cb ) {
 			cb( result );
 		}
 		else {
-			msg.directreply( result );
+			console.warn( 'eval did not get callback' );
 		}
 	}
 };
@@ -1272,6 +1330,12 @@ function dressUpAnswer ( answerObj ) {
 	var answer = answerObj.answer,
 		log = answerObj.log,
 		result;
+
+	if ( answer === undefined ) {
+		return 'Malformed output from web-worker. If you weren\'t just ' +
+			'fooling around trying to break me, raise an issue or contact ' +
+			'Zirak';
+	}
 
 	result = snipAndCodify( answer );
 
@@ -1503,6 +1567,114 @@ return function () {
 
 }());
 
+//(function () {
+"use strict";
+
+var macros = {
+	who : function ( msgObj ) {
+		return msgObj.get( 'user_name' );
+	},
+
+	someone : function () {
+		var presentUsers = document.getElementById( 'sidebar' )
+			.getElementsByClassName( 'present-user' );
+
+		//the chat keeps a low opacity for users who remained silent for long,
+		// and high opacity for those who recently talked
+		var active = [].filter.call( presentUsers, function ( user ) {
+			return Number( user.style.opacity ) >= 0.5;
+		}),
+		user = active[ Math.floor(Math.random() * (active.length-1)) ];
+
+		if ( !user ) {
+			return 'Nobody';
+		}
+
+		return user.getElementsByTagName( 'img' )[ 0 ].title;
+	},
+
+	digit : function () {
+		return Math.floor( Math.random() * 10 );
+	},
+
+	encode : function ( msgObj, string ) {
+		return encodeURIComponent( string );
+	},
+
+	//random number, min <= n <= max
+	//treats non-numeric inputs like they don't exist
+	rand : function ( msgObj, min, max ) {
+		min = Number( min );
+		max = Number( max );
+		return Math.rand( min, max );
+	}
+};
+var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
+
+bot.parseMacro = function parse ( source, extraVars ) {
+	return source.replace( macroRegex, replaceMacro );
+
+	function replaceMacro ( $0, filler, fillerArgs ) {
+		//$$ makes a literal $
+		if ( $0.startsWith('$$') ) {
+			return $0.slice( 1 );
+		}
+
+		//include the character that was matched in the $$ check, unless
+		// it's a $
+		var ret = '';
+		if ( $0[0] !== '$' ) {
+			ret = $0[ 0 ];
+		}
+
+		var macro = findMacro( filler );
+
+		//not found? bummer.
+		if ( !macro ) {
+			return filler;
+		}
+
+		bot.log( macro, filler, fillerArgs, '/parse replaceMacro' );
+		//when the macro is a function
+		if ( macro.apply ) {
+			ret += macro.apply( null, parseMacroArgs(fillerArgs) );
+		}
+		//when the macro is simply a substitution
+		else {
+			ret += macro;
+		}
+		return ret;
+	}
+
+	function parseMacroArgs ( macroArgs ) {
+		bot.log( macroArgs, '/parse parseMacroArgs' );
+		if ( !macroArgs ) {
+			return [ source ];
+		}
+
+		//parse the arguments, split them into individual arguments,
+		// and trim'em (to cover the case of "arg,arg" and "arg, arg")
+		return (
+			[ source ].concat(
+				parse( macroArgs, extraVars )
+					.split( ',' ).invoke( 'trim' ) ) );
+		//this is not good code
+	}
+
+	function findMacro ( macro ) {
+		var container = [ macros, extraVars ].first( hasMacro );
+
+		return ( container || {} )[ macro ];
+
+		function hasMacro ( obj ) {
+			return obj && obj.hasOwnProperty( macro );
+		}
+	}
+};
+
+
+//})();
+
 //a Trie suggestion dictionary, made by Esailija (small fixes by God)
 // http://stackoverflow.com/users/995876/esailija
 //used in the "command not found" message to show you closest commands
@@ -1526,6 +1698,24 @@ TrieNode.prototype.add = function( word ) {
 
 	node.word = word;
 };
+
+TrieNode.prototype.del = function(word, i) {
+	i = i || 0;
+	var node = this;
+	var char = word[i++];
+
+	// recursively delete all trie nodes that are left empty after removing the command from the leaf
+	if (node.children[char]) {
+		node.children[char].del(word, i);
+		if (Object.keys(node.children[char].children).length === 0 && node.children[char].word === null) {
+			delete node.children[char];
+		}
+	}
+	
+	if (node.word === word) {
+		node.word = null;
+	}
+}
 
 //Having a small maxCost will increase performance greatly, experiment with
 //values of 1-3
@@ -1680,8 +1870,9 @@ var commands = {
 			return args + ': ' + desc;
 		}
 
-		return 'https://github.com/Zirak/SO-ChatBot/wiki/' +
-			'Interacting-with-the-bot';
+		return 'Information on interacting with me can be found at ' +
+			'[this page](https://github.com/Zirak/SO-ChatBot/' +
+			'wiki/Interacting-with-the-bot)';
 	},
 
 	listen : function ( msg ) {
@@ -1692,6 +1883,8 @@ var commands = {
 	},
 
 	eval : function ( msg, cb ) {
+		cb = cb || msg.directreply.bind( msg );
+
 		return bot.eval( msg, cb );
 	},
 	coffee : function ( msg, cb ) {
@@ -1700,25 +1893,9 @@ var commands = {
 		return commands.eval( arg, cb );
 	},
 
-	live : function () {
-		if ( !bot.stopped ) {
-			return 'I\'m not dead! Honest!';
-		}
-		bot.continue();
-		return 'And on this day, you shall paint eggs for a giant bunny.';
-	},
-
-	die : function () {
-		if ( bot.stopped ) {
-			return 'Kill me once, shame on you, kill me twice...';
-		}
-		bot.stop();
-		return 'You killed me!';
-	},
-
 	refresh : function() {
 		window.location.reload();
-    },
+	},
 
 	forget : function ( args ) {
 		var name = args.toLowerCase(),
@@ -1735,95 +1912,6 @@ var commands = {
 		cmd.del();
 		return 'Command ' + name + ' forgotten.';
 	},
-
-	ban : function ( args ) {
-		var ret = [];
-		if ( args.content ) {
-			args.parse().forEach( ban );
-		}
-		else {
-			ret = Object.keys( bot.banlist ).filter( Number ).map( format );
-		}
-
-		return ret.join( ' ' ) || 'Nothing to show/do.';
-
-		function ban ( usrid ) {
-			var id = Number( usrid ),
-				msg;
-			if ( isNaN(id) ) {
-				id = args.findUserid( usrid.replace(/^@/, '') );
-			}
-
-			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.';
-			}
-			else if ( bot.isOwner(id) ) {
-				msg = 'Cannot mindjail owner {0}.';
-			}
-			else if ( bot.banlist.contains(id) ) {
-				msg = 'User {0} already in mindjail.';
-			}
-			else {
-				bot.banlist.add( id );
-				msg = 'User {0} added to mindjail.';
-			}
-
-			ret.push( msg.supplant(usrid) );
-		}
-
-		function format ( id ) {
-			var user = bot.users[ id ],
-				name = user ? user.name : '?';
-
-			return '{0} ({1})'.supplant( id, name );
-		}
-	},
-
-	unban : function ( args ) {
-		var ret = [];
-		args.parse().forEach( unban );
-
-		return ret.join( ' ' );
-
-		function unban ( usrid ) {
-			var id = Number( usrid ),
-				msg;
-			if ( isNaN(id) ) {
-				id = args.findUserid( usrid.replace(/^@/, '') );
-			}
-
-			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.';
-			}
-			else if ( !bot.banlist.contains(id) ) {
-				msg = 'User {0} isn\'t in mindjail.';
-			}
-			else {
-				bot.banlist.remove( id );
-				msg = 'User {0} freed from mindjail!';
-			}
-
-			ret.push( msg.supplant(usrid) );
-		}
-	},
-	
-	// stfu : function (args) {
-		// if (bot.stopped)
-		// {
-			// return "I WAS BEING QUIET!!!!!!!!!!!";
-		// }
-		// bot.stop();
-		// return "I'll shut up...";
-	// }
-	
-	// speak : function (args) {
-		// if (!bot.stopped)
-		// {
-			// return "Happy?";
-		// }
-		// bot.continue();
-		// return "Sorry for being loud ma";
-	// }
 
 	//a lesson on semi-bad practices and laziness
 	//chapter III
@@ -1886,121 +1974,12 @@ var commands = {
 
 			return ret.join( ', ' ) || 'haven\'t done anything yet!';
 		}
-	},
-
-	jquery : function jquery ( args ) {
-		//check to see if more than one thing is requested
-		var parsed = args.parse( true );
-		if ( parsed.length > 1 ) {
-			return parsed.map( jquery ).join( ' ' );
-		}
-
-		var props = args.trim().replace( /^\$/, 'jQuery' ),
-
-			parts = props.split( '.' ), exists = false,
-			url = props, msg;
-		//parts will contain two likely components, depending on the input
-		// jQuery.fn.prop -  parts[0] = jQuery, parts[1] = prop
-		// jQuery.prop    -  parts[0] = jQuery, parts[1] = prop
-		// prop           -  parts[0] = prop
-		//
-		//jQuery API urls works like this:
-		// if it's on the jQuery object, then the url is /jQuery.property
-		// if it's on the proto, then the url is /property
-		//
-		//so, the mapping goes like this:
-		// jQuery.fn.prop => prop
-		// jQuery.prop    => jQuery.prop if it's on jQuery
-		// prop           => prop if it's on jQuery.prototype,
-		//                     jQuery.prop if it's on jQuery
-
-		bot.log( props, parts, '/jquery input' );
-
-		//user gave something like jQuery.fn.prop, turn that to just prop
-		// jQuery.fn.prop => prop
-		if ( parts.length === 3 ) {
-			parts = [ parts[2] ];
-		}
-
-		//check to see if it's a property on the jQuery object itself
-		// jQuery.prop => jQuery.prop
-		if ( parts[0] === 'jQuery' && jQuery[parts[1]] ) {
-			exists = true;
-		}
-
-		//user wants something on the prototype?
-		// prop => prop
-		else if ( parts.length === 1 && jQuery.prototype[parts[0]] ) {
-			url = parts[ 0 ];
-			exists = true;
-		}
-
-		//user just wanted a property? maybe.
-		// prop => jQuery.prop
-		else if ( jQuery[parts[0]] ) {
-			url = 'jQuery.' + parts[0];
-			exists = true;
-		}
-
-		if ( exists ) {
-			msg = 'http://api.jquery.com/' + url;
-		}
-		else {
-			msg = 'http://api.jquery.com/?s=' + encodeURIComponent( args );
-		}
-		bot.log( msg, '/jquery link' );
-
-		return msg;
-	},
-
-	choose : function ( args ) {
-		var opts = args.parse().filter( conjunctions ),
-			len = opts.length;
-
-		bot.log( opts, '/choose input' );
-
-		//5% chance to get a "none-of-the-above"
-		if ( Math.random() < 0.05 ) {
-			return len === 2 ? 'Neither' : 'None of the above';
-		}
-		//5% chance to get "all-of-the-above"
-		else if ( Math.random() < 0.05 ) {
-			return len === 2 ? 'Both!' : 'All of the above';
-		}
-
-		return opts[ Math.floor(Math.random() * len) ];
-
-		//TODO: add support for words like "and", e.g.
-		// skip and jump or cry and die
-		//  =>
-		// "skip and jump", "cry and die"
-		function conjunctions ( word ) {
-			return word !== 'or';
-		}
-	},
-
-	user : function ( args ) {
-		var props = args.parse(),
-			usrid = props[ 0 ] || args.get( 'user_id' ),
-			id = usrid;
-
-		//check for searching by username
-		if ( !(/^\d+$/.test(usrid)) ) {
-			id = args.findUserid( usrid );
-
-			if ( id < 0 ) {
-				return 'Can\'t find user ' + usrid + ' in this chatroom.';
-			}
-		}
-
-		args.directreply( 'http://stackoverflow.com/users/' + id );
 	}
 };
 
 commands.listcommands = (function () {
 var partition = function ( list, maxSize ) {
 	var size = 0, last = [];
-	maxSize = maxSize || 480; //buffer zone, actual max is 500
 
 	var ret = list.reduce(function partition ( ret, item ) {
 		var len = item.length + 2; //+1 for comma, +1 for space
@@ -2025,234 +2004,17 @@ var partition = function ( list, maxSize ) {
 
 return function ( args ) {
 	var commands = Object.keys( bot.commands ),
+		user_name = args.get( 'user_name' ),
+		// 500 is the max, -2 for @ and space.
+		maxSize = 498 - user_name.length,
 		//TODO: only call this when commands were learned/forgotten since last
-		partitioned = partition( commands ),
+		partitioned = partition( commands, maxSize );
 
-		valid = /^(\d+|$)/.test( args.content ),
-		page = Number( args.content ) || 0;
-
-	if ( page >= partitioned.length || !valid ) {
-		return args.codify( [
-			'StackOverflow: Could not access page.',
-			'IndexError: index out of range',
-			'java.lang.IndexOutOfBoundsException',
-			'IndexOutOfRangeException'
-		].random() );
-	}
-
-	var ret = partitioned[ page ].join( ', ' );
-
-	return ret + ' (page {0}/{1})'.supplant( page, partitioned.length-1 );
+	return partitioned.invoke( 'join', ', ' ).join( '\n' );
 };
 })();
 
 commands.eval.async = commands.coffee.async = true;
-
-//cb is for internal usage by other commands/listeners
-commands.norris = function ( args, cb ) {
-	var chucky = 'http://api.icndb.com/jokes/random';
-
-	IO.jsonp({
-		url : chucky,
-		fun : finishCall,
-		jsonpName : 'callback'
-	});
-
-	function finishCall ( resp ) {
-		var msg;
-
-		if ( resp.type !== 'success' ) {
-			msg = 'Chuck Norris is too awesome for this API. Try again.';
-		}
-		else {
-			msg = IO.decodehtmlEntities( resp.value.joke );
-		}
-
-		if ( cb && cb.call ) {
-			cb( msg );
-		}
-		else {
-			args.reply( msg );
-		}
-	}
-};
-commands.norris.async = true;
-
-//cb is for internal blah blah blah
-commands.urban = (function () {
-var cache = Object.create( null );
-
-return function ( args, cb ) {
-	if ( !args.length ) {
-		return 'Y U NO PROVIDE ARGUMENTS!?';
-	}
-
-	if ( cache[args] ) {
-		return finish( cache[args] );
-	}
-
-	IO.jsonp({
-		url : 'http://api.urbandictionary.com/v0/define',
-		data : {
-			term : args.content
-		},
-		jsonpName : 'callback',
-		fun : complete
-	});
-
-	function complete ( resp ) {
-		var msg;
-
-		if ( resp.result_type === 'no_results' ) {
-			msg = 'No definition found for ' + args;
-		}
-		else {
-			msg = formatTop( resp.list[0] );
-		}
-		cache[ args ] = msg;
-
-		finish( msg );
-	}
-
-	function finish ( def ) {
-		if ( cb && cb.call ) {
-			cb( def );
-		}
-		else {
-			args.reply( def );
-		}
-	}
-
-	function formatTop ( top ) {
-		//replace [tag] in definition with links
-		var def = top.definition.replace( /\[([^\]]+)\]/g, formatTag );
-
-		return args.link( top.word, top.permalink ) + ' ' + def;
-	}
-	function formatTag ( $0, $1 ) {
-		var href =
-			'http://urbandictionary.com/define.php?term=' +
-			encodeURIComponent( $1 );
-
-		return args.link( $0, href );
-	}
-};
-}());
-commands.urban.async = true;
-
-var parse = commands.parse = (function () {
-var macros = {
-	who : function () {
-		return [].pop.call( arguments ).get( 'user_name' );
-	},
-
-	someone : function () {
-		var presentUsers = document.getElementById( 'sidebar' )
-			.getElementsByClassName( 'present-user' );
-
-		//the chat keeps a low opacity for users who remained silent for long,
-		// and high opacity for those who recently talked
-		var active = [].filter.call( presentUsers, function ( user ) {
-			return Number( user.style.opacity ) >= 0.5;
-		}),
-		user = active[ Math.floor(Math.random() * (active.length-1)) ];
-
-		if ( !user ) {
-			return 'Nobody! I\'m all alone :(';
-		}
-
-		return user.getElementsByTagName( 'img' )[ 0 ].title;
-	},
-
-	digit : function () {
-		return Math.floor( Math.random() * 10 );
-	},
-
-	encode : function ( string ) {
-		return encodeURIComponent( string );
-	},
-
-	//random number, min <= n <= max
-	//treats non-numeric inputs like they don't exist
-	rand : function ( min, max ) {
-		min = Number( min );
-		max = Number( max );
-		return Math.rand( min, max );
-	}
-};
-var macroRegex = /(?:.|^)\$(\w+)(?:\((.*?)\))?/g;
-
-//extraVars is for internal usage via other commands
-return function parse ( args, extraVars ) {
-	var isMsg = !!args.get,
-		//filler objects, solves
-		// https://github.com/Zirak/SO-ChatBot/issues/66
-		msgObj = isMsg ? args.get() : {},
-		user = isMsg ? bot.users[ args.get('user_id') ] : {};
-
-	extraVars = extraVars || {};
-	bot.log( args, extraVars, '/parse input' );
-
-	return args.replace( macroRegex, replaceMacro );
-
-	function replaceMacro ( $0, filler, fillerArgs ) {
-		//$$ makes a literal $
-		if ( $0.startsWith('$$') ) {
-			return $0.slice( 1 );
-		}
-
-		//include the character that was matched in the $$ check, unless
-		// it's a $
-		var ret = '';
-		if ( $0[0] !== '$' ) {
-			ret = $0[ 0 ];
-		}
-
-		var macro = findMacro( filler );
-
-		//not found? bummer.
-		if ( !macro ) {
-			return filler;
-		}
-
-		bot.log( macro, filler, fillerArgs, '/parse replaceMacro' );
-		//when the macro is a function
-		if ( macro.apply ) {
-			ret += macro.apply( null, parseMacroArgs(fillerArgs) );
-		}
-		//when the macro is simply a substitution
-		else {
-			ret += macro;
-		}
-		return ret;
-	}
-
-	function parseMacroArgs ( macroArgs ) {
-		bot.log( macroArgs, '/parse parseMacroArgs' );
-		if ( !macroArgs ) {
-			return [];
-		}
-
-		//parse the arguments, split them into individual arguments,
-		// and trim'em (to cover the case of "arg,arg" and "arg, arg")
-		return (
-			parse( macroArgs, extraVars )
-				.split( ',' ).invoke( 'trim' ).concat( args )
-		);
-		//this is not good code
-	}
-
-	function findMacro ( macro ) {
-		var container = [ macros, msgObj, user, extraVars ].first( hasMacro );
-
-		return ( container || {} )[ macro ];
-
-		function hasMacro ( obj ) {
-			return obj && obj.hasOwnProperty( macro );
-		}
-	}
-};
-}());
 
 commands.tell = (function () {
 var invalidCommands = { tell : true, forget : true };
@@ -2337,60 +2099,19 @@ return function ( args ) {
 };
 }());
 
-commands.mdn = function ( args, cb ) {
-	IO.jsonp.google(
-		args.toString() + ' site:developer.mozilla.org', finishCall );
-
-	function finishCall ( resp ) {
-		if ( resp.responseStatus !== 200 ) {
-			finish( 'Something went on fire; status ' + resp.responseStatus );
-			return;
-		}
-
-		var result = resp.responseData.results[ 0 ];
-		bot.log( result, '/mdn result' );
-		finish( result.url );
-	}
-
-	function finish ( res ) {
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.reply( res );
-		}
-	}
-};
-commands.mdn.async = true;
-
 var descriptions = {
-	ban : 'Bans user(s) from using me. Lacking arguments, prints the banlist.' +
-		' `/ban [usr_id|usr_name, [...]`',
-	choose : '"Randomly" choose an option given. `/choose option0 option1 ...`',
-	die  : 'Kills me :(',
 	eval : 'Forwards message to javascript code-eval',
 	coffee : 'Forwards message to coffeescript code-eval',
 	forget : 'Forgets a given command. `/forget cmdName`',
-	get : 'Grabs a question/answer link (see online for thorough explanation)',
 	help : 'Fetches documentation for given command, or general help article.' +
 		' `/help [cmdName]`',
 	info : 'Grabs some stats on my current instance or a command.' +
 		' `/info [cmdName]`',
-	jquery : 'Fetches documentation link from jQuery API. `/jquery what`',
-	listcommands : 'Lists commands. `/listcommands [page=0]`',
+	listcommands : 'Lists commands. `/listcommands`',
 	listen : 'Forwards the message to my ears (as if called without the /)',
-	live : 'Resurrects me (:D) if I\'m down',
-	mdn : 'Fetches mdn documentation. `/mdn what`',
-	norris : 'Random chuck norris joke!',
-	parse : 'Returns result of "parsing" message according to the my mini' +
-		'-macro capabilities (see online docs)',
 	refresh : 'Reloads the browser window I live in',
-	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
-		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
-	unban : 'Removes a user from my mindjail. `/unban usr_id|usr_name`',
-	urban : 'Fetches UrbanDictionary definition. `/urban something`',
-	user : 'Fetches user-link for specified user. `/user usr_id|usr_name`',
+		' /tell `msg_id|usr_name cmdName [cmdArgs]`'
 };
 
 //only allow owners to use certain commands
@@ -2407,7 +2128,7 @@ var communal = {
 Object.iterate( commands, function ( cmdName, fun ) {
 	var cmd = {
 		name : cmdName,
-		fun  : fun,
+		fun	 : fun,
 		permissions : {
 			del : 'NONE',
 			use : privilegedCommands[ cmdName ] ? 'OWNER' : 'ALL'
@@ -2476,12 +2197,12 @@ var dictionaries = [
 	//what is an animal?
 	//and all those above without a ?
 	//explanation in the post-mortem
-	///^what(?:'s|'re)?\s(?:(?:is|are)\s)?(?:(?:an|a)\s)?([\w\s\-]+)\??/,
+	/^what(?:'s|'re)?\s(?:(?:is|are)\s)?(?:(?:an|a)\s)?([\w\s\-]+)\??/,
 
 	//define squid
 	//define a squid
 	//define an animal
-	///^define\s(?:(?:an|a)\s)?([\w\s\-]+)/
+	/^define\s(?:(?:an|a)\s)?([\w\s\-]+)/
 ];
 
 bot.listen( dictionaries, function ( msg ) {
@@ -2516,6 +2237,121 @@ what              #simply the word what
 }());
 
 ;
+//follows is an explanation of how SO's chat does things. you may want to skip
+// this gigantuous comment.
+/*
+  Note: This may be outdated next year, tomorrow, never, or in 4 minutes. We
+are leeching off a disinterested 3rd party, and knowledge of how to poke
+around requests/websockets is required to correctly maintain everything.
+
+  Generally, the client gets input from a websocket connected to SO's server,
+grabbing events as they come in (new message, edits, room invites, whatever).
+However, output (sending a message, editing, basically creating these events) is
+not handled via this socket, but via separate http requests. One should note
+that if/when the socket fails for any reason, the chat resorts to long polling.
+
+  First, a note on authentication. Apparently, the chat uses two things to
+decide who you are. The first is, quite obviously, cookies. The second is an
+elusive thing called the "fkey". It's given to us by the server inside an input
+called (you guessed it) "fkey", and its value is a 32 character string. Maybe
+its the result of running a checksum of something, maybe it's the first 32 chars
+of a sha512, who knows. But it is used, since you can view chat while not being
+logged in, and you have to provide it in all your requests.
+
+  Now to the actual meat.
+
+  Connecting to the input websocket is done in two steps, of which the first
+is obtaining the link to the second. We make a request containing our room id
+to /ws-auth (e.g. http://chat.stackoverflow.com/ws-auth), and we receive a JSON
+object containing a url property (or something else if there was an error):
+
+Request:
+  POST http://chat.stackoverflow.com/ws-auth
+  Content-Length: 47
+  Content-Type: application/x-www-form-urlencoded
+  Content: roomid=17&fkey=01234567890123456789012345678901
+
+Response:
+  Content-Type: application/json; charset=utf-8
+  Content: {"url":"wss://chat.sockets.stackexchange.com/events/17/another32CharLongStringBlahBlaah"}
+
+We parse the response, and connect to the websocket at the specified URL. Note
+that the websocket URL accepts an `l` query parameter
+(...another32CharLongStringBlahBlaah?l=someNumber). It's a number, I'm not sure
+what it's supposed to represent exactly, but omitting it brings a lot of history
+messages in the first frame, and setting it to a really high value brings no
+messages, so we opt to the latter (?l=99999999 or something like that. also note
+that it doesn't appear to be a "since message id" parameter, but I may be wrong)
+
+  Okay, we've got a connection to the web socket. How does a frame look like?
+The simplest one, containing no events, looks like this:
+
+    {"r17" : {}}
+
+Just a simple object with the keys being the room's were connected to, each id
+prefixed with an "r". But sometimes, even if your room(s) has no traffic, you
+may get something like this:
+
+    {"r17" : {
+        "t" : 23531002,
+        "d" : 3
+    }}
+
+Again, I have no clue what these mean. I think `d` is short for `delta`, and
+maybe `t` is a form of internal timestamp or counter or...I don't know. However,
+remember this `t` value for when we discuss polling - it is used there. It does
+however seem to be related to how many messages were sent which are not in this
+room - so if you're listening to room 17, and someone posted a mesage on room 42
+then you'd get a `d` of 1, and the `t` value may be updated by 1. Or maybe not.
+The `t` values don't seem to be consistently increasing, or decreasing, or
+following any pattern I could recognise.
+
+Anyway! What does a message look like?
+
+  {"r1" : {
+      "e" : [{
+        "event_type" : 1,
+        "time_stamp" : 1379405022,
+        "content" : "test",
+        "id" : 23531402,
+        "user_id" : 617762,
+        "user_name" : "Zirak",
+        "room_id" : 1,
+        "room_name" : "Sandbox",
+        "message_id" : 11832153
+      }],
+      "t": 23531402,
+      "d": 1
+    }}
+
+We receive an array of events under the property `e` of the respective room.
+Each event, called inside the bot a `msgObj` (message object), contains several
+interesting properties, which may change according to what kind of event it is.
+You can determine the type of the event by checking...drum roll...the event_type
+field. 1 is new message, 2 is edit, 3 is user-join, 4 is user-leave, and there
+are many others. Also note that pinging a user may add some properties, replying
+to a message adds some more, and so forth.
+
+Once we have this array, we simply iterate over it, and decide what we want to
+do based on what event it is. But at the end, the adapter's job is to do one
+thing - call IO.fire, and pass the torch onwards.
+
+[insert magic about polling. I don't have the web console in front of me, so I
+can't stimulate requests]
+
+  Now, output! Sending a message is a simple http request, containing the text
+and the magical fkey. In the following example, we send a new message to room 1
+containing just the word "butts":
+
+Request:
+  POST http://chat.stackoverflow.com/chats/1/messages/new
+  text=butts&fkey=01234567890123456789012345678901
+Response:
+  {"id":11832651,"time":1379406464}
+
+And...that's it. Pretty simple. Most of the requests endpoints are like that.
+*/
+
 (function () {
 "use strict";
 
@@ -2548,7 +2384,7 @@ bot.adapter = {
 
 	//a pretty crucial function. accepts the msgObj we know nothing about,
 	// and returns an object with these properties:
-	//  user_name, user_id, room_id, content
+	//   user_name, user_id, room_id, content
 	// and any other properties, as the abstraction sees fit
 	//since the bot was designed around the SO chat message object, in this
 	// case, we simply do nothing
@@ -2607,9 +2443,6 @@ var polling = bot.adapter.in = {
 	// the latest id or something like that. could also be the time last
 	// sent, which is why I called it times at the beginning. or something.
 	times : {},
-	//currently, used for messages sent when the room's been silent for a
-	// while
-	lastTimes : {},
 
 	firstPoll : true,
 
@@ -2640,7 +2473,7 @@ var polling = bot.adapter.in = {
 	initialPoll : function () {
 		bot.log( 'adapter: initial poll' );
 		var roomid = bot.adapter.roomid,
-		that = this;
+			that = this;
 
 		IO.xhr({
 			url : '/chats/' + roomid + '/events/',
@@ -2659,8 +2492,6 @@ var polling = bot.adapter.in = {
 
 			that.times[ 'r' + roomid ] = resp.time;
 			that.firstPoll = false;
-
-			that.loopage();
 		}
 	},
 
@@ -2669,7 +2500,7 @@ var polling = bot.adapter.in = {
 		// since xhr parameter, but I didn't know what that was either so...
 		//putting in 0 got the last shitload of messages, so what does a high
 		// number do? (spoiler: it "works")
-		var socket = this.socket = new WebSocket( url + '?l=99999999999' );
+		var socket = new WebSocket( url + '?l=99999999999' );
 
 		if ( discard ) {
 			socket.onmessage = function () {
@@ -2677,6 +2508,7 @@ var polling = bot.adapter.in = {
 			};
 		}
 		else {
+			this.socket = socket;
 			socket.onmessage = this.ondata.bind( this );
 			socket.onclose = this.socketFail.bind( this );
 		}
@@ -2705,7 +2537,6 @@ var polling = bot.adapter.in = {
 
 	pollComplete : function ( resp ) {
 		if ( !resp ) {
-			this.loopage();
 			return;
 		}
 		resp = JSON.parse( resp );
@@ -2725,11 +2556,11 @@ var polling = bot.adapter.in = {
 
 		//handle all the input
 		IO.in.flush();
-		//and move on with our lives
-		this.loopage();
 	},
 
 	handleMessageObject : function ( msg ) {
+		IO.fire( 'rawinput', msg );
+
 		//msg.event_type:
 		// 1 => new message
 		// 2 => message edit
@@ -2744,7 +2575,6 @@ var polling = bot.adapter.in = {
 		else if ( et !== 1 && et !== 2 ) {
 			return;
 		}
-		this.lastTimes[ msg.room_id ] = Date.now();
 
 		//check for a multiline message
 		if ( msg.content.startsWith('<div class=\'full\'>') ) {
@@ -2757,6 +2587,13 @@ var polling = bot.adapter.in = {
 	},
 
 	handleMultilineMessage : function ( msg ) {
+		this.breakMultilineMessage( msg ).forEach(function ( line ) {
+			var msgObj = Object.merge( msg, { content : line.trim() });
+
+			IO.in.receive( msgObj );
+		});
+	},
+	breakMultilineMessage : function ( msg ) {
 		//remove the enclosing tag
 		var multiline = msg.content
 			//slice upto the beginning of the ending tag
@@ -2764,13 +2601,7 @@ var polling = bot.adapter.in = {
 			//and strip away the beginning tag
 			.replace( '<div class=\'full\'>', '' );
 
-		//iterate over each line
-		multiline.split( '<br>' ).forEach(function ( line ) {
-			//and treat it as if it were a separate message
-			this.handleMessageObject(
-				Object.merge( msg, { content : line.trim() })
-			);
-		}, this );
+		return multiline.split( '<br>' );
 	},
 
 	handleUserEvent : function ( msg ) {
@@ -2855,6 +2686,7 @@ var polling = bot.adapter.in = {
 		var that = this;
 		setTimeout(function () {
 			that.poll();
+			that.loopage();
 		}, this.interval );
 	}
 };
@@ -2865,6 +2697,7 @@ var output = bot.adapter.out = {
 	'409' : 0, //count the number of conflicts
 	total : 0, //number of messages sent
 	interval : polling.interval + 500,
+	flushWait : 500,
 
 	init : function () {},
 
@@ -2874,7 +2707,7 @@ var output = bot.adapter.out = {
 			text : msg + '\n',
 			room : roomid || bot.adapter.roomid
 		});
-		IO.out.tick();
+		IO.out.flush();
 	},
 
 	//send output to all the good boys and girls
@@ -2885,10 +2718,15 @@ var output = bot.adapter.out = {
 		//unless the bot's stopped. in which case, it should shut the fudge up
 		// the freezer and never let it out. not until it can talk again. what
 		// was I intending to say?
-		if ( !bot.stopped ) {
+		if ( bot.stopped ) {
 			//ah fuck it
-			this.sendToRoom( obj.text, obj.room );
+			return;
 		}
+
+		// #152, wait a bit before sending output.
+		setTimeout(function () {
+			output.sendToRoom( obj.text, obj.room );
+		}, this.flushWait );
 	},
 
 	//what's brown and sticky?
@@ -3026,91 +2864,312 @@ loadUsers();
 }());
 
 ;
-// //warning: if you have more than 7 points of super-sentitive feminist delicacy,
-// // don't read this file. treat it as a nice black box.
+//warning: if you have more than 7 points of super-sentitive feminist delicacy,
+// don't read this file. treat it as a nice black box.
 
-// //bitch in English is a noun, verb and adjective. interesting.
-// bot.personality = {
-	// bitchiness : 0,
-	// thanks  : {
-		// 0   : [ 'You kiss-ass', 'Most welcome' ],
-		// 0.5 : [ 'Thank you for noticing', 'teehee' ],
-		// 1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
-	// },
-	// apologies : {
-		// 0   : [ 'What for?' ],
-		// 0.5 : [ 'It was nothing...', 'No worries' ],
-		// 1   : [ "You're forgiven. For now. Don't push it." ]
-	// },
-	// //what an incredible name
-	// stuff : {
-		// 0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
+//bitch in English is a noun, verb and adjective. interesting.
+bot.personality = {
+	bitchiness : 0,
+	thanks  : {
+		0   : [ 'You kiss-ass', 'Most welcome' ],
+		0.5 : [ 'Thank you for noticing', 'teehee' ],
+		1   : [ 'Took you long enough', 'My pleasure', "Don't mention it" ],
+	},
+	apologies : {
+		0   : [ 'What for?' ],
+		0.5 : [ 'It was nothing...', 'No worries' ],
+		1   : [ "You're forgiven. For now. Don't push it." ]
+	},
+	//what an incredible name
+	stuff : {
+		0   : [ "Life is just *perfect*", "What\'s there to bitch about, as long as I have *you*..." ],
 
-		// 1   : [ "Oh don't mind me, that isn't difficult at all..." ],
-		// 1.2 : [
-			// "You don't appreciate me enough. Not that I need to be thanked.." ],
-		// 1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
-		// 2   : [
-			// "*sigh* Remember laughter? I don't. You ripped it out of me. " +
-				// 'Heartless bastard.' ]
-	// },
-	// //TODO: add special map for special times of the month
-	// insanity : {},
+		1   : [ "Oh don't mind me, that isn't difficult at all..." ],
+		1.2 : [
+			"You don't appreciate me enough. Not that I need to be thanked.." ],
+		1.3 : [ 'The occasional "thanks" or "I\'m sorry" would be nice...' ],
+		2   : [
+			"*sigh* Remember laughter? I don't. You ripped it out of me. " +
+				'Heartless bastard.' ]
+	},
+	//TODO: add special map for special times of the month
+	insanity : {},
 
-	// okayCommands : { hangman : true, help : true, info : true },
-	// check : function ( name ) {
-		// return !this.okayCommands.hasOwnProperty( name );
-	// },
+	okayCommands : { hangman : true, help : true, info : true },
+	check : function ( name ) {
+		return !this.okayCommands.hasOwnProperty( name );
+	},
 
-	// bitch : function () {
-		// return this.getResp( this.stuff );
-	// },
+	bitch : function () {
+		return this.getResp( this.stuff );
+	},
 
-	// command : function () {
-		// this.bitchiness += this.getDB();
-	// },
-	// thank     : function () { return this.unbitch( this.thanks ); },
-	// apologize : function () { return this.unbitch( this.apologies ); },
+	command : function () {
+		this.bitchiness += this.getDB();
+	},
+	thank     : function () { return this.unbitch( this.thanks ); },
+	apologize : function () { return this.unbitch( this.apologies ); },
 
-	// unbitch : function ( map, delta ) {
-		// var resp = this.getResp( map );
+	unbitch : function ( map, delta ) {
+		var resp = this.getResp( map );
 
-		// this.bitchiness -= ( delta || this.bitchiness );
-		// return resp;
-	// },
-	// getResp : function ( map ) {
-		// return map[
-			// this.bitchiness.fallsAfter(
-				// Object.keys(map).map(Number).sort() )
-		// ].random();
-	// },
+		this.bitchiness -= ( delta || this.bitchiness );
+		return resp;
+	},
+	getResp : function ( map ) {
+		return map[
+			this.bitchiness.fallsAfter(
+				Object.keys(map).map(Number).sort() )
+		].random();
+	},
 
-	// isABitch : function () {
-		// return this.bitchiness >= 1;
-	// },
+	isABitch : function () {
+		return this.bitchiness >= 1;
+	},
 
-	// looksLikeABitch : function () {
-		// return false;
-	// },
+	looksLikeABitch : function () {
+		return false;
+	},
 
-	// //db stands for "delta bitchiness"
-	// getDB : function () {
-		// return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
-	// },
+	//db stands for "delta bitchiness"
+	getDB : function () {
+		return this.isThatTimeOfTheMonth() ? 0.075 : 0.025;
+	},
 
-	// isThatTimeOfTheMonth : function () {
-		// var day = (new Date).getDate();
-		// //based on a true story
-		// return day < 2 || day > 27;
-	// }
-// };
+	isThatTimeOfTheMonth : function () {
+		var day = (new Date).getDate();
+		//based on a true story
+		return day < 2 || day > 27;
+	}
+};
 
-// //you see the loophole?
-// bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
-// bot.listen(
-	// /(I('m| am))?\s*sorry/i,
-	// bot.personality.apologize, bot.personality );
-// bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
+//you see the loophole?
+bot.listen( /thank(s| you)/i, bot.personality.thank, bot.personality );
+bot.listen(
+	/(I('m| am))?\s*sorry/i,
+	bot.personality.apologize, bot.personality );
+bot.listen( /^bitch/i, bot.personality.bitch, bot.personality );
+
+;
+//solves #86, mostly written by @Shmiddty
+(function () {
+"use strict";
+
+/*
+memory.afk = {
+	"user name" : {
+		afkSince : time of /afk call
+		lastPing : { roomID : time of last ping },
+		msg : afk message,
+		returnMsg : welcome-back message
+	},
+	...
+};
+*/
+var demAFKs = bot.memory.get( 'afk' );
+//5 minute limit between auto-responds.
+var rateLimit = 5 * 60 * 1000,
+//2 minutes where you can talk without escaping the afk.
+	gracePeriod = 2 * 60 * 1000;
+
+var responses = [
+	{
+		outgoing : 'Why are you leaving me!?',
+		incoming : [
+			'Welcome back!', 'Where were you!?',
+			'You saw that whore again, didn\'t you!?'
+		]
+	},
+	{
+		outgoing : 'Just go already!',
+		incoming : [
+			'Oh, it\'s you again...', 'Look at what the cat dragged in...',
+			'You\'ve got some balls, coming back here after what you did.'
+		]
+	},
+	{
+		outgoing : 'Nobody cares.',
+		incoming : [
+			'I already told you, nobody cares.',
+			'There goes the neighbourhood.'
+		]
+	},
+	{
+		outgoing : 'Hurry back, ok?',
+		incoming : [
+			'I thought you\'d never come back!',
+			'It\'s been 20 years. You can\'t just waltz back into my life ' +
+				'like this.'
+		]
+	},
+	{
+		outgoing : 'Stay safe.',
+		incoming : [ 'Were you bitten!? Strip! Prove you weren\'t bitten.' ]
+	},
+	{
+		outgoing : 'Can you pick up some milk on your way back?',
+		incoming : [
+			'Where\'s the milk?',
+			'Turns out I already have milk. Oops.'
+		]
+	},
+	{
+		outgoing : 'Apricots are people too!',
+		incoming : [
+			'You taste just like raisin.', 'I am a banana!',
+			'My spoon is too big!', 'BROOOOOOOOOOOO.'
+		]
+	}
+];
+
+var respondFor = function ( user, msg ) {
+	var afkObj = demAFKs[ user ],
+		room_id = msg.get( 'room_id' ),
+		now = Date.now();
+
+	if ( shouldReply() ) {
+		//Send a response and such
+		msg.directreply( formulateReponse() );
+		afkObj.lastPing[ room_id ] = now;
+		bot.memory.save( 'afk' );
+	}
+
+	function formulateReponse () {
+		var format = '{user} is afk{sep}{rest}';
+		var data = {
+			user : user,
+			sep : '.',
+			rest : ''
+		};
+
+		if ( afkObj.msg ) {
+			data.sep = ': ';
+			data.rest = afkObj.msg;
+		}
+
+		return format.supplant( data );
+	}
+
+	function shouldReply () {
+		var lastPing = afkObj.lastPing[ room_id ];
+
+		return (
+			( now - afkObj.afkSince >= gracePeriod ) &&
+			( !lastPing || now - lastPing >= rateLimit ) );
+	}
+};
+
+var goAFK = function ( name, msg, returnMsg ) {
+	var noReturn = false;
+
+	bot.log( '/afk goAFK ', name );
+
+	if ( msg.indexOf('!') === 0 ) {
+		msg = msg.substring( 1 );
+		noReturn = true;
+	}
+
+	demAFKs[ name ] = {
+		afkSince : Date.now(),
+		lastPing : {},
+		msg : msg.trim(),
+		returnMsg : returnMsg,
+	};
+
+	if ( noReturn ) {
+		demAFKs[ name ].noReturn = 1;
+	}
+};
+
+var clearAFK = function ( name ) {
+	bot.log( '/afk clearAFK', name );
+	delete demAFKs[ name ];
+};
+
+var commandHandler = function ( msg ) {
+	//parse the message and stuff.
+	var user = msg.get( 'user_name' ).replace( /\s/g, '' ),
+		afkMsg = msg.content,
+		reply, botReply;
+
+	bot.log( '/afk input', user, afkMsg );
+
+	if ( demAFKs.hasOwnProperty(user) ) {
+		reply = demAFKs[ user ].returnMsg;
+		clearAFK( user );
+	}
+	else {
+		botReply = responses.random();
+		reply = botReply.outgoing;
+
+		goAFK( user, afkMsg, botReply.incoming.random() );
+	}
+
+	bot.memory.save( 'afk' );
+	//msg.directreply( reply ); // disable direct replying on returning from AFK since it's annoying.
+	                            // keep the functionality in the background in the meantime.
+};
+
+bot.addCommand({
+	name : 'afk',
+	fun : commandHandler,
+	permissions : {
+		del: 'NONE'
+	},
+	description : 'Set an afk message: `/afk <message>`. Invoke `/afk` ' +
+		'again to return.'
+});
+
+IO.register( 'input', function afkInputListener ( msgObj ) {
+	var body = msgObj.content.toUpperCase(),
+		msg = bot.prepareMessage( msgObj ),
+
+		userName = msgObj.user_name.replace( /\s/g, '' ),
+
+		now = Date.now();
+
+	//we don't care about bot messages
+	if ( msgObj.user_id === bot.adapter.user_id ) {
+		return;
+	}
+
+	if ( hasReturned() ) {
+		bot.log( '/afk he returned!', msgObj );
+		commandHandler( msg );
+		//We don't want to return here, as the returning user could be pinging
+		// someone.
+	}
+
+	//and we don't care if the message doesn't have any pings
+	if ( body.indexOf('@') < 0 ) {
+		return;
+	}
+
+	Object.keys( demAFKs ).forEach(function afkCheckAndRespond ( name ) {
+		// /(^|\b)@bob\b/i
+		var pinged = new RegExp(
+			'(^|\b)' + RegExp.escape( '@' + name ) + '\\b', 'i' );
+
+		if ( pinged.test(body) ) {
+			bot.log( '/afk responding for ' + name );
+			respondFor( name, msg );
+		}
+	});
+
+	function hasReturned () {
+		//if the user posts, we want to release them from afk's iron grip.
+		// however, to prevent activating it twice, we need to check whether
+		// they're calling the bot's afk command already.
+		var invokeRe = new RegExp(
+			'^' + RegExp.escape( bot.invocationPattern ) + '\\s*\/?\\s*AFK' );
+
+		return demAFKs.hasOwnProperty( userName ) &&
+				!invokeRe.test( body ) &&
+				( now - demAFKs[userName].afkSince >= gracePeriod );
+	}
+});
+
+})();
 
 ;
 (function () {
@@ -3148,69 +3207,123 @@ bot.addCommand({
 }());
 
 ;
-// (function () {
-// //add a bot command
-// bot.addCommand({
-    // name : 'spanish',
-    // fun : spanish,
+(function () {
 
-    // //permissions object (can be ommitted for all-can-use, all-can-del)
-    // permissions : {
-        // use : 'ALL' ,
-        // del : 'NONE' 
-    // },
-    // description : 'Translate from english to spanish',
+function ban ( args ) {
+	var ret = [];
+	if ( args.content ) {
+		args.parse().forEach( ban );
+	}
+	else {
+		ret = Object.keys( bot.banlist ).filter( Number ).map( format );
+	}
 
-    // //whether the command is asynchronous or not (default false)
-    // async : false
-// });
+	return ret.join( ' ' ) || 'Nothing to show/do.';
 
-// function spanish (args, cb) {
-// try{
+	function ban ( usrid ) {
+		var id = Number( usrid ),
+		    msg;
+		if ( isNaN(id) ) {
+			id = args.findUserid( usrid.replace(/^@/, '') );
+		}
 
-// var text =args;
-// //console.log(args, "args");
-// $.post(
-    // 'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
-	       
-    // function(data){
-	// console.log("wasrun");
-// //  console.log(args);
-  // console.log(data);
-    // }
-// );
-// }
-// catch(e)
-// {console.log(e.stack, "ERROR STACK");}
-// }
+		if ( id < 0 ) {
+			msg = 'Cannot find user {0}.';
+		}
+		else if ( bot.isOwner(id) ) {
+			msg = 'Cannot mindjail owner {0}.';
+		}
+		else if ( bot.banlist.contains(id) ) {
+			msg = 'User {0} already in mindjail.';
+		}
+		else {
+			bot.banlist.add( id );
+			msg = 'User {0} added to mindjail.';
+		}
 
+		ret.push( msg.supplant(usrid) );
+	}
 
-// //add a listening regex and a corresponding callback
-// }());
+	function format ( id ) {
+		var user = bot.users[ id ],
+		name = user ? user.name : '?';
 
+		return '{0} ({1})'.supplant( id, name );
+	}
+}
+
+function unban ( args ) {
+	var ret = [];
+	args.parse().forEach( unban );
+
+	return ret.join( ' ' );
+
+	function unban ( usrid ) {
+		var id = Number( usrid ),
+		    msg;
+
+		if ( isNaN(id) ) {
+			id = args.findUserid( usrid.replace(/^@/, '') );
+		}
+
+		if ( id < 0 ) {
+			msg = 'Cannot find user {0}.';
+		}
+		else if ( !bot.banlist.contains(id) ) {
+			msg = 'User {0} isn\'t in mindjail.';
+		}
+		else {
+			bot.banlist.remove( id );
+			msg = 'User {0} freed from mindjail!';
+		}
+
+		ret.push( msg.supplant(usrid) );
+	}
+}
+bot.addCommand(bot.CommunityCommand({
+	name : 'ban',
+	fun : ban,
+	permissions : { del : 'NONE', use : 'OWNER' },
+	description : 'Bans user(s) from using me. Lacking arguments, prints the ' +
+		'banlist. `/ban [usr_id|usr_name, [...]]`'
+}));
+
+bot.addCommand({
+	name : 'unban',
+	fun : unban,
+	permissions : { del : 'NONE', use : 'OWNER' },
+	description : 'Removes a user from my mindjail. `/unban usr_id|usr_name`'
+});
+
+})();
 
 ;
 (function () {
-"use strict"; 
 
-bot.cleverbot = 
-{
-sessionid : '',
+function color ( args ) {
+	var base = 'http://southouse.tk/colors.php?color='
+	var param = args.toString()
+		.toLowerCase()
+		.match( /([a-z0-9]+)+/g )
+		.join( ',' );
 
-speak : function(speach)
-{
-    $.post('http://ccinc.host56.com/cleverbot.php', {"session_id" : this.sessionid, "message" : speach}, function(data) {
-        var json = JSON.parse(data);
-	 this.sessionid = json["session"].trim();
-        speach.directreply(json["thought"]);
-         console.log(this.sessionid);
-});
 
+	args.directreply( base + param + '#.png' );
 }
 
-};
+bot.addCommand({
+	name : 'color',
+	fun	 : color,
+	permissions : {
+		del : 'NONE'
+	},
 
-}());
+	description : 'Displays the color(s) passed in. ' +
+		' `/color color0[ color1[ ...]]`'
+});
+
+})();
+
 ;
 (function () {
 "use strict";
@@ -3717,189 +3830,6 @@ var cowsay = {
 		this.tongue   = rightPad( opts.T || defs.T, 2 ).slice( 0, 2 );
 		this.line     = opts.t ? 'O' : '\\';
 		this.thinking = opts.t;
-		console.log( this.eyes, this.tongue );
-
-		this.message  = wordWrap( message, opts.W || defs.W ).trim();
-
-		//cowsay is actually the result of breeding a balloon and a cow
-		return this.makeBalloon() + this.makeCow();
-	},
-
-	makeCow : function () {
-		return this.cow
-			.replace( /e/g, this.eyes )
-			.replace( /T/g, this.tongue )
-			.replace( /L/g, this.line );
-	},
-
-	makeBalloon : function () {
-		var lines = this.message.split( '\n' );
-
-		var longest = lines.reduce( longestLine, 0 ),
-			lineCount = lines.length,
-			border = this.chooseBorders( lineCount );
-
-		var balloon = lines.map( baloonLine );
-		var boundaryOccurences = new Array( longest + 2 )
-		balloon.unshift( ' ' + boundaryOccurences.join('_') );
-		balloon.push   ( ' ' + boundaryOccurences.join('-') );
-
-		return balloon.join( '\n' );
-
-		function baloonLine ( line, idx ) {
-			var padders;
-			//top left and top right
-			if ( idx === 0 ) {
-				padders = border.slice( 0, 2 );
-			}
-			//bottom left and bottom right
-			else if ( idx === lineCount-1 ) {
-				padders = border.slice( 2, 4 );
-			}
-			//the wall
-			else {
-				padders = border.slice( 2 );
-			}
-
-			//return the message, padded with spaces to the right as to fit
-			// with the border, enclosed in the matching borders
-			return (
-				padders[ 0 ] + ' ' +
-				rightPad( line, longest ) + ' ' +
-				padders[ 1 ]
-			);
-		}
-		function longestLine ( max, line ) {
-			return line.length > max ? line.length : max;
-		}
-	},
-
-	//choose the borders to use for the balloon
-	chooseBorders : function ( lineCount ) {
-		var border;
-
-		//thought bubbles always look the same
-		// ( moosage line 1 )
-		// ( moosage line 2 )
-		if ( this.thinking ) {
-			border = [ '(', ')', '(', ')', '(', ')' ];
-		}
-		//single line messages are enclosed in < > and have no other borders
-		// < mooosage >
-		else if ( lineCount === 1 ) {
-			border = [ '<', '>' ];
-		}
-		//multi-line messages have diaganol borders and straight walls
-		// / moosage line 1 \
-		// | moosage line 2 |
-		// \ moosage line 3 /
-		else {
-			border = [ '/', '\\', '\\', '/', '|', '|' ];
-		}
-
-		return border;
-	}
-};
-
-function wordWrap ( str, len ) {
-	var lineLen = 0;
-	return str.split( ' ' ).reduce( handleWord, '' );
-
-	function handleWord ( ret, word ) {
-		var wordLen = word.length;
-
-		//let the wrapping...commence!
-		if ( lineLen + wordLen > len ) {
-			ret += '\n';
-			lineLen = 0;
-		}
-		lineLen += wordLen + 1; //+1 for the space we now add
-
-		return ret + word + ' ';
-	}
-}
-function rightPad ( str, len, padder ) {
-	padder = padder || ' ';
-	return ( str + Array(len).join(padder) ).slice( 0, len );
-}
-
-
-return cowsay;
-}());
-
-bot.listen(
-	/cow(think|say)\s(?:([eT])=(.{0,2})\s)?(?:([eT])=(.{0,2})\s)?(.+)/,
-
-	function ( msg ) {
-		//the first item is the whole match, second item is the "think" or
-		// "say", last item is the message, we only want the "parameters"
-		var opts = getOpts( msg.matches.slice(2, -1) );
-
-		//cowsay or cowthink?
-		opts.t = msg.matches[ 1 ] === 'think';
-		bot.log( opts, 'cowsay opts' );
-
-		var cowreact = cowsay.moo( msg.matches.pop(), opts );
-		msg.send( msg.codify(cowreact) );
-
-		function getOpts ( args ) {
-			var ret = {};
-			//'e=^^ T=vv would represent in capturing groups as:
-			// ['e', '^^', 'T', 'vv']
-			//so we go through the pairs
-			for ( var i = 0, len = args.length; i < len; i += 2 ) {
-				if ( args[i] && args[i+1] ) {
-					ret[ args[i] ] = args[ i + 1 ];
-				}
-			}
-
-			return ret;
-		}
-	}
-);
-
-;
-var cowsay = (function () {
-"use strict";
-
-var cowsay = {
-
-	defaults : {
-		e : 'oo',
-		T : '  ',
-		t : false,
-		W : 40
-	},
-
-	//in the "template", e is for eye, T for Tongue, L for bubble-Line
-	//it looks more like a donkey who was involved in a sledgehammer accident
-	// because of escaping and newlines
-	//the cow business is a dangerous one
-	cow : [
-		'',
-		'        L   ^__^',
-		'         L  (e)\\_______',
-		'            (__)\\       )\\/\\',
-		'             T ||----w |',
-		'                ||     ||'
-	].join( '\n' ),
-
-	//message is the text to moo, opts is an optional object, mimicking the
-	// cowsay command arguments:
-	//   e  =>  eyes
-	//   T  =>  tongue
-	//   t  =>  is the cow thinking?
-	//   W  =>  word-wrapping width
-	//defaults specified in cowsay.defaults
-	moo : function ( message, opts ) {
-		var defs = this.defaults;
-
-		//the eyes and tongue should be exactly 2 characters
-		//if the ones the user gave are too short, pad'em
-		this.eyes     = rightPad( opts.e || defs.e, 2 ).slice( 0, 2 );
-		this.tongue   = rightPad( opts.T || defs.T, 2 ).slice( 0, 2 );
-		this.line     = opts.t ? 'O' : '\\';
-		this.thinking = opts.t;
 
 		this.message  = wordWrap( message, opts.W || defs.W ).trim();
 
@@ -4170,6 +4100,220 @@ bot.addCommand({
 }());
 
 ;
+(function () {
+"use strict";
+
+var defaults = {
+	message: 'fail,user,pro',
+	spaces: [25,14,1],
+	jitter: 4,
+	words: ['so','very','such','much','many']
+};
+
+function padd(str, n) {
+	n += Math.random() * (defaults.jitter * 2 ) - defaults.jitter;
+	
+	for( var i = 0; i < n; i++ ) {
+		str = ' ' + str;
+	}
+	return str;
+}
+
+function out(line) {
+	return '    ' + line + '\r';
+}
+
+function shuffle(arr) {
+	return arr.sort(function() {
+		return Math.random() - 0.5;
+	});
+}
+
+function doge(msg) {
+	
+	var input = (msg.length > 0 ? msg.toString() : defaults.message).split(',');
+	
+	var pre = shuffle(defaults.words.slice(0)),
+	output = out(padd('wow', 4 + Math.random() * 4 | 0));
+
+	while( input.length > pre.length ) {
+		pre = pre.concat(shuffle(defaults.words.slice(0))); // Don't hurt me Zirak... I'm sorry.
+	}
+	
+	while(input.length) {
+		var line = '';
+		if( pre.length ) {
+			line += pre.shift() + ' ';
+		}
+		line += input.shift();	
+		output += out(padd(line, defaults.spaces[(input.length%3) - 1]));
+	}
+
+	msg.send(output + '\r    ');
+}
+
+bot.addCommand({
+        fun : doge,
+        name : 'doge',
+        permissions : {
+                del : 'NONE'
+        },
+
+        description : 'so shibe, much doge, wow' + 
+		'`/doge one,two,three[,nth]'
+});
+
+}());
+
+;
+(function () {
+// This is a proxy to add padding to a JSON API
+// See: https://github.com/shea-sollars/sap
+var requestURI = 'http://www.lobby.ws/api/sap.js';
+
+function checkDomain ( msgObj, cb ) {
+	IO.jsonp({
+		data : {
+			domain : msgObj.content
+		},
+		url : requestURI,
+		fun : reportResult,
+		jsonpName : 'cb'
+	});
+
+	/*
+	expect respObj to be:
+	{
+		status : 'error' || 'success',
+		status_desc : 'Error message' (if status == error),
+		domain : 'Domain in question' || null (possibly if error),
+		available : true || false || null (possibly if error)
+	}
+	*/
+	function reportResult ( respObj ) {
+		var error = getError( respObj );
+
+		if ( error ) {
+			finish( error );
+			return;
+		}
+
+		var respFormat = 'The domain {0} {1} available.',
+			available = respObj.available ? '*IS*' : 'is *NOT*';
+
+		finish( respFormat.supplant(respObj.domain, available) );
+	}
+
+	function getError ( respObj ) {
+		var statusError = 'An error occured';
+
+		var errored =
+			!respObj.hasOwnProperty('status') ||
+			respObj.status !== 'success';
+
+		if ( errored ) {
+			if ( respObj.status_desc ) {
+				statusError += ': ' + respObj.status_desc;
+			}
+
+			return statusError;
+		}
+
+		errored = !( respObj.hasOwnProperty( 'domain' ) &&
+					respObj.hasOwnProperty( 'available' ) );
+
+		if ( errored ) {
+			return 'Something went wrong with that request. Try again';
+		}
+
+		return false;
+	}
+
+	function finish ( resp ) {
+		if ( cb && cb.call ) {
+			cb( resp );
+		}
+		else {
+			msgObj.reply( resp );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'domain',
+	fun : checkDomain,
+
+	permissions : {
+		del : 'NONE'
+	},
+	description : 'Check domain availability',
+	async : true
+});
+
+}());
+
+;
+(function () {
+var findCommand = function ( args ) {
+    var input = args.toString().toLowerCase(),
+        ret = '';
+
+    var cmd = bot.getCommand( input ),
+        guesses = cmd.guesses;
+
+    if ( !guesses ) {
+        ret += 'Exact match: ' + cmd.name + '. ';
+
+        bot.commandDictionary.maxCost = Math.floor( input.length / 3 + 1 );
+        guesses = bot.commandDictionary.search( input ).filter(function ( n ) {
+            return n !== cmd.name;
+        });
+    }
+
+    if ( guesses && guesses.length ) {
+        ret += 'Close matches: ' + guesses.join( ', ' ) + '. ';
+    }
+
+    //now that we've checked the names, we should check descriptions
+    var loose =
+        Object.keys( bot.commands )
+        .filter(function findCommandMatchDesc ( name ) {
+            var match = bot.commands[ name ]
+                .description.toLowerCase().indexOf( input ) > -1;
+
+            return match &&
+                name.toLowerCase() !== input &&
+                guesses.indexOf( name ) < 0;
+        });
+
+    if ( loose.length ) {
+        ret += 'Loose matches: ' + loose.join( ', ' );
+    }
+
+    //we have an exact match, wihout any close or loose matches
+    if ( !cmd.error && !guesses.length && !loose.length ) {
+        ret = cmd.name + ': ' + cmd.description;
+    }
+
+    if ( !ret ) {
+        ret = 'I know nothing of it.';
+    }
+
+    return ret.trim();
+};
+
+bot.addCommand({
+    name : 'findCommand',
+    fun : findCommand,
+    permissions : {
+        del : 'NONE'
+    },
+    description : 'Searches for a bot command matching part of a ' +
+        'name/description. `/findCommand partOfNameOrDescription`'
+});
+})();
+
+;
 //listener to help decide which Firefly episode to watch
 
 bot.listen( /(which |what |give me a )?firefly( episode)?/i, function ( msg ) {
@@ -4183,218 +4327,6 @@ bot.listen( /(which |what |give me a )?firefly( episode)?/i, function ( msg ) {
 	var r = Math.floor(Math.random() * 14);
 	return 'Episode {0} - {1}'.supplant(r + 1, names[r]);
 });
-
-;
-(function () {
-//they made me make it. I begged them not to.
-
-//obligatories
-var special = {
-	'your mom' : ['Your mom is always open for business.'],
-	'your sister' : ['Your sister is too busy right now.'],
-	//hey, the last two lines aligned! together with the bodies...
-	//erm, what?
-
-	//the help message explicitly says age, though...
-	'age' : ['For you? Never.']
-};
-var template = 'A person that age can shag down to {lower}, '+
-	'and is the lower limit of a person of {higher} years.';
-
-function fuckable ( args ) {
-	var possibleName = args.toString().toLowerCase();
-
-	if ( special[possibleName] ) {
-		return special[ possibleName ].random();
-	}
-
-	//try and find a user with the same name as the argument
-	var userId = Object.keys( bot.users ).first(function ( id ) {
-		return bot.users[ id ].name.toLowerCase() === possibleName;
-	});
-
-	//we found a match. you're a daddy!
-	if ( userId && Math.random() < 0.8 ) {
-		//the perverts
-		if ( Number(userId) === bot.adapter.user_id ) {
-			return 'Keep dreaming';
-		}
-
-		return 'Why don\'t we ask ' + bot.adapter.reply( args ) + '?';
-	}
-
-	var age = Number( args );
-
-	if ( !age || age < 0 ) {
-		return 'This is srs bsns, please treat it as such' +
-			' (see `/help fuckable`).';
-	}
-
-	var ret = '';
-	if ( age < 14 ) {
-		ret += 'You\'re one sick puppy. ';
-	}
-
-	var fuckee = age / 2 + 7,
-	fucker = 2 * age - 14,
-	wrapper = {};
-
-	//the equation is:
-	// fuckee = fucker / 2 + 7
-	//now, we want fuckee <= fucker. this condition is not met when fucker < 14:
-	// fuckee = 13 / 2 + 7 = 13.5 > 13
-	//so, if age < 14, we flip the two to meet the condition.
-	wrapper.higher = ( age > 14 ? fucker : fuckee );
-	wrapper.lower  = ( age > 14 ? fuckee : fucker );
-
-	return ret + template.supplant( wrapper );
-}
-
-bot.addCommand({
-	name : 'fuckable',
-	fun : fuckable,
-	permissions : {
-		del : 'NONE'
-	},
-
-	description : 'Calculates the lower boundary according to age/2+7 rule.' +
-		' `/fuckable age`'
-});
-
-})();
-
-;
-(function () {
-var types = {
-	answer   : true,
-	question : true };
-var ranges = {
-	//the result array is in descending order, so it's "reversed"
-	first : function ( arr ) {
-		return arr[ arr.length - 1 ];
-	},
-
-	last : function ( arr ) {
-		return arr[ 0 ];
-	},
-
-	between : function ( arr ) {
-		//SO api takes care of this for us
-		return arr;
-	}
-};
-
-function get ( args, cb ) {
-	//default:
-	// /get type range usrid
-	var parts = args.parse(),
-		type = parts[ 0 ] || 'answer',
-		plural = type + 's',
-
-		range = parts[ 1 ] || 'last',
-
-		usrid = parts[ 2 ];
-
-	//if "between" is given, fetch the correct usrid
-	// /get type between start end usrid
-	if ( range === 'between' ) {
-		usrid = parts[ 4 ];
-	}
-
-	//range is a number and no usrid, assume the range is the usrid, and
-	// default range to last
-	// /get type usrid
-	if ( !usrid && !isNaN(range) ) {
-		usrid = range;
-		range = 'last';
-	}
-
-	//if after all this usrid is falsy, assume the user's id
-	if ( !usrid ) {
-		usrid = args.get( 'user_id' );
-	}
-
-	bot.log( parts, 'get input' );
-
-	if ( !types.hasOwnProperty(type) ) {
-		return 'Invalid "getter" name ' + type;
-	}
-	if ( !ranges.hasOwnProperty(range) ) {
-		return 'Invalid range specifier ' + range;
-	}
-
-	var url = 'http://api.stackexchange.com/2.1/users/' + usrid + '/' + plural;
-	var params = {
-		site : bot.adapter.site,
-		sort : 'creation',
-		//basically, only show answer/question id and their link
-		filter : '!BGS1(RNaKd_71l)9SkX3zg.ifSRSSy'
-	};
-
-	bot.log( url, params, '/get building url' );
-
-	if ( range === 'between' ) {
-		params.fromdate = Date.parse( parts[2] );
-		params.todate = Date.parse( parts[3] );
-
-		bot.log( url, params, '/get building url between' );
-	}
-
-	IO.jsonp({
-		url  : url,
-		data : params,
-		fun  : parseResponse
-	});
-
-	function parseResponse ( respObj ) {
-		//Une erreru! L'horreur!
-		if ( respObj.error_message ) {
-			args.reply( respObj.error_message );
-			return;
-		}
-
-		//get only the part we care about in the result, based on which one
-		// the user asked for (first, last, between)
-		//respObj will have an answers or questions property, based on what we
-		// queried for, in array form
-		var posts = [].concat( ranges[range](respObj.items) ),
-			res;
-
-		bot.log( posts.slice(), '/get parseResponse parsing' );
-
-		if ( posts.length ) {
-			res = makeUserResponse( posts );
-		}
-		else {
-			res = 'User did not submit any ' + plural;
-		}
-		bot.log( res, '/get parseResponse parsed');
-
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.directreply( res );
-		}
-	}
-
-	function makeUserResponse( posts ) {
-		return posts.map(function ( post ) {
-			return post.link;
-		}).join ( ' ; ');
-	}
-}
-
-bot.addCommand({
-	name : 'get',
-	fun  : get,
-	permissions : {
-		del : 'NONE'
-	},
-	async : true
-});
-
-}());
 
 ;
 // issue #51 https://github.com/Zirak/SO-ChatBot/issues/51
@@ -4602,7 +4534,7 @@ bot.addCommand({
 }());
 
 ;
-﻿(function () {
+(function () {
 "use strict";
 
 var randomWord = function ( length, cb ) {
@@ -4646,7 +4578,6 @@ var game = {
 	guesses : [],
 	guessNum : 0,
 	maxGuess : 6,
-	guessMade : false,
 
 	end : true,
 	msg : null,
@@ -4675,10 +4606,8 @@ var game = {
 			self.guesses = [];
 			self.guessNum = 0;
 
-			//oh look, another dirty hack...this one is to make sure the
-			// hangman is codified
-			self.guessMade = true;
-			self.register();
+			self.guessMade();
+			self.end = false;
 
 			if ( msg.length && !Number(msg) ) {
 				self.receiveMessage( msg );
@@ -4708,7 +4637,7 @@ var game = {
 		}
 
 		this.guesses.push( guess );
-		this.guessMade = true;
+		this.guessMade();
 
 		bot.log( guess, 'handleGuess handled' );
 
@@ -4752,6 +4681,9 @@ var game = {
 	//attach the hangman drawing to the already guessed list and to the
 	// revealed portion of the secret word
 	preparePrint : function () {
+		if (this.end) {
+			return;
+		}
 		var self = this;
 
 		//replace the placeholders in the dude with body parts
@@ -4769,13 +4701,13 @@ var game = {
 
 	//win the game
 	win : function () {
-		this.unregister();
+		this.end = true;
 		return 'Correct! The word is ' + this.word + '.';
 	},
 
 	//lose the game. less bitter messages? maybe.
 	lose : function () {
-		this.unregister();
+		this.end = true;
 		return 'You people suck. The word is ' + this.word;
 	},
 
@@ -4787,231 +4719,17 @@ var game = {
 		return this.guessNum >= this.maxGuess;
 	},
 
-	register : function () {
-		this.unregister(); //to make sure it's not added multiple times
-		IO.register( 'beforeoutput', this.buildOutput, this );
-
-		this.end = false;
-	},
-	unregister : function () {
-		IO.unregister( 'beforeoutput', this.buildOutput );
-
-		this.end = true;
-	},
-
-	buildOutput : function () {
-		if ( this.guessMade ) {
-			this.preparePrint();
-
-			this.guessMade = false;
-		}
+	guessMade : function () {
+		clearTimeout( this.printTimeout );
+		this.printTimeout = setTimeout( this.preparePrint.bind(this), 2000 );
 	}
 };
+
 bot.addCommand({
 	name : 'hang',
 	fun : game.receiveMessage,
 	thisArg : game
 });
-}());
-
-;
-(function () {
-"use strict";
-
-var randomWord = function ( cb ) {
-	IO.jsonp({
-		url : 'http://sleepy-bastion-8674.herokuapp.com/',
-		jsonpName : 'callback',
-		fun : complete
-	});
-
-	function complete ( resp ) {
-		cb( resp.word.toLowerCase().trim() );
-	}
-};
-
-var game = {
-
-	//the dude is just a template to be filled with parts
-	//like a futuristic man. he has no shape. he has no identity. he's just a
-	// collection of mindless parts, to be assembled, for the greater good.
-	//pah! I mock your pathetic attempts at disowning man of his prowess! YOU
-	// SHALL NOT WIN! VIVE LA PENSÉE!!
-	dude : [
-		// '  +---+' ,
-		// '  |   |' ,
-		// '  |  413',
-		// '  |   2' ,
-		// '  |  5 6',
-		// '__+__'
-	].join( '\n' ),
-
-	parts : [ '', 'O', '|', '/', '\\', '/', '\\' ],
-
-	word : '',
-	revealed : '',
-
-	guesses : [],
-	guessNum : 0,
-	maxGuess : 6,
-	guessMade : false,
-
-	end : true,
-	msg : null,
-
-	validGuessRegex : /^[\w\s]+$/,
-
-	receiveMessage : function ( msg ) {
-		this.msg = msg;
-
-		if ( this.end ) {
-			this.new();
-		}
-		else if ( msg.content ) {
-			return this.handleGuess( msg );
-		}
-	},
-
-	new : function () {
-		var that = this;
-
-		randomWord(function ( word ) {
-			bot.log( word + ' /hang random' );
-
-			game.word = word;
-			that.revealed = new Array( word.length + 1 ).join( '-' );
-			that.guesses = [];
-			that.guessNum = 0;
-
-			//oh look, another dirty hack...this one is to make sure the
-			// hangman is codified
-			that.guessMade = true;
-
-			that.register();
-		});
-	},
-
-	handleGuess : function ( msg ) {
-		var guess = msg.slice().toLowerCase();
-		bot.log( guess, 'handleGuess' );
-
-		if ( !this.validGuessRegex.test(guess) ) {
-			return 'Only alphanumeric and whitespace characters allowed';
-		}
-
-		//check if it was already submitted
-		if ( this.guesses.indexOf(guess) > -1 ) {
-			return guess + ' was already submitted';
-		}
-
-		//or if it's the wrong length
-		if ( guess.length > this.word.length ) {
-			return msg.codify(guess) + ' is longer than the phrase';
-		}
-
-		//replace all occurences of the guess within the hidden word with their
-		// actual characters
-		var indexes = this.word.indexesOf( guess );
-		indexes.forEach(function ( index ) {
-			this.uncoverPart( guess, index );
-		}, this);
-
-		//not found in secret word, penalize the evil doers!
-		if ( !indexes.length ) {
-			this.guessNum++;
-		}
-
-		this.guesses.push( guess );
-		this.guessMade = true;
-
-		bot.log( guess, this.guessMade, 'handleGuess handled' );
-
-		//plain vanilla lose-win checks
-		if ( this.loseCheck() ) {
-			return this.lose();
-		}
-
-		if ( this.winCheck() ) {
-			return this.win();
-		}
-	},
-
-	//unearth a portion of the secret word
-	uncoverPart : function ( guess, startIndex ) {
-		this.revealed =
-			this.revealed.slice( 0, startIndex ) +
-			guess +
-			this.revealed.slice( startIndex + guess.length );
-	},
-
-	//attach the hangman drawing to the already guessed list and to the
-	// revealed portion of the secret word
-	preparePrint : function () {
-		var that = this;
-
-		//replace the placeholders in the dude with body parts
-		// var dude = this.dude.replace( /\d/g, function ( part ) {
-			// return part > that.guessNum ? ' ' : that.parts[ part ];
-		// });
-		var guessess;
-		if(this.guesses.length > 0)
-		guessess = this.guesses.sort().join(', ');
-		else
-		guessess = "None";
-
-		var belowDude = "Tries: " + that.guessNum + " Guesses: " + guessess + " Revealed: "+ this.revealed;
-
-		var hangy = this.msg.codify( belowDude );
-		bot.log( hangy, this.msg );
-		this.msg.send( hangy );
-	},
-
-	//win the game
-	win : function () {
-		this.unregister();
-		return 'Correct! The phrase is ' + this.word + '.';
-	},
-
-	//lose the game. less bitter messages? maybe.
-	lose : function () {
-		this.unregister();
-		return 'You people suck. The phrase was ' + this.word;
-	},
-
-	winCheck : function () {
-		return this.word === this.revealed;
-	},
-
-	loseCheck : function () {
-		return this.guessNum >= this.maxGuess;
-	},
-
-	register : function () {
-		this.unregister(); //to make sure it's not added multiple times
-		IO.register( 'beforeoutput', this.buildOutput, this );
-
-		this.end = false;
-	},
-	unregister : function () {
-		IO.unregister( 'beforeoutput', this.buildOutput );
-
-		this.end = true;
-	},
-
-	buildOutput : function () {
-		if ( this.guessMade ) {
-			this.preparePrint();
-
-			this.guessMade = false;
-		}
-	}
-};
-bot.addCommand({
-	name : 'hangs',
-	fun : game.receiveMessage,
-	thisArg : game
-});
-
 }());
 
 ;
@@ -5268,190 +4986,95 @@ bot.addCommand({
 
 ;
 (function () {
-var nulls = [
-	'The Google contains no such knowledge',
-	'There are no search results. Run.' ];
+var baseURL = 'http://api.jquery.com/';
 
-function google ( args, cb ) {
-	var random = false;
-	var number = 0;
-
-	console.log(args.toString());
-	if(args.split(' ')[0].toLowerCase() == 'random')
-	{
-	console.log('true');
-	random = true;
-	var argsarray = args.split(' ');
-	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
-	}
-	else if(!isNaN(args.split(' ')[0]))
-	{
-		if(args.split(' ')[0] > 11)
-		{
-			args.reply('USE NUMBERS LESS THAN 10');
-			return;
-		}
-	
-	console.log(args.split(' ').splice(0, 1).join(' ').toString(), 'nan');
-		number = args.split(' ')[0] - 1;
-			var argsarray = args.split(' ');
-	argsarray.splice(0, 1);
-	IO.jsonp.image( argsarray.join(' '), finishCall, 10 );
-	}
-	else{ console.log('neither');
-	
-	IO.jsonp.image( args.toString(), finishCall, 10 );}
-	
-	function finishCall ( resp ) {
-		bot.log( resp, '/image response' );
-		// if ( resp.responseStatus !== 200 ) {
-			// finish( 'My Google-Fu is on vacation; status ' +
-					// resp.responseStatus );
-			// return;
-		// }
-var results;
-		//TODO: change hard limit to argument
-		
-		if(number != 0)
-		{console.log('number');
-		results = resp.items[number];}
-		else if(!random){console.log('not random');
-		results = resp.items[0];}
-		else{console.log('random');
-		results = resp.items[Math.floor(Math.random()*50)];}
-		
-		
-		bot.log( results, '/image results' );
-		var url;
-		if(results.link.lastIndexOf('.') != results.link.length-3)
-		{
-			console.log(results.link, 'DOES NOT CONTAIN EXTENSION');
-			console.log(results.link.length-3, 'DOES NOT CONTAIN EXTENSION');
-			finish(
-			results.link + "#.png");
-		}
-		else
-		finish(
-			results.link );
-		
-		
+function jquery ( args ) {
+	if ( !args.content ) {
+		return baseURL;
 	}
 
-	function finish ( res ) {
-		bot.log( res, '/image final' );
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.send( res );
-		}
-	}
-}
-
-bot.addCommand({
-	name : 'image',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Search Google images. `/image number|random query`',
-	async : true
-});
-}());
-;
-
-;
-(function () {
-window.URL = window.URL || window.webkitURL || window.mozURL || null;
-
-//translation tool: https://tinker.io/b2ff5
-var worker_code = atob( 'dmFyIGdsb2JhbCA9IHRoaXM7CgovKm1vc3QgZXh0cmEgZnVuY3Rpb25zIGNvdWxkIGJlIHBvc3NpYmx5IHVuc2FmZSovCnZhciB3aGl0ZXkgPSB7CgknQXJyYXknICAgICAgICAgICAgICA6IDEsCgknQm9vbGVhbicgICAgICAgICAgICA6IDEsCgknRGF0ZScgICAgICAgICAgICAgICA6IDEsCgknRXJyb3InICAgICAgICAgICAgICA6IDEsCgknRXZhbEVycm9yJyAgICAgICAgICA6IDEsCgknRnVuY3Rpb24nICAgICAgICAgICA6IDEsCgknSW5maW5pdHknICAgICAgICAgICA6IDEsCgknSlNPTicgICAgICAgICAgICAgICA6IDEsCgknTWF0aCcgICAgICAgICAgICAgICA6IDEsCgknTmFOJyAgICAgICAgICAgICAgICA6IDEsCgknTnVtYmVyJyAgICAgICAgICAgICA6IDEsCgknT2JqZWN0JyAgICAgICAgICAgICA6IDEsCgknUmFuZ2VFcnJvcicgICAgICAgICA6IDEsCgknUmVmZXJlbmNlRXJyb3InICAgICA6IDEsCgknUmVnRXhwJyAgICAgICAgICAgICA6IDEsCgknU3RyaW5nJyAgICAgICAgICAgICA6IDEsCgknU3ludGF4RXJyb3InICAgICAgICA6IDEsCgknVHlwZUVycm9yJyAgICAgICAgICA6IDEsCgknVVJJRXJyb3InICAgICAgICAgICA6IDEsCgknYXRvYicgICAgICAgICAgICAgICA6IDEsCgknYnRvYScgICAgICAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJJyAgICAgICAgICA6IDEsCgknZGVjb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZW5jb2RlVVJJJyAgICAgICAgICA6IDEsCgknZW5jb2RlVVJJQ29tcG9uZW50JyA6IDEsCgknZXZhbCcgICAgICAgICAgICAgICA6IDEsCgknZ2xvYmFsJyAgICAgICAgICAgICA6IDEsCgknaXNGaW5pdGUnICAgICAgICAgICA6IDEsCgknaXNOYU4nICAgICAgICAgICAgICA6IDEsCgknb25tZXNzYWdlJyAgICAgICAgICA6IDEsCgkncGFyc2VGbG9hdCcgICAgICAgICA6IDEsCgkncGFyc2VJbnQnICAgICAgICAgICA6IDEsCgkncG9zdE1lc3NhZ2UnICAgICAgICA6IDEsCgknc2VsZicgICAgICAgICAgICAgICA6IDEsCgkndW5kZWZpbmVkJyAgICAgICAgICA6IDEsCgknd2hpdGV5JyAgICAgICAgICAgICA6IDEsCgoJLyogdHlwZWQgYXJyYXlzIGFuZCBzaGl0ICovCgknQXJyYXlCdWZmZXInICAgICAgIDogMSwKCSdCbG9iJyAgICAgICAgICAgICAgOiAxLAoJJ0Zsb2F0MzJBcnJheScgICAgICA6IDEsCgknRmxvYXQ2NEFycmF5JyAgICAgIDogMSwKCSdJbnQ4QXJyYXknICAgICAgICAgOiAxLAoJJ0ludDE2QXJyYXknICAgICAgICA6IDEsCgknSW50MzJBcnJheScgICAgICAgIDogMSwKCSdVaW50OEFycmF5JyAgICAgICAgOiAxLAoJJ1VpbnQxNkFycmF5JyAgICAgICA6IDEsCgknVWludDMyQXJyYXknICAgICAgIDogMSwKCSdVaW50OENsYW1wZWRBcnJheScgOiAxLAoKCS8qCgl0aGVzZSBwcm9wZXJ0aWVzIGFsbG93IEZGIHRvIGZ1bmN0aW9uLiB3aXRob3V0IHRoZW0sIGEgZnVja2Zlc3Qgb2YKCWluZXhwbGljYWJsZSBlcnJvcnMgZW51c2VzLiB0b29rIG1lIGFib3V0IDQgaG91cnMgdG8gdHJhY2sgdGhlc2UgZnVja2VycwoJZG93bi4KCWZ1Y2sgaGVsbCBpdCBpc24ndCBmdXR1cmUtcHJvb2YsIGJ1dCB0aGUgZXJyb3JzIHRocm93biBhcmUgdW5jYXRjaGFibGUKCWFuZCB1bnRyYWNhYmxlLiBzbyBhIGhlYWRzLXVwLiBlbmpveSwgZnV0dXJlLW1lIQoJKi8KCSdET01FeGNlcHRpb24nIDogMSwKCSdFdmVudCcgICAgICAgIDogMSwKCSdNZXNzYWdlRXZlbnQnIDogMQp9OwoKWyBnbG9iYWwsIGdsb2JhbC5fX3Byb3RvX18gXS5mb3JFYWNoKGZ1bmN0aW9uICggb2JqICkgewoJT2JqZWN0LmdldE93blByb3BlcnR5TmFtZXMoIG9iaiApLmZvckVhY2goZnVuY3Rpb24oIHByb3AgKSB7CgkJaWYoICF3aGl0ZXkuaGFzT3duUHJvcGVydHkoIHByb3AgKSApIHsKCQkJZGVsZXRlIG9ialsgcHJvcCBdOwoJCX0KCX0pOwp9KTsKCk9iamVjdC5kZWZpbmVQcm9wZXJ0eSggQXJyYXkucHJvdG90eXBlLCAnam9pbicsIHsKCXdyaXRhYmxlOiBmYWxzZSwKCWNvbmZpZ3VyYWJsZTogZmFsc2UsCgllbnVtcmFibGU6IGZhbHNlLAoKCXZhbHVlOiAoZnVuY3Rpb24gKCBvbGQgKSB7CgkJcmV0dXJuIGZ1bmN0aW9uICggYXJnICkgewoJCQlpZiAoIHRoaXMubGVuZ3RoID4gNTAwIHx8IChhcmcgJiYgYXJnLmxlbmd0aCA+IDUwMCkgKSB7CgkJCQl0aHJvdyAnRXhjZXB0aW9uOiB0b28gbWFueSBpdGVtcyc7CgkJCX0KCgkJCXJldHVybiBvbGQuYXBwbHkoIHRoaXMsIGFyZ3VtZW50cyApOwoJCX07Cgl9KCBBcnJheS5wcm90b3R5cGUuam9pbiApKQp9KTsKCi8qIHdlIGRlZmluZSBpdCBvdXRzaWRlIHNvIGl0J2xsIG5vdCBiZSBpbiBzdHJpY3QgbW9kZSAqLwpmdW5jdGlvbiBleGVjICggY29kZSApIHsKCXJldHVybiBldmFsKCAndW5kZWZpbmVkO1xuJyArIGNvZGUgKTsKfQp2YXIgY29uc29sZSA9IHsKCV9pdGVtcyA6IFtdLAoJbG9nIDogZnVuY3Rpb24oKSB7CgkJY29uc29sZS5faXRlbXMucHVzaC5hcHBseSggY29uc29sZS5faXRlbXMsIGFyZ3VtZW50cyApOwoJfQp9Owpjb25zb2xlLmVycm9yID0gY29uc29sZS5pbmZvID0gY29uc29sZS5kZWJ1ZyA9IGNvbnNvbGUubG9nOwp2YXIgcCA9IGNvbnNvbGUubG9nLmJpbmQoIGNvbnNvbGUgKTsKCihmdW5jdGlvbigpewoJInVzZSBzdHJpY3QiOwoKCWdsb2JhbC5vbm1lc3NhZ2UgPSBmdW5jdGlvbiAoIGV2ZW50ICkgewoJCXBvc3RNZXNzYWdlKHsKCQkJZXZlbnQgOiAnc3RhcnQnCgkJfSk7CgoJCXZhciBqc29uU3RyaW5naWZ5ID0gSlNPTi5zdHJpbmdpZnksIC8qYmFja3VwKi8KCQkJcmVzdWx0OwoKCQl0cnkgewoJCQlyZXN1bHQgPSBleGVjKCBldmVudC5kYXRhICk7CgkJfQoJCWNhdGNoICggZSApIHsKCQkJcmVzdWx0ID0gZS50b1N0cmluZygpOwoJCX0KCgkJLypKU09OIGRvZXMgbm90IGxpa2UgYW55IG9mIHRoZSBmb2xsb3dpbmcqLwoJCXZhciBzdHJ1bmcgPSB7CgkJCUZ1bmN0aW9uICA6IHRydWUsIEVycm9yICA6IHRydWUsCgkJCVVuZGVmaW5lZCA6IHRydWUsIFJlZ0V4cCA6IHRydWUKCQl9OwoJCXZhciBzaG91bGRfc3RyaW5nID0gZnVuY3Rpb24gKCB2YWx1ZSApIHsKCQkJdmFyIHR5cGUgPSAoIHt9ICkudG9TdHJpbmcuY2FsbCggdmFsdWUgKS5zbGljZSggOCwgLTEgKTsKCgkJCWlmICggdHlwZSBpbiBzdHJ1bmcgKSB7CgkJCQlyZXR1cm4gdHJ1ZTsKCQkJfQoJCQkvKm5laXRoZXIgZG9lcyBpdCBmZWVsIGNvbXBhc3Npb25hdGUgYWJvdXQgTmFOIG9yIEluZmluaXR5Ki8KCQkJcmV0dXJuIHZhbHVlICE9PSB2YWx1ZSB8fCB2YWx1ZSA9PT0gSW5maW5pdHk7CgkJfTsKCgkJdmFyIHJldml2ZXIgPSBmdW5jdGlvbiAoIGtleSwgdmFsdWUgKSB7CgkJCXZhciBvdXRwdXQ7CgoJCQlpZiAoIHNob3VsZF9zdHJpbmcodmFsdWUpICkgewoJCQkJb3V0cHV0ID0gJycgKyB2YWx1ZTsKCQkJfQoJCQllbHNlIHsKCQkJCW91dHB1dCA9IHZhbHVlOwoJCQl9CgoJCQlyZXR1cm4gb3V0cHV0OwoJCX07CgoJCXBvc3RNZXNzYWdlKHsKCQkJYW5zd2VyIDoganNvblN0cmluZ2lmeSggcmVzdWx0LCByZXZpdmVyICksCgkJCWxvZyAgICA6IGpzb25TdHJpbmdpZnkoIGNvbnNvbGUuX2l0ZW1zLCByZXZpdmVyICkuc2xpY2UoIDEsIC0xICkKCQl9KTsKCX07Cn0pKCk7Cg==' );
-var blob = new Blob( [worker_code], { type : 'application/javascript' } ),
-	code_url = window.URL.createObjectURL( blob );
-
-function eval ( msg ) {
-	var worker = new Worker( code_url ),
-		timeout;
-
-	worker.onmessage = function ( evt ) {
-		var type = evt.data.event;
-		if ( type === 'start' ) {
-			start();
-		}
-		else {
-			finish( dressUpAnswer(evt.data) );
-		}
-	};
-
-	worker.onerror = function ( error ) {
-		finish( error.toString() );
-	};
-
-	//and it all boils down to this...
-	worker.postMessage( msg.content.replace(/^>/, '') );
-
-	function start () {
-		timeout = window.setTimeout(function() {
-			finish( 'Maximum execution time exceeded' );
-		}, 500 );
+	//check to see if more than one thing is requested
+	var parsed = args.parse( true );
+	if ( parsed.length > 1 ) {
+		return parsed.map( jquery ).join( ' ' );
 	}
 
-	function finish ( result ) {
-		clearTimeout( timeout );
-		worker.terminate();
-		msg.directreply( result );
+	var props = args.trim().replace( /^\$/, 'jQuery' ),
+
+	parts = props.split( '.' ), exists = false,
+	url = props, msg;
+	//parts will contain two likely components, depending on the input
+	// jQuery.fn.prop -  parts[0] = jQuery, parts[1] = prop
+	// jQuery.prop    -  parts[0] = jQuery, parts[1] = prop
+	// prop           -  parts[0] = prop
+	//
+	//jQuery API urls works like this:
+	// if it's on the jQuery object, then the url is /jQuery.property
+	// if it's on the proto, then the url is /property
+	//
+	//so, the mapping goes like this:
+	// jQuery.fn.prop => prop
+	// jQuery.prop    => jQuery.prop if it's on jQuery
+	// prop           => prop if it's on jQuery.prototype,
+	//                     jQuery.prop if it's on jQuery
+
+	bot.log( props, parts, '/jquery input' );
+
+	//user gave something like jQuery.fn.prop, turn that to just prop
+	// jQuery.fn.prop => prop
+	if ( parts.length === 3 ) {
+		parts = [ parts[2] ];
 	}
-};
 
-function dressUpAnswer ( answerObj ) {
-	console.log( answerObj, 'eval answerObj' );
-	var answer = answerObj.answer,
-		log = answerObj.log,
-		result;
-
-	result = snipAndCodify( answer );
-
-	if ( log && log.length ) {
-		result += ' Logged: ' + snipAndCodify( log );
+	//check to see if it's a property on the jQuery object itself
+	// jQuery.prop => jQuery.prop
+	if ( parts[0] === 'jQuery' && jQuery[parts[1]] ) {
+		exists = true;
 	}
 
-	return result;
-}
-function snipAndCodify ( str ) {
-	var ret;
+	//user wants something on the prototype?
+	// prop => prop
+	else if ( parts.length === 1 && jQuery.prototype[parts[0]] ) {
+		url = parts[ 0 ];
+		exists = true;
+	}
 
-	if ( str.length > 400 ) {
-		ret = '`' +  str.slice(0, 400) + '` (snip)';
+	//user just wanted a property? maybe.
+	// prop => jQuery.prop
+	else if ( jQuery[parts[0]] ) {
+		url = 'jQuery.' + parts[0];
+		exists = true;
+	}
+
+	if ( exists ) {
+		msg = baseURL + url;
 	}
 	else {
-		ret = '`' + str +'`';
+		msg = baseURL + '?s=' + encodeURIComponent( args );
 	}
+	bot.log( msg, '/jquery link' );
 
-	return ret;
+	return msg;
 }
 
-
 bot.addCommand({
-	name : 'js',
-	fun  : eval,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Executes JS code. `/js code`',
-	async : true
+	name : 'jquery',
+	fun : jquery,
+
+	permissions : { del : 'NONE', use : 'ALL' },
+	description : 'Fetches documentation link from jQuery API. `/jquery what`',
 });
-}());
-;
+
+})();
 
 ;
 (function () {
 "use strict";
-var parse = bot.getCommand( 'parse' );
 var storage = bot.memory.get( 'learn' );
 
 var replyPatterns = /^(<>|<user>|<msg>)/i,
 	onlyReply = new RegExp( replyPatterns.source + '$', 'i' );
+var mismatchErrMessage = 'Input not matching `{input}`. Help: {description}';
 
 function learn ( args ) {
 	bot.log( args, '/learn input' );
@@ -5465,11 +5088,6 @@ function learn ( args ) {
 		creator: args.get( 'user_name' ),
 		date   : new Date()
 	};
-	command.description = [
-		'User-taught command:',
-		commandParts[3] || '',
-		args.codify( command.output )
-	].join( ' ' );
 
 	//a truthy value, unintuitively, means it isn't valid, because it returns
 	// an error message
@@ -5477,8 +5095,14 @@ function learn ( args ) {
 	if ( errorMessage ) {
 		return errorMessage;
 	}
+
 	command.name = command.name.toLowerCase();
 	command.input = new RegExp( command.input );
+	command.description = [
+		'User-taught command:',
+		commandParts[3] || '',
+		args.codify( command.output )
+	].join( ' ' );
 
 	bot.log( command, '/learn parsed' );
 
@@ -5521,11 +5145,18 @@ function makeCustomCommand ( command ) {
 
 	bot.log( command, '/learn makeCustomCommand' );
 
-	return function ( args ) {
+	return function userLearnedCommand ( args ) {
 		bot.log( args, command.name + ' input' );
 
 		var cmdArgs = bot.Message( output, args.get() ),
-			res = parse.exec( cmdArgs, command.input.exec(args) );
+			parts = command.input.exec( args );
+
+		//reply with the desc if there's incorrect usage (#102)
+		if ( !parts ) {
+			return mismatchErrMessage.supplant( command );
+		}
+
+		var res = bot.parseMacro( cmdArgs, parts );
 
 		switch ( replyMethod ) {
 		case '':
@@ -5556,7 +5187,7 @@ function checkCommand ( cmd ) {
 		error;
 
 	if ( somethingUndefined ) {
-		error = 'Illegal /learn object; see `/help learn`';
+		error = 'Illegal `/learn` object; see `/help learn`';
 	}
 	//not very possible, I know, but...uh...yes. definitely. I agree. spot on,
 	// Mr. Pips.
@@ -5637,54 +5268,53 @@ loadCommands();
 }());
 
 ;
-(function () {
-var nulls = [
-	'The Google contains no such knowledge',
-	'There are no search results. Run.',
-	'My Google Fu has failed.'];
+bot.addCommand({
+	name : 'live',
+	fun : function () {
+		if ( !bot.stopped ) {
+			return 'I\'m not dead! Honest!';
+		}
+		bot.continue();
+		return 'And on this day, you shall paint eggs for a giant bunny.';
+	},
+	permissions : { del : 'NONE', use : 'OWNER' },
+	description : 'Resurrects me (:D) if I\'m down (D:)',
+});
 
-function google ( args, cb ) {
-	IO.jsonp.google( args.toString() + ' c# site:http://msdn.microsoft.com/en-us/library/', finishCall );
+bot.addCommand(bot.CommunityCommand({
+	name : 'die',
+	fun : function () {
+		if ( bot.stopped ) {
+			return 'Kill me once, shame on you, kill me twice...';
+		}
+
+		bot.stop();
+
+		return 'You killed me!';
+	},
+	permissions : { del : 'NONE', use : 'OWNER' },
+	description : 'Kills me :(',
+}));
+
+;
+(function () {
+
+function mdn ( args, cb ) {
+	IO.jsonp.google(
+		args.toString() + ' site:developer.mozilla.org', finishCall );
 
 	function finishCall ( resp ) {
-		bot.log( resp, '/google response' );
 		if ( resp.responseStatus !== 200 ) {
-			finish( 'My Google-Fu is on vacation; status ' +
-					resp.responseStatus );
+			finish( 'Something went on fire; status ' + resp.responseStatus );
 			return;
 		}
 
-		//TODO: change hard limit to argument
-		var results = resp.responseData.results[0].url;
-		bot.log( results, '/google results' );
-
-		// if ( !results.length ) {
-			// finish( nulls.random() );
-			// return;
-		// }
-		finish( format(args.content, results) );
-	}
-
-	function format ( query, results ) {
-		return formatLink( query ) +
-			' ' +
-			results;
-	}
-
-	function formatResult ( result ) {
-		var title = IO.decodehtmlEntities( result.titleNoFormatting );
-		return args.link( title, result.url );
-	}
-	function formatLink ( query ) {
-		return "";
-		//args.link(
-		//	'*',
-		//	'http://google.com/search?q=' +
-		//		encodeURIComponent( query ) );
+		var result = resp.responseData.results[ 0 ];
+		bot.log( result, '/mdn result' );
+		finish( result.url );
 	}
 
 	function finish ( res ) {
-		bot.log( res, '/google final' );
 		if ( cb && cb.call ) {
 			cb( res );
 		}
@@ -5692,18 +5322,79 @@ function google ( args, cb ) {
 			args.reply( res );
 		}
 	}
-}
+};
 
 bot.addCommand({
-	name : 'msdn',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Get/s the MSDN docs. `/msdn query`',
+	name : 'mdn',
+	fun : mdn,
+
+	permissions : { del : 'NONE', use : 'ALL' },
+	description : 'Fetches mdn documentation. `/mdn what`',
 	async : true
 });
-}());
+
+})();
+
+;
+(function () {
+// #151: Listen for meme image names and reply with that meme.
+
+var urlBase = 'http://cdn.alltheragefaces.com/img/faces/png/',
+	extension = 'png';
+
+var memes = {
+	deskflip : 'angry-desk-flip',
+	no : 'angry-no',
+	notbad : 'obama-not-bad',
+	ohyou : 'happy-oh-stop-it-you',
+	okay : 'okay-okay-clean',
+	troll : 'troll-troll-face',
+	trollface : 'troll-troll-face',
+	youdontsay : 'misc-you-dont-say',
+};
+
+// ^(deskflip|no|notbad|...)\.(jpe?g|png)$
+var re = new RegExp(
+	'^(' +
+		Object.keys( memes ).map( RegExp.escape ).join( '|' ) +
+	')\\.(jpe?g|png)$' );
+
+IO.register( 'input', function meme ( msgObj ) {
+	var msg = msgObj.content.toLowerCase(),
+		parts = re.exec( msg );
+
+	if ( !parts ) {
+		return;
+	}
+
+	var reply = getMemeLink( parts[1] );
+
+	bot.adapter.out.add(
+		bot.adapter.directreply( msgObj.message_id ) + ' ' +
+			reply, msgObj.room_id );
+});
+
+bot.addCommand({
+	name : 'meme',
+	fun : function ( args ) {
+		var name = args.replace( /\.\w+$/, '' );
+
+		if ( !memes[name] ) {
+			return 'Sorry, I don\'t know that one.';
+		}
+		//TODO: list possible memes (reply with Object.keys(meme))
+
+		args.directreply( getMemeLink(name) );
+	},
+	permissions : { del : 'NONE' },
+	description : 'Return a simple meme link. `/meme memeName`'
+});
+
+function getMemeLink ( meme ) {
+	return urlBase + memes[ meme ] + '.' + extension;
+}
+
+})();
 
 ;
 (function () {
@@ -5713,7 +5404,9 @@ var unexisto = 'User {0} was not found (if the user is not in room {1}, pass ' +
 		'a user-id instead of a username).';
 
 function mustachify ( args ) {
-	var usrid = args.content;
+	var props = parseArgs( args ),
+		usrid = props.usrid;
+	bot.log( props, '/mustache input' );
 
 	//check for url passing
 	if ( linkCheck(usrid) ) {
@@ -5730,13 +5423,13 @@ function mustachify ( args ) {
 
 	bot.log( usrid, '/mustache mapped' );
 
-	if ( usrid < 0 || !bot.users.hasOwnProperty(usrid) ) {
+	if ( !bot.users.hasOwnProperty(usrid) ) {
 		return unexisto.supplant( usrid, bot.adapter.roomid );
 	}
 	else if ( Number(usrid) === bot.adapter.user_id ) {
 		return [
 			'Nobody puts a mustache on me. Again.',
-			'Mustache me once, shame on you. Mustache me ---twice--- 12 times...'
+			'Mustache me once, shame on you. Mustache me ---twice--- 9 times...'
 		].random();
 	}
 
@@ -5755,7 +5448,28 @@ function mustachify ( args ) {
 		bot.log( src, '/mustache finish' );
 
 		args.directreply(
-			'http://mustachify.me/?src=' + src );
+			'http://mustachify.me/' + props.mustache + '?src=' + src );
+	}
+
+	function parseArgs ( args ) {
+		var parts = args.parse(),
+			last = parts.pop(),
+			ret = {};
+
+		// /mustache usrid mustache
+		// /mustache user name mustache
+		//we've already `.pop`ed the mustache part, so we need to account for it
+		if ( parts.length > 0 && !(/\D/).test(last) ) {
+			ret.usrid = parts.join( ' ' );
+			ret.mustache = last;
+		}
+		// /mustache usrid
+		else {
+			ret.usrid = args.content;
+			ret.mustache = Math.rand(0, 5);
+		}
+
+		return ret;
 	}
 }
 
@@ -5770,7 +5484,8 @@ bot.addCommand({
 		del : 'NONE'
 	},
 
-	description : 'Mustachifies a user. `/mustache [link|usrid|user name]`'
+	description : 'Mustachifies a user. ' +
+		'`/mustache [link|usrid|username] [mustache=rand(0,5)]`'
 });
 
 }());
@@ -5817,8 +5532,51 @@ IO.register( 'userregister', function tracker ( user, room ) {
 ;
 (function () {
 
+function norris ( args, cb ) {
+	var chucky = 'http://api.icndb.com/jokes/random';
+
+	IO.jsonp({
+		url : chucky,
+		fun : finishCall,
+		jsonpName : 'callback'
+	});
+
+	function finishCall ( resp ) {
+		var msg;
+
+		if ( resp.type !== 'success' ) {
+			msg = 'Chuck Norris is too awesome for this API. Try again.';
+		}
+		else {
+			msg = IO.decodehtmlEntities( resp.value.joke );
+		}
+
+		if ( cb && cb.call ) {
+			cb( msg );
+		}
+		else {
+			args.reply( msg );
+		}
+	}
+}
+
+bot.addCommand({
+	name : 'norris',
+	fun : norris,
+
+	permissions : { del : 'NONE', use : 'ALL' },
+	description : 'Random chuck norris joke!',
+	async : true
+});
+
+})();
+
+;
+(function () {
+
 //collection of nudges; msgObj, time left and the message itself
 var nudges = [],
+    id = 0,
 	interval = 100 * 60;
 
 function update () {
@@ -5865,16 +5623,45 @@ function addNudge ( delay, message, msgObj ) {
 
 	//let's put an arbitrary comment here
 
+    id += 1;
 	var nudge = {
 		msg     : msgObj,
 		message : '*nudge* ' + message,
 		register: Date.now(),
-		time    : inMS
+		time    : inMS,
+        id : id
 	};
 	nudges.push( nudge );
 	bot.log( nudge, nudges, '/nudge register' );
 
-	return 'Nudge registered.';
+	return 'Nudge #' + id + ' registered.';
+}
+function removeNudge ( id, msgObj ) {
+    var matching, index;
+
+    nudges.some(function ( nudge, idx ) {
+        if (nudge.id === id) {
+            matching = nudge;
+            index = idx;
+            return true;
+        }
+    });
+
+    if ( !matching ) {
+        return [
+            'Nudge not found. Maybe it was already triggered, or this is ' +
+                'a parallal universe.',
+            'I looked for nudge #' + id + ', but all I found was this goat.'
+        ].random();
+    }
+
+    if ( matching.msg.get('user_name') !== msgObj.get('user_name') ) {
+        return 'It\'s not nice to try and remove a nudge which ain\'t yours';
+    }
+
+    bot.log( nudges[index], '/nudge remove #' + id );
+    nudges.splice( index, 1 );
+    return 'Nudge annhiliated';
 }
 
 bot.addCommand({
@@ -5885,7 +5672,8 @@ bot.addCommand({
 	},
 
 	description : 'Register a nudge after an interval. ' +
-		'`/nudge intervalInMinutes message`, or the listener, ' +
+		'`/nudge intervalInMinutes message`, `/nudge remove id` to remove, ' +
+        'or the listener, ' +
 		'`nudge|remind|poke me? in? intervalInMinutes message`'
 });
 
@@ -5894,8 +5682,14 @@ bot.listen(/(?:nudge|remind|poke)\s(?:me\s)?(?:in\s)?(\d+m?)\s?(.*)$/,
 );
 
 function nudgeCommand ( args ) {
-	var props = args.parse();
-	return addNudge( props[0], props.slice(1).join(' '), args );
+	var props = args.parse(),
+        lead = props[ 0 ],
+        rest = props.slice( 1 ).join( ' ' );
+
+    if ( lead === 'remove' ) {
+        return removeNudge( Number(props[1]), args );
+    }
+	return addNudge( lead, rest, args );
 }
 function nudgeListener ( args ) {
 	return addNudge( args.matches[1], args.matches[2], args );
@@ -5904,281 +5698,27 @@ function nudgeListener ( args ) {
 }());
 
 ;
-(function () {
-
-function google ( args, cb ) {
-
-if(args == "") {args.reply("Usage: cc/php <keyword>. Displays help for PHP commands."); return;}
-
-//var args = 'substr'; 
-try
-			{
-$.ajax({
-    type: 'GET',
-    url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'http%3A%2F%2Fphp.net%2F" + encodeURIComponent(args) + "'%20and%20xpath%3D'%2Fhtml%2Fhead%2Fbase'&format=json",
-    dataType: 'json',	
-    timeout: 5000,
-    error:function(){
-        args.reply ("o noes! not founded!!!");
-		return;
-    },
-    success: function (data) {
-
-        if (data["query"]["results"] != null) {
-            var stuff = data["query"]["results"]["base"]["href"];
-            stuff = stuff.substring(stuff.lastIndexOf("/") + 1, stuff.lastIndexOf("."));
-            console.log(stuff);
-
-            var xpath;
-			
-            
-            if (stuff.startsWith("class") || stuff.startsWith("language.")) {
-                xpath = "(//p[contains(@class, \"para\")])[1]";
-            } 
-			else if(stuff.startsWith("book."))
-			{
-				stuff = stuff.replace("book.", "intro.");
-			}
-			else {
-                xpath = "(//div[@class=\"refsect1 description\"])[1]";
-            }
-			
-            $.ajax({
-                type: 'GET',
-                url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
-                dataType: 'xml',
- success: function (data) {
-					if((((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() == "")
-					{
-						xpath = "(//p[contains(@class, \"para\")])[1]";
-						
-						$.ajax({
-                type: 'GET',
-                url: "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D'" + encodeURIComponent("https://raw.github.com/CCInc/phpmanual/master/" + stuff + ".html") + "'%20and%20xpath%3D'" + encodeURIComponent(xpath) + "'&format=xml",
-                dataType: 'xml',
- success: function (data) {
-					if((((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() == "")
-					{
-						xpath = "(//p[contains(@class, \"para\")])[1]";
-					}
-					var text = "["+stuff+"](http://php.net/"+args+") ";
-                        text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
-                    
-                    console.log((data));
-                  //  console.log(StrippedString);
-                   // var text = $(data).text().replace("Description", "");
-                    if (text.length > 484) text = text.substr(0, 480) + '...';
-                    console.log(text);
-					args.send(text);
-					
-                }
-            });
-			return;
-					}
-					var text = "["+stuff+"](http://php.net/"+args+") ";
-                    if(stuff.startsWith("class.") || stuff.startsWith("language."))
-                    {
-                        text += (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[0])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim();
-                    }
-                    else
-                    {
-                    text +="`" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("div")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim() + "` - *" + (((new XMLSerializer()).serializeToString(data.getElementsByTagName("p")[1])).replace(/(<([^>]+)>)/ig,"")).replace(/\r\n|\r|\n/g, "").replace(/ +(?= )/g,"").trim()+"*";
-                    }
-                    console.log((data));
-                  //  console.log(StrippedString);
-                   // var text = $(data).text().replace("Description", "");
-                    if (text.length > 484) text = text.substr(0, 480) + '...';
-                    console.log(text);
-					args.send(text);
-                }
-            });
-			
-
-            // Show in console the jQuery Object.
-            //  console.info('Here is the returned query');
-            //console.log( $(data).text() );
-        }
-		else
-		{
-			IO.jsonp.google( args.toString() + ' site:php.net/manual/en/', finishCall );
-
-	function finishCall ( resp ) {
-		bot.log( resp, '/google response' );
-		if ( resp.responseStatus !== 200 ) {
-			finish( 'My Google-Fu is on vacation; status ' +
-					resp.responseStatus );
-			return;
-		}
-
-		//TODO: change hard limit to argument
-		var results = resp.responseData.results.slice( 0, 3 );
-		bot.log( results, '/google results' );
-
-		if ( !results.length ) {
-			args.send("o noes! not found!");
-			return;
-		}
-		finish( format(args.content, results) );
-	}
-
-	function format ( query, results ) {
-		var res = formatLink( query ) + ' ' +
-			results.map( formatResult ).join( ' - ' );
-
-		if ( res.length > 200 ) {
-			res = results.map(function (r) {
-				return "[" + r.titleNoFormatting.replace(" - PHP", "").replace("PHP: ","").replace(" - Manual", "") + "](" + r.unescapedUrl+")";
-			}).join( ' - ' );
-		}
-
-		return res;
-	}
-
-	function formatResult ( result ) {
-		var title = IO.decodehtmlEntities( result.titleNoFormatting );
-		return args.link( title, result.unescapedUrl );
-	}
-	function formatLink ( query ) {
-		return args.link(
-			'*',
-			'http://google.com/search?q=' +
-				encodeURIComponent( query ) );
-	}
-
-	function finish ( res ) {
-		bot.log( res, '/google final' );
-		if ( cb && cb.call ) {
-			cb( res );
-		}
-		else {
-			args.reply( res );
-		}
-	}
-			//args.send ("Can't find the specified PHP item " + args + " !!!");
-		}
-    }
-});
-}
-catch(e)
-{
-	args.send ("o noes! I got errored! @CCInc " + args + " !!!");
-}
-if (typeof String.prototype.startsWith != 'function') {
-    String.prototype.startsWith = function (str) {
-        return this.slice(0, str.length) == str;
-    };
-}
-String.prototype.splice = function( idx, rem, s ) {
-    return (this.slice(0,idx) + s + this.slice(idx + Math.abs(rem)));
-};
-
-}
-
 bot.addCommand({
-	name : 'php',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
+	name : 'parse',
+	fun : function ( args ) {
+		var msgObj = args.get(),
+			user = bot.users[ args.get('user_id') ],
+
+	    extraVars = Object.merge( msgObj, user );
+		bot.log( args, extraVars, '/parse input' );
+
+		return bot.parseMacro( args.toString(), extraVars );
 	},
-	description : 'Usage: php <keyword>. Displays help for PHP commands.',
-	async : true
+	permissions : { del : 'NONE', use : 'ALL' },
+
+	description : 'Returns result of "parsing" message according to the my ' +
+		'mini-macro capabilities (see online docs)',
 });
-}());
-;
-(function () {
-//add a bot command
-bot.addCommand({
-    name : 'python',
-    fun : spanish,
-
-    //permissions object (can be ommitted for all-can-use, all-can-del)
-    permissions : {
-        use : 'ALL' ,
-        del : 'NONE' 
-    },
-    description : 'python compiler',
-
-    //whether the command is asynchronous or not (default false)
-    async : true
-});
-
-function spanish (args, cb) {
-console.log(args, "args");
-$.post(
-    'http://ccinc.host56.com/python.php', {sourceCode : args},
-	       
-    function(data){
-console.log(args, "args");
-	console.log(data);
-args.send(data);
-    }
-);
-
-}
-
-//add a listening regex and a corresponding callback
-}());
-
-;
-(function () {
-
-function google ( args, cb ) {
-// var script = document.createElement('script');
-// script.src = 'http://code.jquery.com/jquery-1.8.3.min.js';
-// script.type = 'text/javascript';
-// document.getElementsByTagName('head')[0].appendChild(script);
-
-//$.get("http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), function(response) { console.log(response) }); 
-		
-		// $.ajax({
-    // url: "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args),
-    // type: 'GET',
-	// crossDomain: true,
-    // success: function(res) {
-       // // var headline = $(res.responseText).find('a.tsh').text();
-        // console.log(res);
-    // }
-// });
-
-function htmlDecode(input){
-  var e = document.createElement('div');
-  e.innerHTML = input;
-  return e.childNodes[0].nodeValue;
-}
-
-
-ajaxRequest = new XMLHttpRequest(); 
-ajaxRequest.open("GET", "http://rick.measham.id.au/paste/explain.pl?regex=" + encodeURIComponent(args), true); 
-ajaxRequest.send(null); 
-ajaxRequest.onreadystatechange = function () { 
-
-if ( ajaxRequest.readyState == 4 ) { 
-if ( ajaxRequest.status == 200 ) { 
-var RESPONSE_ = ajaxRequest.responseText; 
-
-var info = RESPONSE_.slice(RESPONSE_.indexOf('--------------------------------------------------------------------------------') + '--------------------------------------------------------------------------------'.length + 1, RESPONSE_.indexOf('</pre>'));
-console.log(info, 'info');
-args.directreply(htmlDecode(info)); 
-}} 
-};
-
-}
-
-bot.addCommand({
-	name : 'regexexplain',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Explains a regex. /regexexplain regex',
-	async : true
-});
-}());
 
 ;
 (function () {
 "use strict";
-var ownerRoom = 7;
+var ownerRoom = 17;
 
 if ( bot.adapter.roomid !== ownerRoom ) {
 	return;
@@ -6215,7 +5755,7 @@ function giveVoice ( id, cb ) {
 	});
 
 	function finish () {
-		var args = [].slice.call( arguments );
+		var args = Array.from( arguments );
 		args.unshift( id );
 
 		delete muted[ id ];
@@ -6287,16 +5827,23 @@ IO.register( 'userregister', function permissionCb ( user, room ) {
 });
 
 function stringMuteList () {
-	var keys = Object.keys( muted );
+	var users = Object.keys( muted );
 
-	if ( !keys.length ) {
+	if ( !users.length ) {
 		return 'Nobody is muted';
 	}
 
 	var base = 'http://chat.stackoverflow.com/transcript/message/';
 
-	return keys.map(function ( k ) {
-		return bot.adapter.link( k, base + muted[k].invokingId );
+	return users.map(function ( user ) {
+		var info = muted[ user ],
+
+			remaining = remainingDuration( info.endDate ),
+			strung = remaining ? '(' + remaining + ')' : '',
+
+			text = user + strung;
+
+		return bot.adapter.link( text, base + info.invokingId );
 	}).join( '; ' );
 }
 
@@ -6326,6 +5873,28 @@ function parseDuration ( str ) {
 		parts[ 0 ] += 'm';
 	}
 	return parts[ 0 ];
+}
+
+function remainingDuration ( future ) {
+	var now = Date.now();
+
+	if ( future < now ) {
+		return;
+	}
+	var delta	= new Date( future - now ),
+		days	= delta.getUTCDate(),
+		hours	= delta.getUTCHours(),
+		minutes = delta.getUTCMinutes(),
+		seconds = delta.getUTCSeconds();
+
+	if ( days > 1 ) {
+		return ( days - 1 ) + 'd ' + hours + 'h';
+	}
+	else if ( hours > 0 ) {
+		return hours + 'h ' + minutes + 'm';
+	}
+
+	return minutes + 'm ' + seconds + 's';
 }
 
 bot.addCommand({
@@ -6414,722 +5983,6 @@ bot.addCommand({
 
 ;
 (function () {
-/*
-     _____ _           ______      _                    __   _   _
-    |_   _| |          | ___ \    | |                  / _| | | | |
-      | | | |__   ___  | |_/ /   _| | ___  ___    ___ | |_  | |_| |__   ___
-      | | |  _ \ / _ \ |    / | | | |/ _ \/ __|  / _ \|  _| | __|  _ \ / _ \
-      | | | | | |  __/ | |\ \ |_| | |  __/\__ \ | (_) | |   | |_| | | |  __/
-      \_/ |_| |_|\___| \_| \_\__,_|_|\___||___/  \___/|_|    \__|_| |_|\___|
-
-
-                     _____      _                       _
-                    |_   _|    | |                     | |
-                      | | _ __ | |_ ___ _ __ _ __   ___| |_
-                      | || '_ \| __/ _ \ '__| '_ \ / _ \ __|
-                     _| || | | | ||  __/ |  | | | |  __/ |_
-                     \___/_| |_|\__\___|_|  |_| |_|\___|\__|
-*/
-var rulz = [
-	'1. Do not talk about /b/',
-	'2. Do NOT talk about /b/',
-	'3. We are Anonymous.',
-	'4. Anonymous is legion.',
-	'5. Anonymous does not forgive, Anonymous does not forget.',
-	'6. Anonymous can be horrible, senseless, uncaring monster.',
-	'7. Anonymous is still able to deliver.',
-	'8. There are no real rules about posting.',
-	'9. There are no real rules about moderation either � enjoy your ban.',
-	'10. If you enjoy any rival sites � DON\'T.',
-	'11. You must have pictures to prove your statement.',
-	'12. Lurk moar � it\'s never enough.',
-	'13. Nothing is Sacred.',
-	'14. Do not argue with a troll � it means that they win.',
-	'15. The more beautiful and pure a thing is, the more satisfying it is to corrupt it.',
-	'16. There are NO girls on the internet.',
-	'17. A cat is fine too.',
-	'18. One cat leads to another.',
-	'19. The more you hate it, the stronger it gets.',
-	'20. It is delicious cake. You must eat it.',
-	'21. It is delicious trap. You must hit it.',
-	'22. /b/ sucks today.',
-	'23. Cock goes in here.',
-	'24. You will never have sex.',
-	'25. ????',
-	'26. PROFIT!',
-	'27. It needs more Desu. No exceptions.',
-	'28. There will always be more fucked up shit than what you just saw.',
-	'29. You can not divide by zero (just because the calculator says so).',
-	'30. No real limits of any kind apply here � not even the sky',
-	'31. CAPSLOCK IS CRUISE CONTROL FOR COOL.',
-	'32. EVEN WITH CRUISE CONTROL YOU STILL HAVE TO STEER.',
-	'33. Desu isn\'t funny. Seriously guys. It\'s worse than Chuck Norris jokes.',
-	'34. There is porn of it. No exceptions.',
-	'35. If no porn is found of it, it will be created.',
-	'36. No matter what it is, it is somebody\'s fetish. No exceptions.',
-	'37. Even one positive comment about Japanese things can make you a weeaboo.',
-	'38. When one sees a lion, one must get into the car',
-	'39. There is furry porn of it. No exceptions.',
-	'40. The pool is always closed due to AIDS (and stingrays, which also have AIDS).',
-	'41. If there isn\'t enough just ask for Moar.',
-	'42. Everything has been cracked and pirated.',
-	'43. DISREGARD THAT I SUCK COCKS',
-	'44. The internet is not your personal army.',
-	'45. Rule 45 is a lie.',
-	'46. The cake is a lie.',
-	'47. If you post it, they will cum.',
-	'48. It will always need moar sauce.',
-	'49. The internet makes you stupid.',
-	'50. Anything can be a meme.',
-	'51. Longcat is looooooooooong.',
-	'52. If something goes wrong, Ebaums did it.',
-	'53. Anonymous is a virgin by default.',
-	'54. Moot has cat ears, even in real life. No exceptions.',
-	'55. CP is awwwright, but DSFARGEG will get you b&.',
-	'56. Don\'t mess with football.',
-	'57. MrSpooky has never seen so many ingrates.',
-	'58. Anonymous does not "buy", he downloads.',
-	'59. The term "sage" does not refer to the spice.',
-	'60. If you say Candlejack, you w',
-	'61. You cannot divide by zero.',
-	'62. The internet is SERIOUS FUCKING BUSINESS.',
-	'63. If you do not believe it, then it must be habeebed for great justice.',
-	'64. Not even Spider-Man knows how to shot web.',
-	'65. Mitchell Henderson was an hero to us all.',
-	'66. This is not lupus, it\'s SPARTAAAAAAAAAA.',
-	'67. One does not simply shoop da whoop into Mordor.',
-	'68. Katy is bi, so deal w/it.',
-	'69. LOL SIXTY NINE AMIRITE?',
-	'70. Also, cocks.',
-	'71. This is a showdown, a throwdown, hell no I can\'t slow down, it\'s gonna go.',
-	'72. Anonymous did NOT, under any circumstances, tk him 2da bar|?',
-	'73. If you express astonishment at someone\'s claim, it is most likely just a clever ruse.',
-	'74. If it hadn\'t been for Cotton Eyed Joe, Anonymous would have been married a long time ago.',
-	'75. Around Snacks, CP is lax.',
-	'76. All numbers are at least 100 but always OVER NINE THOUSAAAAAND.',
-	'77. Hal Turner definitely needs to gb2/hell/.',
-	'78. Mods are fucking fags. No exceptions.',
-	'79. All Caturday threads will be bombarded with Zippocat. No exceptions.',
-	'80. No matter how cute it is, it probably skullfucked your mother last night.',
-	'81. That\'s not mud.',
-	'82. Steve Irwin\'s death is really, really funny.',
-	'83. The Internet is SERIOUS FUCKING BUSINESS.',
-	'84. Rule 87 is true.',
-	'85. Yes, it is some chickens.',
-	'86. Bobba bobba is bobba.',
-	'87. Rule 84 is false. OH SHI-',
-	'88. If your statement is preceded by "HAY GUYZ", then you are not doing it right.',
-	'89. If you cannot understand it, it is machine code.',
-	'90. Anonymous still owes Hal Turner one trillion U.S. dollars.',
-	'91. Spengbab Sqarpaint is luv Padtwick Zhstar iz fwend.',
-	'92. Disregard Bigmike, he sucks cocks.',
-	'93. Secure tripcodes are for jerks.',
-	'94. If someone herd u liek Mudkips, deny it constantly for the lulz.',
-	'95. Combo breakers are inevitable. If the combo is completed successfully, it is gay.',
-	'96. I am a huge faggot. Please rape my face.',
-	'97. Shit sucks and will never be stickied.',
-	'98. Bricks must are required to be shat whenever Anonymous is surprised.',
-	'99. If you have no bricks to shit, you are made of fail and AIDS.',
-	'100. ZOMG NONE',
-	'101. The internet is always right. No exceptions',
-	'102. The internet is really, really great, FOR PORN.'
-];
-
-function findRulz ( msg ) {
-	//matches will look like this:
-	// [ ruleIndex, to/and, ruleIndex ]
-	var start = Math.max( msg.matches[1], 1 ) - 1,
-		end = Math.min( msg.matches[3], rulz.length ),
-		preposition = msg.matches[ 2 ],
-		tmp, res;
-
-	console.log( start, end, preposition, 'rulz' );
-
-	if ( start && !end ) {
-		return rulz[ start ];
-	}
-
-	if ( preposition === 'to' ) {
-		if ( start > end ) {
-			tmp = start;
-			start = end;
-			end = tmp;
-		}
-
-		res = rulz.slice( start, end );
-	}
-	else {
-		res = [ rulz[start], rulz[end] ];
-	}
-
-	return res.join( '\n' );
-}
-
-var regex = /(?:show|tell) (?:me)? rules? (\d+)\s?(?:(,|and|to)\s?(\d+))?/;
-
-bot.listen( regex, findRulz );
-}());
-;
-var nudgeend = false;
-    var items = [];
-	var time;
-	
-(function () {
-var msg = null;
-//collection of nudges; msgObj, time left and the message itself
-var nudges = [],
-	interval = 100 * 60;
-
-function update () {
-	var now = Date.now();
-	nudges = nudges.filter(function ( nudge ) {
-		nudge.time -= interval;
-
-		if ( nudge.time <= 0 ) {
-		if(!nudgeend)
-		{
-			sendNudge(nudge );		
-			nudge.time = time;
-			}
-	//	else
-		//	return false;			
-		}
-			if(nudgeend)
-				return false;
-		return true;
-	});
-
-	setTimeout( update, interval );
-}
-function sendNudge ( nudge ) {
-	    var req;
-
-    var rand;
-	        function getRandomQuestion(){
-    var item;
-  req = new XMLHttpRequest();
-            req.open('GET', 'http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+encodeURIComponent(nudge.sourcemessage), async = false);
-            req.onreadystatechange =  function processUser(){
-        if(req.readyState == 4)
-        {
-        var res = JSON.parse(req.responseText);
-        
-        for (var i = 0; i < res["items"].length; i++) 
-        {
-            items.push(res.items[i].title);
-        }
-           global = items[Math.floor(Math.random() * items.length)];               
-        }
-                 
-        };
-            req.send();    
-            console.log(global);
-			console.log('http://api.stackexchange.com/2.1/search/advanced?order=asc&sort=votes&closed=True&title=how%20do%20i&site=stackoverflow&tagged='+encodeURIComponent(nudge.sourcemessage));
-
-			if(htmlDecode(global)[htmlDecode(global).length-1]!='?')
-				return htmlDecode(global)+'?';
-            return htmlDecode(global);
-            
-        }
-    //let's put an arbitrary comment here
-function htmlDecode(input){
-  var e = document.createElement('div');
-  e.innerHTML = input;
-  return e.childNodes[0].nodeValue;
-}
-	//check to see if the nudge was sent after a bigger delay than expected
-	//TODO: that ^
-	if(!nudgeend)
-		nudge.msg.send( getRandomQuestion());
-}
-setTimeout( update, interval );
-
-//now for the command itself
-function addNudge ( delay, message, msgObj ) {
-if(!nudgeend)
-{
-	var inMS;
-	console.log( delay, message, '/SPAM NUDGE input' );
-msg = this.msgObj;
-console.log( msg, 'nudge msag' );
-	//interval will be one of these (where n is a number):
-	// nm  =>  n minutes
-	// n   =>  n minutes
-	//so erm...yeah. just parse the bitch
-	delay = parseFloat( delay );
-	//minsInMs = mins * 60 * 1000
-	//TODO: allow more than just minutes
-	//TODO: upper cap
-	inMS = delay * 60000;
-
-	if ( isNaN(inMS) ) {
-		return 'Many things can be labeled Not a Number; a delay should not' +
-			' be one of them.';
-	}
-	
-	time = inMS;
-
-
-
-
-//htmlDecode('&lt;&gt;'); // "<>"
-    var nudge = {
-        msg     : msgObj,
-        message : "",
-        register: Date.now(),
-        time    : inMS,
-		delay : delay,
-		sourcemessage: message,
-		msgObject : msgObj
-    };
-	nudges.push( nudge );
-	//console.log( nudge, nudges, '/nudge register' );
-
-	//return 'Nudge registered.';
-}
-}
-
-bot.addCommand({
-	name : 's',
-	fun  : nudgeCommand,
-	permissions : {
-		del : 'NONE',
-		//use : bot.owners
-	},
-
-	description : 'Register a nudge after an interval. ' +
-		'`/nudge intervalInMinutes message`, or the listener, ' +
-		'`nudge|remind|poke me? in? intervalInMinutes message`'
-});
-
-function nudgeCommand ( args ) {
-	var props = args.parse();
-	return addNudge( props[0], props.slice(1).join(' '), args );
-}
-
-}());
-(function () {
-
-// //collection of nudges; msgObj, time left and the message itself
-// var nudges = [],
-	// interval = 100 * 60;
-
-// function update () {
-	// var now = Date.now();
-	// nudges = nudges.filter(function ( nudge ) {
-		// nudge.time -= interval;
-
-		// if ( nudge.time <= 0 ) {
-			// sendNudge( nudge );
-			// return false;
-		// }
-		// return true;
-	// });
-
-	// setTimeout( update, interval );
-// }
-// function sendNudge ( nudge ) {
-	// console.log( nudge, 'nudge fire' );
-	// //check to see if the nudge was sent after a bigger delay than expected
-	// //TODO: that ^
-	// nudge.msg.reply( nudge.message );
-// }
-// setTimeout( update, interval );
-
-// //now for the command itself
-// function addNudge ( delay, message, msgObj ) {
-	// var inMS;
-	// console.log( delay, message, '/nudge input' );
-
-	// //interval will be one of these (where n is a number):
-	// // nm  =>  n minutes
-	// // n   =>  n minutes
-	// //so erm...yeah. just parse the bitch
-	// delay = parseFloat( delay );
-	// //minsInMs = mins * 60 * 1000
-	// //TODO: allow more than just minutes
-	// //TODO: upper cap
-	// inMS = delay * 60000;
-
-	// if ( isNaN(inMS) ) {
-		// return 'Many things can be labeled Not a Number; a delay should not' +
-			// ' be one of them.';
-	// }
-
-	// //let's put an arbitrary comment here
-
-	// var nudge = {
-		// msg     : msgObj,
-		// message : '*nudge* ' + message,
-		// register: Date.now(),
-		// time    : inMS
-	// };
-	// nudges.push( nudge );
-	// //console.log( nudge, nudges, '/nudge register' );
-
-	// //return 'Nudge registered.';
-// }
-
-bot.addCommand({
-	name : 'ss',
-	fun  : nudgeCommand,
-	permissions : {
-		del : 'NONE',
-		//use : bot.owners
-	},
-
-	description : 'DONT USE THIS OR THE WORLD WILL EXPLODE ' +
-		'`/s its a secret`'
-});
-
-
-function nudgeCommand ( args ) {
-	// var props = args.parse();
-	// return addNudge( props[0], props.slice(1).join(' '), args );
-	nudgeend = true;
-}
-
-}());
-
-;
-
-;
-/*****************************************************************************\
-
- Javascript "SOAP Client" library
-
- @version: 1.4 - 2005.12.10
- @author: Matteo Casati, Ihar Voitka - http://www.guru4.net/
- @description: (1) SOAPClientParameters.add() method returns 'this' pointer.
-               (2) "_getElementsByTagName" method added for xpath queries.
-               (3) "_getXmlHttpPrefix" refactored to "_getXmlHttpProgID" (full 
-                   ActiveX ProgID).
-               
- @version: 1.3 - 2005.12.06
- @author: Matteo Casati - http://www.guru4.net/
- @description: callback function now receives (as second - optional - parameter) 
-               the SOAP response too. Thanks to Ihar Voitka.
-               
- @version: 1.2 - 2005.12.02
- @author: Matteo Casati - http://www.guru4.net/
- @description: (1) fixed update in v. 1.1 for no string params.
-               (2) the "_loadWsdl" method has been updated to fix a bug when 
-               the wsdl is cached and the call is sync. Thanks to Linh Hoang.
-               
- @version: 1.1 - 2005.11.11
- @author: Matteo Casati - http://www.guru4.net/
- @description: the SOAPClientParameters.toXML method has been updated to allow
-               special characters ("<", ">" and "&"). Thanks to Linh Hoang.
-
- @version: 1.0 - 2005.09.08
- @author: Matteo Casati - http://www.guru4.net/
- @notes: first release.
-
-\*****************************************************************************/
-
-function SOAPClientParameters()
-{
-	var _pl = new Array();
-	this.add = function(name, value) 
-	{
-		_pl[name] = value; 
-		return this; 
-	}
-	this.toXml = function()
-	{
-		var xml = "";
-		for(var p in _pl)
-		{
-			if(typeof(_pl[p]) != "function")
-				xml += "<" + p + ">" + _pl[p].toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + p + ">";
-		}
-		return xml;	
-	}
-}
-
-function SOAPClient() {}
-
-SOAPClient.invoke = function(url, method, parameters, async, callback)
-{
-	if(async)
-		SOAPClient._loadWsdl(url, method, parameters, async, callback);
-	else
-		return SOAPClient._loadWsdl(url, method, parameters, async, callback);
-}
-
-// private: wsdl cache
-SOAPClient_cacheWsdl = new Array();
-
-// private: invoke async
-SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
-{
-	// load from cache?
-	var wsdl = SOAPClient_cacheWsdl[url];
-	if(wsdl + "" != "" && wsdl + "" != "undefined")
-		return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
-	// get wsdl
-	var xmlHttp = SOAPClient._getXmlHttp();
-	xmlHttp.open("GET", url + "?wsdl", async);
-	if(async) 
-	{
-		xmlHttp.onreadystatechange = function() 
-		{
-			if(xmlHttp.readyState == 4)
-				SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
-		}
-	}
-	xmlHttp.send(null);
-	if (!async)
-		return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
-}
-SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
-{
-	var wsdl = req.responseXML;
-	SOAPClient_cacheWsdl[url] = wsdl;	// save a copy in cache
-	return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
-}
-SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback, wsdl)
-{
-	// get namespace
-	var ns = (wsdl.documentElement.attributes["targetNamespace"] + "" == "undefined") ? wsdl.documentElement.attributes.getNamedItem("targetNamespace").nodeValue : wsdl.documentElement.attributes["targetNamespace"].value;
-	// build SOAP request
-	var sr = 
-				"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-				"<soap:Envelope " +
-				"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-				"xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
-				"xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-				"<soap:Body>" +
-				"<" + method + " xmlns=\"" + ns + "\">" +
-				parameters.toXml() +
-				"</" + method + "></soap:Body></soap:Envelope>";
-	// send request
-	var xmlHttp = SOAPClient._getXmlHttp();
-	xmlHttp.open("POST", url, async);
-	var soapaction = ((ns.lastIndexOf("/") != ns.length - 1) ? ns + "/" : ns) + method;
-	xmlHttp.setRequestHeader("SOAPAction", soapaction);
-	xmlHttp.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
-	if(async) 
-	{
-		xmlHttp.onreadystatechange = function() 
-		{
-			if(xmlHttp.readyState == 4)
-				SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
-		}
-	}
-	xmlHttp.send(sr);
-	if (!async)
-		return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
-}
-SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
-{
-	var o = null;
-	var nd = SOAPClient._getElementsByTagName(req.responseXML, method + "Result");
-	if(nd.length == 0)
-	{
-		if(req.responseXML.getElementsByTagName("faultcode").length > 0)
-			throw new Error(500, req.responseXML.getElementsByTagName("faultstring")[0].childNodes[0].nodeValue);
-	}
-	else
-		o = SOAPClient._soapresult2object(nd[0], wsdl);
-	if(callback)
-		callback(o, req.responseXML);
-	if(!async)
-		return o;		
-}
-
-// private: utils
-SOAPClient._getElementsByTagName = function(document, tagName)
-{
-	try
-	{
-		// trying to get node omitting any namespaces (latest versions of MSXML.XMLDocument)
-		return document.selectNodes(".//*[local-name()=\""+ tagName +"\"]");
-	}
-	catch (ex) {}
-	// old XML parser support
-	return document.getElementsByTagName(tagName);
-}
-
-SOAPClient._soapresult2object = function(node, wsdl)
-{
-	return SOAPClient._node2object(node, wsdl);
-}
-SOAPClient._node2object = function(node, wsdl)
-{
-	// null node
-	if(node == null)
-		return null;
-	// text node
-	if(node.nodeType == 3 || node.nodeType == 4)
-		return SOAPClient._extractValue(node, wsdl);
-	// leaf node
-	if (node.childNodes.length == 1 && (node.childNodes[0].nodeType == 3 || node.childNodes[0].nodeType == 4))
-		return SOAPClient._node2object(node.childNodes[0], wsdl);
-	var isarray = SOAPClient._getTypeFromWsdl(node.nodeName, wsdl).toLowerCase().indexOf("arrayof") != -1;
-	// object node
-	if(!isarray)
-	{
-		var obj = null;
-		if(node.hasChildNodes())
-			obj = new Object();
-		for(var i = 0; i < node.childNodes.length; i++)
-		{
-			var p = SOAPClient._node2object(node.childNodes[i], wsdl);
-			obj[node.childNodes[i].nodeName] = p;
-		}
-		return obj;
-	}
-	// list node
-	else
-	{
-		// create node ref
-		var l = new Array();
-		for(var i = 0; i < node.childNodes.length; i++)
-			l[l.length] = SOAPClient._node2object(node.childNodes[i], wsdl);
-		return l;
-	}
-	return null;
-}
-SOAPClient._extractValue = function(node, wsdl)
-{
-	var value = node.nodeValue;
-	switch(SOAPClient._getTypeFromWsdl(node.parentNode.nodeName, wsdl).toLowerCase())
-	{
-		default:
-		case "s:string":			
-			return (value != null) ? value + "" : "";
-		case "s:boolean":
-			return value+"" == "true";
-		case "s:int":
-		case "s:long":
-			return (value != null) ? parseInt(value + "", 10) : 0;
-		case "s:double":
-			return (value != null) ? parseFloat(value + "") : 0;
-		case "s:datetime":
-			if(value == null)
-				return null;
-			else
-			{
-				value = value + "";
-				value = value.substring(0, value.lastIndexOf("."));
-				value = value.replace(/T/gi," ");
-				value = value.replace(/-/gi,"/");
-				var d = new Date();
-				d.setTime(Date.parse(value));										
-				return d;				
-			}
-	}
-}
-SOAPClient._getTypeFromWsdl = function(elementname, wsdl)
-{
-	var ell = wsdl.getElementsByTagName("s:element");	// IE
-	if(ell.length == 0)
-		ell = wsdl.getElementsByTagName("element");	// MOZ
-	for(var i = 0; i < ell.length; i++)
-	{
-		if(ell[i].attributes["name"] + "" == "undefined")	// IE
-		{
-			if(ell[i].attributes.getNamedItem("name") != null && ell[i].attributes.getNamedItem("name").nodeValue == elementname && ell[i].attributes.getNamedItem("type") != null) 
-				return ell[i].attributes.getNamedItem("type").nodeValue;
-		}	
-		else // MOZ
-		{
-			if(ell[i].attributes["name"] != null && ell[i].attributes["name"].value == elementname && ell[i].attributes["type"] != null)
-				return ell[i].attributes["type"].value;
-		}
-	}
-	return "";
-}
-// private: xmlhttp factory
-SOAPClient._getXmlHttp = function() 
-{
-	try
-	{
-		if(window.XMLHttpRequest) 
-		{
-			var req = new XMLHttpRequest();
-			// some versions of Moz do not support the readyState property and the onreadystate event so we patch it!
-			if(req.readyState == null) 
-			{
-				req.readyState = 1;
-				req.addEventListener("load", 
-									function() 
-									{
-										req.readyState = 4;
-										if(typeof req.onreadystatechange == "function")
-											req.onreadystatechange();
-									},
-									false);
-			}
-			return req;
-		}
-		if(window.ActiveXObject) 
-			return new ActiveXObject(SOAPClient._getXmlHttpProgID());
-	}
-	catch (ex) {}
-	throw new Error("Your browser does not support XmlHttp objects");
-}
-SOAPClient._getXmlHttpProgID = function()
-{
-	if(SOAPClient._getXmlHttpProgID.progid)
-		return SOAPClient._getXmlHttpProgID.progid;
-	var progids = ["Msxml2.XMLHTTP.5.0", "Msxml2.XMLHTTP.4.0", "MSXML2.XMLHTTP.3.0", "MSXML2.XMLHTTP", "Microsoft.XMLHTTP"];
-	var o;
-	for(var i = 0; i < progids.length; i++)
-	{
-		try
-		{
-			o = new ActiveXObject(progids[i]);
-			return SOAPClient._getXmlHttpProgID.progid = progids[i];
-		}
-		catch (ex) {};
-	}
-	throw new Error("Could not find an installed XML parser");
-}
-;
-(function () {
-//add a bot command
-bot.addCommand({
-    name : 'spanish',
-    fun : spanish,
-
-    //permissions object (can be ommitted for all-can-use, all-can-del)
-    permissions : {
-        use : 'ALL' ,
-        del : 'NONE' 
-    },
-    description : 'Translate from english to spanish',
-
-    //whether the command is asynchronous or not (default false)
-    async : false
-});
-
-function spanish (args, cb) {
-try{
-
-var text =args;
-//console.log(args, "args");
-$.post(
-    'http://ccinc.host56.com/Translate.php', {txtToTranslate:text},
-	       
-    function(data){
-	console.log("wasrun");
-//  console.log(args);
-  console.log(data);
-    }
-);
-}
-catch(e)
-{console.log(e.stack, "ERROR STACK");}
-}
-
-
-//add a listening regex and a corresponding callback
-}());
-
-;
-(function () {
 var specParts;
 specParts = [{"section":"introduction","name":"Introduction"},{"section":"x1","name":"1 Scope"},{"section":"x2","name":"2 Conformance"},{"section":"x3","name":"3 Normative references"},{"section":"x4","name":"4 Overview"},{"section":"x4.1","name":"4.1 Web Scripting"},{"section":"x4.2","name":"4.2 Language Overview"},{"section":"x4.2.1","name":"4.2.1 Objects"},{"section":"x4.2.2","name":"4.2.2 The Strict Variant of ECMAScript"},{"section":"x4.3","name":"4.3 Definitions"},{"section":"x4.3.1","name":"4.3.1 type"},{"section":"x4.3.2","name":"4.3.2 primitive value"},{"section":"x4.3.3","name":"4.3.3 object"},{"section":"x4.3.4","name":"4.3.4 constructor"},{"section":"x4.3.5","name":"4.3.5 prototype"},{"section":"x4.3.6","name":"4.3.6 native object"},{"section":"x4.3.7","name":"4.3.7 built-in object"},{"section":"x4.3.8","name":"4.3.8 host object"},{"section":"x4.3.9","name":"4.3.9 undefined value"},{"section":"x4.3.10","name":"4.3.10 Undefined type"},{"section":"x4.3.11","name":"4.3.11 null value"},{"section":"x4.3.12","name":"4.3.12 Null type"},{"section":"x4.3.13","name":"4.3.13 Boolean value"},{"section":"x4.3.14","name":"4.3.14 Boolean type"},{"section":"x4.3.15","name":"4.3.15 Boolean object"},{"section":"x4.3.16","name":"4.3.16 String value"},{"section":"x4.3.17","name":"4.3.17 String type"},{"section":"x4.3.18","name":"4.3.18 String object"},{"section":"x4.3.19","name":"4.3.19 Number value"},{"section":"x4.3.20","name":"4.3.20 Number type"},{"section":"x4.3.21","name":"4.3.21 Number object"},{"section":"x4.3.22","name":"4.3.22 Infinity"},{"section":"x4.3.23","name":"4.3.23 NaN"},{"section":"x4.3.24","name":"4.3.24 function"},{"section":"x4.3.25","name":"4.3.25 built-in function"},{"section":"x4.3.26","name":"4.3.26 property"},{"section":"x4.3.27","name":"4.3.27 method"},{"section":"x4.3.28","name":"4.3.28 built-in method"},{"section":"x4.3.29","name":"4.3.29 attribute"},{"section":"x4.3.30","name":"4.3.30 own property"},{"section":"x4.3.31","name":"4.3.31 inherited property"},{"section":"x5","name":"5 Notational Conventions"},{"section":"x5.1","name":"5.1 Syntactic and Lexical Grammars"},{"section":"x5.1.1","name":"5.1.1 Context-Free Grammars"},{"section":"x5.1.2","name":"5.1.2 The Lexical and RegExp Grammars"},{"section":"x5.1.3","name":"5.1.3 The Numeric String Grammar"},{"section":"x5.1.4","name":"5.1.4 The Syntactic Grammar"},{"section":"x5.1.5","name":"5.1.5 The JSON Grammar"},{"section":"x5.1.6","name":"5.1.6 Grammar Notation"},{"section":"x5.2","name":"5.2 Algorithm Conventions"},{"section":"x6","name":"6 Source Text"},{"section":"x7","name":"7 Lexical Conventions"},{"section":"x7.1","name":"7.1 Unicode Format-Control Characters"},{"section":"x7.2","name":"7.2 White Space"},{"section":"x7.3","name":"7.3 Line Terminators"},{"section":"x7.4","name":"7.4 Comments"},{"section":"x7.5","name":"7.5 Tokens"},{"section":"x7.6","name":"7.6 Identifier Names and Identifiers"},{"section":"x7.6.1","name":"7.6.1 Reserved Words"},{"section":"x7.6.1.1","name":"7.6.1.1 Keywords"},{"section":"x7.6.1.2","name":"7.6.1.2 Future Reserved Words"},{"section":"x7.7","name":"7.7 Punctuators"},{"section":"x7.8","name":"7.8 Literals"},{"section":"x7.8.1","name":"7.8.1 Null Literals"},{"section":"x7.8.2","name":"7.8.2 Boolean Literals"},{"section":"x7.8.3","name":"7.8.3 Numeric Literals"},{"section":"x7.8.4","name":"7.8.4 String Literals"},{"section":"x7.8.5","name":"7.8.5 Regular Expression Literals"},{"section":"x7.9","name":"7.9 Automatic Semicolon Insertion"},{"section":"x7.9.1","name":"7.9.1 Rules of Automatic Semicolon Insertion"},{"section":"x7.9.2","name":"7.9.2 Examples of Automatic Semicolon Insertion"},{"section":"x8","name":"8 Types"},{"section":"x8.1","name":"8.1 The Undefined Type"},{"section":"x8.2","name":"8.2 The Null Type"},{"section":"x8.3","name":"8.3 The Boolean Type"},{"section":"x8.4","name":"8.4 The String Type"},{"section":"x8.5","name":"8.5 The Number Type"},{"section":"x8.6","name":"8.6 The Object Type"},{"section":"x8.6.1","name":"8.6.1 Property Attributes"},{"section":"x8.6.2","name":"8.6.2 Object Internal Properties and Methods"},{"section":"x8.7","name":"8.7 The Reference Specification Type"},{"section":"x8.7.1","name":"8.7.1 GetValue (V)"},{"section":"x8.7.2","name":"8.7.2 PutValue (V, W)"},{"section":"x8.8","name":"8.8 The List Specification Type"},{"section":"x8.9","name":"8.9 The Completion Specification Type"},{"section":"x8.10","name":"8.10 The Property Descriptor and Property Identifier Specification Types"},{"section":"x8.10.1","name":"8.10.1 IsAccessorDescriptor ( Desc )"},{"section":"x8.10.2","name":"8.10.2 IsDataDescriptor ( Desc )"},{"section":"x8.10.3","name":"8.10.3 IsGenericDescriptor ( Desc )"},{"section":"x8.10.4","name":"8.10.4 FromPropertyDescriptor ( Desc )"},{"section":"x8.10.5","name":"8.10.5 ToPropertyDescriptor ( Obj )"},{"section":"x8.11","name":"8.11 The Lexical Environment and Environment Record Specification Types"},{"section":"x8.12","name":"8.12 Algorithms for Object Internal Methods"},{"section":"x8.12.1","name":"8.12.1 [[GetOwnProperty]] (P)"},{"section":"x8.12.2","name":"8.12.2 [[GetProperty]] (P)"},{"section":"x8.12.3","name":"8.12.3 [[Get]] (P)"},{"section":"x8.12.4","name":"8.12.4 [[CanPut]] (P)"},{"section":"x8.12.5","name":"8.12.5 [[Put]] ( P, V, Throw )"},{"section":"x8.12.6","name":"8.12.6 [[HasProperty]] (P)"},{"section":"x8.12.7","name":"8.12.7 [[Delete]] (P, Throw)"},{"section":"x8.12.8","name":"8.12.8 [[DefaultValue]] (hint)"},{"section":"x8.12.9","name":"8.12.9 [[DefineOwnProperty]] (P, Desc, Throw)"},{"section":"x9","name":"9 Type Conversion and Testing"},{"section":"x9.1","name":"9.1 ToPrimitive"},{"section":"x9.2","name":"9.2 ToBoolean"},{"section":"x9.3","name":"9.3 ToNumber"},{"section":"x9.3.1","name":"9.3.1 ToNumber Applied to the String Type"},{"section":"x9.4","name":"9.4 ToInteger"},{"section":"x9.5","name":"9.5 ToInt32: (Signed 32 Bit Integer)"},{"section":"x9.6","name":"9.6 ToUint32: (Unsigned 32 Bit Integer)"},{"section":"x9.7","name":"9.7 ToUint16: (Unsigned 16 Bit Integer)"},{"section":"x9.8","name":"9.8 ToString"},{"section":"x9.8.1","name":"9.8.1 ToString Applied to the Number Type"},{"section":"x9.9","name":"9.9 ToObject"},{"section":"x9.10","name":"9.10 CheckObjectCoercible"},{"section":"x9.11","name":"9.11 IsCallable"},{"section":"x9.12","name":"9.12 The SameValue Algorithm"},{"section":"x10","name":"10 Executable Code and Execution Contexts"},{"section":"x10.1","name":"10.1 Types of Executable Code"},{"section":"x10.1.1","name":"10.1.1 Strict Mode Code"},{"section":"x10.2","name":"10.2 Lexical Environments"},{"section":"x10.2.1","name":"10.2.1 Environment Records"},{"section":"x10.2.1.1","name":"10.2.1.1 Declarative Environment Records"},{"section":"x10.2.1.1.1","name":"10.2.1.1.1 HasBinding(N)"},{"section":"x10.2.1.1.2","name":"10.2.1.1.2 CreateMutableBinding (N, D)"},{"section":"x10.2.1.1.3","name":"10.2.1.1.3 SetMutableBinding (N,V,S)"},{"section":"x10.2.1.1.4","name":"10.2.1.1.4 GetBindingValue(N,S)"},{"section":"x10.2.1.1.5","name":"10.2.1.1.5 DeleteBinding (N)"},{"section":"x10.2.1.1.6","name":"10.2.1.1.6 ImplicitThisValue()"},{"section":"x10.2.1.1.7","name":"10.2.1.1.7 CreateImmutableBinding (N)"},{"section":"x10.2.1.1.8","name":"10.2.1.1.8 InitializeImmutableBinding (N,V)"},{"section":"x10.2.1.2","name":"10.2.1.2 Object Environment Records"},{"section":"x10.2.1.2.1","name":"10.2.1.2.1 HasBinding(N)"},{"section":"x10.2.1.2.2","name":"10.2.1.2.2 CreateMutableBinding (N, D)"},{"section":"x10.2.1.2.3","name":"10.2.1.2.3 SetMutableBinding (N,V,S)"},{"section":"x10.2.1.2.4","name":"10.2.1.2.4 GetBindingValue(N,S)"},{"section":"x10.2.1.2.5","name":"10.2.1.2.5 DeleteBinding (N)"},{"section":"x10.2.1.2.6","name":"10.2.1.2.6 ImplicitThisValue()"},{"section":"x10.2.2","name":"10.2.2 Lexical Environment Operations"},{"section":"x10.2.2.1","name":"10.2.2.1 GetIdentifierReference (lex, name, strict)"},{"section":"x10.2.2.2","name":"10.2.2.2 NewDeclarativeEnvironment (E)"},{"section":"x10.2.2.3","name":"10.2.2.3 NewObjectEnvironment (O, E)"},{"section":"x10.2.3","name":"10.2.3 The Global Environment"},{"section":"x10.3","name":"10.3 Execution Contexts"},{"section":"x10.3.1","name":"10.3.1 Identifier Resolution"},{"section":"x10.4","name":"10.4 Establishing an Execution Context"},{"section":"x10.4.1","name":"10.4.1 Entering Global Code"},{"section":"x10.4.1.1","name":"10.4.1.1 Initial Global Execution Context"},{"section":"x10.4.2","name":"10.4.2 Entering Eval Code"},{"section":"x10.4.2.1","name":"10.4.2.1 Strict Mode Restrictions"},{"section":"x10.4.3","name":"10.4.3 Entering Function Code"},{"section":"x10.5","name":"10.5 Declaration Binding Instantiation"},{"section":"x10.6","name":"10.6 Arguments Object"},{"section":"x11","name":"11 Expressions"},{"section":"x11.1","name":"11.1 Primary Expressions"},{"section":"x11.1.1","name":"11.1.1 The this Keyword"},{"section":"x11.1.2","name":"11.1.2 Identifier Reference"},{"section":"x11.1.3","name":"11.1.3 Literal Reference"},{"section":"x11.1.4","name":"11.1.4 Array Initialiser"},{"section":"x11.1.5","name":"11.1.5 Object Initialiser"},{"section":"x11.1.6","name":"11.1.6 The Grouping Operator"},{"section":"x11.2","name":"11.2 Left-Hand-Side Expressions"},{"section":"x11.2.1","name":"11.2.1 Property Accessors"},{"section":"x11.2.2","name":"11.2.2 The new Operator"},{"section":"x11.2.3","name":"11.2.3 Function Calls"},{"section":"x11.2.4","name":"11.2.4 Argument Lists"},{"section":"x11.2.5","name":"11.2.5 Function Expressions"},{"section":"x11.3","name":"11.3 Postfix Expressions"},{"section":"x11.3.1","name":"11.3.1 Postfix Increment Operator"},{"section":"x11.3.2","name":"11.3.2 Postfix Decrement Operator"},{"section":"x11.4","name":"11.4 Unary Operators"},{"section":"x11.4.1","name":"11.4.1 The delete Operator"},{"section":"x11.4.2","name":"11.4.2 The void Operator"},{"section":"x11.4.3","name":"11.4.3 The typeof Operator"},{"section":"x11.4.4","name":"11.4.4 Prefix Increment Operator"},{"section":"x11.4.5","name":"11.4.5 Prefix Decrement Operator"},{"section":"x11.4.6","name":"11.4.6 Unary + Operator"},{"section":"x11.4.7","name":"11.4.7 Unary - Operator"},{"section":"x11.4.8","name":"11.4.8 Bitwise NOT Operator ( ~ )"},{"section":"x11.4.9","name":"11.4.9 Logical NOT Operator ( ! )"},{"section":"x11.5","name":"11.5 Multiplicative Operators"},{"section":"x11.5.1","name":"11.5.1 Applying the * Operator"},{"section":"x11.5.2","name":"11.5.2 Applying the / Operator"},{"section":"x11.5.3","name":"11.5.3 Applying the % Operator"},{"section":"x11.6","name":"11.6 Additive Operators"},{"section":"x11.6.1","name":"11.6.1 The Addition operator ( + )"},{"section":"x11.6.2","name":"11.6.2 The Subtraction Operator ( - )"},{"section":"x11.6.3","name":"11.6.3 Applying the Additive Operators to Numbers"},{"section":"x11.7","name":"11.7 Bitwise Shift Operators"},{"section":"x11.7.1","name":"11.7.1 The Left Shift Operator ( << )"},{"section":"x11.7.2","name":"11.7.2 The Signed Right Shift Operator ( >> )"},{"section":"x11.7.3","name":"11.7.3 The Unsigned Right Shift Operator ( >>> )"},{"section":"x11.8","name":"11.8 Relational Operators"},{"section":"x11.8.1","name":"11.8.1 The Less-than Operator ( < )"},{"section":"x11.8.2","name":"11.8.2 The Greater-than Operator ( > )"},{"section":"x11.8.3","name":"11.8.3 The Less-than-or-equal Operator ( <= )"},{"section":"x11.8.4","name":"11.8.4 The Greater-than-or-equal Operator ( >= )"},{"section":"x11.8.5","name":"11.8.5 The Abstract Relational Comparison Algorithm"},{"section":"x11.8.6","name":"11.8.6 The instanceof operator"},{"section":"x11.8.7","name":"11.8.7 The in operator"},{"section":"x11.9","name":"11.9 Equality Operators"},{"section":"x11.9.1","name":"11.9.1 The Equals Operator ( == )"},{"section":"x11.9.2","name":"11.9.2 The Does-not-equals Operator ( != )"},{"section":"x11.9.3","name":"11.9.3 The Abstract Equality Comparison Algorithm"},{"section":"x11.9.4","name":"11.9.4 The Strict Equals Operator ( === )"},{"section":"x11.9.5","name":"11.9.5 The Strict Does-not-equal Operator ( !== )"},{"section":"x11.9.6","name":"11.9.6 The Strict Equality Comparison Algorithm"},{"section":"x11.10","name":"11.10 Binary Bitwise Operators"},{"section":"x11.11","name":"11.11 Binary Logical Operators"},{"section":"x11.12","name":"11.12 Conditional Operator ( ? : )"},{"section":"x11.13","name":"11.13 Assignment Operators"},{"section":"x11.13.1","name":"11.13.1 Simple Assignment ( = )"},{"section":"x11.13.2","name":"11.13.2 Compound Assignment ( op= )"},{"section":"x11.14","name":"11.14 Comma Operator ( , )"},{"section":"x12","name":"12 Statements"},{"section":"x12.1","name":"12.1 Block"},{"section":"x12.2","name":"12.2 Variable Statement"},{"section":"x12.2.1","name":"12.2.1 Strict Mode Restrictions"},{"section":"x12.3","name":"12.3 Empty Statement"},{"section":"x12.4","name":"12.4 Expression Statement"},{"section":"x12.5","name":"12.5 The if Statement"},{"section":"x12.6","name":"12.6 Iteration Statements"},{"section":"x12.6.1","name":"12.6.1 The do-while Statement"},{"section":"x12.6.2","name":"12.6.2 The while Statement"},{"section":"x12.6.3","name":"12.6.3 The for Statement"},{"section":"x12.6.4","name":"12.6.4 The for-in Statement"},{"section":"x12.7","name":"12.7 The continue Statement"},{"section":"x12.8","name":"12.8 The break Statement"},{"section":"x12.9","name":"12.9 The return Statement"},{"section":"x12.10","name":"12.10 The with Statement"},{"section":"x12.10.1","name":"12.10.1 Strict Mode Restrictions"},{"section":"x12.11","name":"12.11 The switch Statement"},{"section":"x12.12","name":"12.12 Labelled Statements"},{"section":"x12.13","name":"12.13 The throw Statement"},{"section":"x12.14","name":"12.14 The try Statement"},{"section":"x12.14.1","name":"12.14.1 Strict Mode Restrictions"},{"section":"x12.15","name":"12.15 The debugger statement"},{"section":"x13","name":"13 Function Definition"},{"section":"x13.1","name":"13.1 Strict Mode Restrictions"},{"section":"x13.2","name":"13.2 Creating Function Objects"},{"section":"x13.2.1","name":"13.2.1 [[Call]]"},{"section":"x13.2.2","name":"13.2.2 [[Construct]]"},{"section":"x13.2.3","name":"13.2.3 The Function Object"},{"section":"x14","name":"14 Program"},{"section":"x14.1","name":"14.1 Directive Prologues and the Use Strict Directive"},{"section":"x15","name":"15 Standard Built-in ECMAScript Objects"},{"section":"x15.1","name":"15.1 The Global Object"},{"section":"x15.1.1","name":"15.1.1 Value Properties of the Global Object"},{"section":"x15.1.1.1","name":"15.1.1.1 NaN"},{"section":"x15.1.1.2","name":"15.1.1.2 Infinity"},{"section":"x15.1.1.3","name":"15.1.1.3 undefined"},{"section":"x15.1.2","name":"15.1.2 Function Properties of the Global Object"},{"section":"x15.1.2.1","name":"15.1.2.1 eval (x)"},{"section":"x15.1.2.1.1","name":"15.1.2.1.1 Direct Call to Eval"},{"section":"x15.1.2.2","name":"15.1.2.2 parseInt (string , radix)"},{"section":"x15.1.2.3","name":"15.1.2.3 parseFloat (string)"},{"section":"x15.1.2.4","name":"15.1.2.4 isNaN (number)"},{"section":"x15.1.2.5","name":"15.1.2.5 isFinite (number)"},{"section":"x15.1.3","name":"15.1.3 URI Handling Function Properties"},{"section":"x15.1.3.1","name":"15.1.3.1 decodeURI (encodedURI)"},{"section":"x15.1.3.2","name":"15.1.3.2 decodeURIComponent (encodedURIComponent)"},{"section":"x15.1.3.3","name":"15.1.3.3 encodeURI (uri)"},{"section":"x15.1.3.4","name":"15.1.3.4 encodeURIComponent (uriComponent)"},{"section":"x15.1.4","name":"15.1.4 Constructor Properties of the Global Object"},{"section":"x15.1.4.1","name":"15.1.4.1 Object ( . . . )"},{"section":"x15.1.4.2","name":"15.1.4.2 Function ( . . . )"},{"section":"x15.1.4.3","name":"15.1.4.3 Array ( . . . )"},{"section":"x15.1.4.4","name":"15.1.4.4 String ( . . . )"},{"section":"x15.1.4.5","name":"15.1.4.5 Boolean ( . . . )"},{"section":"x15.1.4.6","name":"15.1.4.6 Number ( . . . )"},{"section":"x15.1.4.7","name":"15.1.4.7 Date ( . . . )"},{"section":"x15.1.4.8","name":"15.1.4.8 RegExp ( . . . )"},{"section":"x15.1.4.9","name":"15.1.4.9 Error ( . . . )"},{"section":"x15.1.4.10","name":"15.1.4.10 EvalError ( . . . )"},{"section":"x15.1.4.11","name":"15.1.4.11 RangeError ( . . . )"},{"section":"x15.1.4.12","name":"15.1.4.12 ReferenceError ( . . . )"},{"section":"x15.1.4.13","name":"15.1.4.13 SyntaxError ( . . . )"},{"section":"x15.1.4.14","name":"15.1.4.14 TypeError ( . . . )"},{"section":"x15.1.4.15","name":"15.1.4.15 URIError ( . . . )"},{"section":"x15.1.5","name":"15.1.5 Other Properties of the Global Object"},{"section":"x15.1.5.1","name":"15.1.5.1 Math"},{"section":"x15.1.5.2","name":"15.1.5.2 JSON"},{"section":"x15.2","name":"15.2 Object Objects"},{"section":"x15.2.1","name":"15.2.1 The Object Constructor Called as a Function"},{"section":"x15.2.1.1","name":"15.2.1.1 Object ( [ value ] )"},{"section":"x15.2.2","name":"15.2.2 The Object Constructor"},{"section":"x15.2.2.1","name":"15.2.2.1 new Object ( [ value ] )"},{"section":"x15.2.3","name":"15.2.3 Properties of the Object Constructor"},{"section":"x15.2.3.1","name":"15.2.3.1 Object.prototype"},{"section":"x15.2.3.2","name":"15.2.3.2 Object.getPrototypeOf ( O )"},{"section":"x15.2.3.3","name":"15.2.3.3 Object.getOwnPropertyDescriptor ( O, P ) "},{"section":"x15.2.3.4","name":"15.2.3.4 Object.getOwnPropertyNames ( O )"},{"section":"x15.2.3.5","name":"15.2.3.5 Object.create ( O [, Properties] )"},{"section":"x15.2.3.6","name":"15.2.3.6 Object.defineProperty ( O, P, Attributes )"},{"section":"x15.2.3.7","name":"15.2.3.7 Object.defineProperties ( O, Properties )"},{"section":"x15.2.3.8","name":"15.2.3.8 Object.seal ( O )"},{"section":"x15.2.3.9","name":"15.2.3.9 Object.freeze ( O )"},{"section":"x15.2.3.10","name":"15.2.3.10 Object.preventExtensions ( O )"},{"section":"x15.2.3.11","name":"15.2.3.11 Object.isSealed ( O )"},{"section":"x15.2.3.12","name":"15.2.3.12 Object.isFrozen ( O )"},{"section":"x15.2.3.13","name":"15.2.3.13 Object.isExtensible ( O )"},{"section":"x15.2.3.14","name":"15.2.3.14 Object.keys ( O )"},{"section":"x15.2.4","name":"15.2.4 Properties of the Object Prototype Object"},{"section":"x15.2.4.1","name":"15.2.4.1 Object.prototype.constructor"},{"section":"x15.2.4.2","name":"15.2.4.2 Object.prototype.toString ( )"},{"section":"x15.2.4.3","name":"15.2.4.3 Object.prototype.toLocaleString ( )"},{"section":"x15.2.4.4","name":"15.2.4.4 Object.prototype.valueOf ( )"},{"section":"x15.2.4.5","name":"15.2.4.5 Object.prototype.hasOwnProperty (V)"},{"section":"x15.2.4.6","name":"15.2.4.6 Object.prototype.isPrototypeOf (V)"},{"section":"x15.2.4.7","name":"15.2.4.7 Object.prototype.propertyIsEnumerable (V)"},{"section":"x15.2.5","name":"15.2.5 Properties of Object Instances"},{"section":"x15.3","name":"15.3 Function Objects"},{"section":"x15.3.1","name":"15.3.1 The Function Constructor Called as a Function"},{"section":"x15.3.1.1","name":"15.3.1.1 Function (p1, p2, … , pn, body)"},{"section":"x15.3.2","name":"15.3.2 The Function Constructor"},{"section":"x15.3.2.1","name":"15.3.2.1 new Function (p1, p2, … , pn, body)"},{"section":"x15.3.3","name":"15.3.3 Properties of the Function Constructor"},{"section":"x15.3.3.1","name":"15.3.3.1 Function.prototype"},{"section":"x15.3.3.2","name":"15.3.3.2 Function.length"},{"section":"x15.3.4","name":"15.3.4 Properties of the Function Prototype Object"},{"section":"x15.3.4.1","name":"15.3.4.1 Function.prototype.constructor"},{"section":"x15.3.4.2","name":"15.3.4.2 Function.prototype.toString ( )"},{"section":"x15.3.4.3","name":"15.3.4.3 Function.prototype.apply (thisArg, argArray)"},{"section":"x15.3.4.4","name":"15.3.4.4 Function.prototype.call (thisArg [ , arg1 [ , arg2, … ] ] )"},{"section":"x15.3.4.5","name":"15.3.4.5 Function.prototype.bind (thisArg [, arg1 [, arg2, …]])"},{"section":"x15.3.4.5.1","name":"15.3.4.5.1 [[Call]]"},{"section":"x15.3.4.5.2","name":"15.3.4.5.2 [[Construct]]"},{"section":"x15.3.4.5.3","name":"15.3.4.5.3 [[HasInstance]] (V)"},{"section":"x15.3.5","name":"15.3.5 Properties of Function Instances"},{"section":"x15.3.5.1","name":"15.3.5.1 length"},{"section":"x15.3.5.2","name":"15.3.5.2 prototype"},{"section":"x15.3.5.3","name":"15.3.5.3 [[HasInstance]] (V)"},{"section":"x15.3.5.4","name":"15.3.5.4 [[Get]] (P)"},{"section":"x15.4","name":"15.4 Array Objects"},{"section":"x15.4.1","name":"15.4.1 The Array Constructor Called as a Function"},{"section":"x15.4.1.1","name":"15.4.1.1 Array ( [ item1 [ , item2 [ , … ] ] ] )"},{"section":"x15.4.2","name":"15.4.2 The Array Constructor"},{"section":"x15.4.2.1","name":"15.4.2.1 new Array ( [ item0 [ , item1 [ , … ] ] ] )"},{"section":"x15.4.2.2","name":"15.4.2.2 new Array (len)"},{"section":"x15.4.3","name":"15.4.3 Properties of the Array Constructor"},{"section":"x15.4.3.1","name":"15.4.3.1 Array.prototype"},{"section":"x15.4.3.2","name":"15.4.3.2 Array.isArray ( arg )"},{"section":"x15.4.4","name":"15.4.4 Properties of the Array Prototype Object"},{"section":"x15.4.4.1","name":"15.4.4.1 Array.prototype.constructor"},{"section":"x15.4.4.2","name":"15.4.4.2 Array.prototype.toString ( )"},{"section":"x15.4.4.3","name":"15.4.4.3 Array.prototype.toLocaleString ( )"},{"section":"x15.4.4.4","name":"15.4.4.4 Array.prototype.concat ( [ item1 [ , item2 [ , … ] ] ] )"},{"section":"x15.4.4.5","name":"15.4.4.5 Array.prototype.join (separator)"},{"section":"x15.4.4.6","name":"15.4.4.6 Array.prototype.pop ( )"},{"section":"x15.4.4.7","name":"15.4.4.7 Array.prototype.push ( [ item1 [ , item2 [ , … ] ] ] )"},{"section":"x15.4.4.8","name":"15.4.4.8 Array.prototype.reverse ( )"},{"section":"x15.4.4.9","name":"15.4.4.9 Array.prototype.shift ( )"},{"section":"x15.4.4.10","name":"15.4.4.10 Array.prototype.slice (start, end)"},{"section":"x15.4.4.11","name":"15.4.4.11 Array.prototype.sort (comparefn)"},{"section":"x15.4.4.12","name":"15.4.4.12 Array.prototype.splice (start, deleteCount [ , item1 [ , item2 [ , … ] ] ] )"},{"section":"x15.4.4.13","name":"15.4.4.13 Array.prototype.unshift ( [ item1 [ , item2 [ , … ] ] ] )"},{"section":"x15.4.4.14","name":"15.4.4.14 Array.prototype.indexOf ( searchElement [ , fromIndex ] )"},{"section":"x15.4.4.15","name":"15.4.4.15 Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )"},{"section":"x15.4.4.16","name":"15.4.4.16 Array.prototype.every ( callbackfn [ , thisArg ] )"},{"section":"x15.4.4.17","name":"15.4.4.17 Array.prototype.some ( callbackfn [ , thisArg ] )"},{"section":"x15.4.4.18","name":"15.4.4.18 Array.prototype.forEach ( callbackfn [ , thisArg ] )"},{"section":"x15.4.4.19","name":"15.4.4.19 Array.prototype.map ( callbackfn [ , thisArg ] )"},{"section":"x15.4.4.20","name":"15.4.4.20 Array.prototype.filter ( callbackfn [ , thisArg ] )"},{"section":"x15.4.4.21","name":"15.4.4.21 Array.prototype.reduce ( callbackfn [ , initialValue ] )"},{"section":"x15.4.4.22","name":"15.4.4.22 Array.prototype.reduceRight ( callbackfn [ , initialValue ] )"},{"section":"x15.4.5","name":"15.4.5 Properties of Array Instances"},{"section":"x15.4.5.1","name":"15.4.5.1 [[DefineOwnProperty]] ( P, Desc, Throw )"},{"section":"x15.4.5.2","name":"15.4.5.2 length"},{"section":"x15.5","name":"15.5 String Objects"},{"section":"x15.5.1","name":"15.5.1 The String Constructor Called as a Function"},{"section":"x15.5.1.1","name":"15.5.1.1 String ( [ value ] )"},{"section":"x15.5.2","name":"15.5.2 The String Constructor"},{"section":"x15.5.2.1","name":"15.5.2.1 new String ( [ value ] )"},{"section":"x15.5.3","name":"15.5.3 Properties of the String Constructor"},{"section":"x15.5.3.1","name":"15.5.3.1 String.prototype"},{"section":"x15.5.3.2","name":"15.5.3.2 String.fromCharCode ( [ char0 [ , char1 [ , … ] ] ] )"},{"section":"x15.5.4","name":"15.5.4 Properties of the String Prototype Object"},{"section":"x15.5.4.1","name":"15.5.4.1 String.prototype.constructor"},{"section":"x15.5.4.2","name":"15.5.4.2 String.prototype.toString ( )"},{"section":"x15.5.4.3","name":"15.5.4.3 String.prototype.valueOf ( )"},{"section":"x15.5.4.4","name":"15.5.4.4 String.prototype.charAt (pos)"},{"section":"x15.5.4.5","name":"15.5.4.5 String.prototype.charCodeAt (pos)"},{"section":"x15.5.4.6","name":"15.5.4.6 String.prototype.concat ( [ string1 [ , string2 [ , … ] ] ] )"},{"section":"x15.5.4.7","name":"15.5.4.7 String.prototype.indexOf (searchString, position)"},{"section":"x15.5.4.8","name":"15.5.4.8 String.prototype.lastIndexOf (searchString, position)"},{"section":"x15.5.4.9","name":"15.5.4.9 String.prototype.localeCompare (that)"},{"section":"x15.5.4.10","name":"15.5.4.10 String.prototype.match (regexp)"},{"section":"x15.5.4.11","name":"15.5.4.11 String.prototype.replace (searchValue, replaceValue)"},{"section":"x15.5.4.12","name":"15.5.4.12 String.prototype.search (regexp)"},{"section":"x15.5.4.13","name":"15.5.4.13 String.prototype.slice (start, end)"},{"section":"x15.5.4.14","name":"15.5.4.14 String.prototype.split (separator, limit)"},{"section":"x15.5.4.15","name":"15.5.4.15 String.prototype.substring (start, end)"},{"section":"x15.5.4.16","name":"15.5.4.16 String.prototype.toLowerCase ( )"},{"section":"x15.5.4.17","name":"15.5.4.17 String.prototype.toLocaleLowerCase ( )"},{"section":"x15.5.4.18","name":"15.5.4.18 String.prototype.toUpperCase ( )"},{"section":"x15.5.4.19","name":"15.5.4.19 String.prototype.toLocaleUpperCase ( )"},{"section":"x15.5.4.20","name":"15.5.4.20 String.prototype.trim ( )"},{"section":"x15.5.5","name":"15.5.5 Properties of String Instances"},{"section":"x15.5.5.1","name":"15.5.5.1 length"},{"section":"x15.5.5.2","name":"15.5.5.2 [[GetOwnProperty]] ( P )"},{"section":"x15.6","name":"15.6 Boolean Objects"},{"section":"x15.6.1","name":"15.6.1 The Boolean Constructor Called as a Function"},{"section":"x15.6.1.1","name":"15.6.1.1 Boolean (value)"},{"section":"x15.6.2","name":"15.6.2 The Boolean Constructor"},{"section":"x15.6.2.1","name":"15.6.2.1 new Boolean (value)"},{"section":"x15.6.3","name":"15.6.3 Properties of the Boolean Constructor"},{"section":"x15.6.3.1","name":"15.6.3.1 Boolean.prototype"},{"section":"x15.6.4","name":"15.6.4 Properties of the Boolean Prototype Object"},{"section":"x15.6.4.1","name":"15.6.4.1 Boolean.prototype.constructor"},{"section":"x15.6.4.2","name":"15.6.4.2 Boolean.prototype.toString ( )"},{"section":"x15.6.4.3","name":"15.6.4.3 Boolean.prototype.valueOf ( )"},{"section":"x15.6.5","name":"15.6.5 Properties of Boolean Instances"},{"section":"x15.7","name":"15.7 Number Objects"},{"section":"x15.7.1","name":"15.7.1 The Number Constructor Called as a Function"},{"section":"x15.7.1.1","name":"15.7.1.1 Number ( [ value ] )"},{"section":"x15.7.2","name":"15.7.2 The Number Constructor"},{"section":"x15.7.2.1","name":"15.7.2.1 new Number ( [ value ] )"},{"section":"x15.7.3","name":"15.7.3 Properties of the Number Constructor"},{"section":"x15.7.3.1","name":"15.7.3.1 Number.prototype"},{"section":"x15.7.3.2","name":"15.7.3.2 Number.MAX_VALUE"},{"section":"x15.7.3.3","name":"15.7.3.3 Number.MIN_VALUE"},{"section":"x15.7.3.4","name":"15.7.3.4 Number.NaN"},{"section":"x15.7.3.5","name":"15.7.3.5 Number.NEGATIVE_INFINITY"},{"section":"x15.7.3.6","name":"15.7.3.6 Number.POSITIVE_INFINITY"},{"section":"x15.7.4","name":"15.7.4 Properties of the Number Prototype Object"},{"section":"x15.7.4.1","name":"15.7.4.1 Number.prototype.constructor"},{"section":"x15.7.4.2","name":"15.7.4.2 Number.prototype.toString ( [ radix ] )"},{"section":"x15.7.4.3","name":"15.7.4.3 Number.prototype.toLocaleString()"},{"section":"x15.7.4.4","name":"15.7.4.4 Number.prototype.valueOf ( )"},{"section":"x15.7.4.5","name":"15.7.4.5 Number.prototype.toFixed (fractionDigits)"},{"section":"x15.7.4.6","name":"15.7.4.6 Number.prototype.toExponential (fractionDigits)"},{"section":"x15.7.4.7","name":"15.7.4.7 Number.prototype.toPrecision (precision)"},{"section":"x15.7.5","name":"15.7.5 Properties of Number Instances"},{"section":"x15.8","name":"15.8 The Math Object"},{"section":"x15.8.1","name":"15.8.1 Value Properties of the Math Object"},{"section":"x15.8.1.1","name":"15.8.1.1 E"},{"section":"x15.8.1.2","name":"15.8.1.2 LN10"},{"section":"x15.8.1.3","name":"15.8.1.3 LN2"},{"section":"x15.8.1.4","name":"15.8.1.4 LOG2E"},{"section":"x15.8.1.5","name":"15.8.1.5 LOG10E"},{"section":"x15.8.1.6","name":"15.8.1.6 PI"},{"section":"x15.8.1.7","name":"15.8.1.7 SQRT1_2"},{"section":"x15.8.1.8","name":"15.8.1.8 SQRT2"},{"section":"x15.8.2","name":"15.8.2 Function Properties of the Math Object"},{"section":"x15.8.2.1","name":"15.8.2.1 abs (x)"},{"section":"x15.8.2.2","name":"15.8.2.2 acos (x)"},{"section":"x15.8.2.3","name":"15.8.2.3 asin (x)"},{"section":"x15.8.2.4","name":"15.8.2.4 atan (x)"},{"section":"x15.8.2.5","name":"15.8.2.5 atan2 (y, x)"},{"section":"x15.8.2.6","name":"15.8.2.6 ceil (x)"},{"section":"x15.8.2.7","name":"15.8.2.7 cos (x)"},{"section":"x15.8.2.8","name":"15.8.2.8 exp (x)"},{"section":"x15.8.2.9","name":"15.8.2.9 floor (x)"},{"section":"x15.8.2.10","name":"15.8.2.10 log (x)"},{"section":"x15.8.2.11","name":"15.8.2.11 max ( [ value1 [ , value2 [ , … ] ] ] )"},{"section":"x15.8.2.12","name":"15.8.2.12 min ( [ value1 [ , value2 [ , … ] ] ] )"},{"section":"x15.8.2.13","name":"15.8.2.13 pow (x, y)"},{"section":"x15.8.2.14","name":"15.8.2.14 random ( )"},{"section":"x15.8.2.15","name":"15.8.2.15 round (x)"},{"section":"x15.8.2.16","name":"15.8.2.16 sin (x)"},{"section":"x15.8.2.17","name":"15.8.2.17 sqrt (x)"},{"section":"x15.8.2.18","name":"15.8.2.18 tan (x)"},{"section":"x15.9","name":"15.9 Date Objects"},{"section":"x15.9.1","name":"15.9.1 Overview of Date Objects and Definitions of Abstract Operators"},{"section":"x15.9.1.1","name":"15.9.1.1 Time Values and Time Range"},{"section":"x15.9.1.2","name":"15.9.1.2 Day Number and Time within Day"},{"section":"x15.9.1.3","name":"15.9.1.3 Year Number"},{"section":"x15.9.1.4","name":"15.9.1.4 Month Number"},{"section":"x15.9.1.5","name":"15.9.1.5 Date Number"},{"section":"x15.9.1.6","name":"15.9.1.6 Week Day"},{"section":"x15.9.1.7","name":"15.9.1.7 Local Time Zone Adjustment"},{"section":"x15.9.1.8","name":"15.9.1.8 Daylight Saving Time Adjustment"},{"section":"x15.9.1.9","name":"15.9.1.9 Local Time"},{"section":"x15.9.1.10","name":"15.9.1.10 Hours, Minutes, Second, and Milliseconds"},{"section":"x15.9.1.11","name":"15.9.1.11 MakeTime (hour, min, sec, ms)"},{"section":"x15.9.1.12","name":"15.9.1.12 MakeDay (year, month, date)"},{"section":"x15.9.1.13","name":"15.9.1.13 MakeDate (day, time)"},{"section":"x15.9.1.14","name":"15.9.1.14 TimeClip (time)"},{"section":"x15.9.1.15","name":"15.9.1.15 Date Time String Format"},{"section":"x15.9.1.15.1","name":"15.9.1.15.1 Extended years"},{"section":"x15.9.2","name":"15.9.2 The Date Constructor Called as a Function"},{"section":"x15.9.2.1","name":"15.9.2.1 Date ( [ year [, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] ] ] )"},{"section":"x15.9.3","name":"15.9.3 The Date Constructor"},{"section":"x15.9.3.1","name":"15.9.3.1 new Date (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ] )"},{"section":"x15.9.3.2","name":"15.9.3.2 new Date (value)"},{"section":"x15.9.3.3","name":"15.9.3.3 new Date ( )"},{"section":"x15.9.4","name":"15.9.4 Properties of the Date Constructor"},{"section":"x15.9.4.1","name":"15.9.4.1 Date.prototype"},{"section":"x15.9.4.2","name":"15.9.4.2 Date.parse (string)"},{"section":"x15.9.4.3","name":"15.9.4.3 Date.UTC (year, month [, date [, hours [, minutes [, seconds [, ms ] ] ] ] ])"},{"section":"x15.9.4.4","name":"15.9.4.4 Date.now ( )"},{"section":"x15.9.5","name":"15.9.5 Properties of the Date Prototype Object"},{"section":"x15.9.5.1","name":"15.9.5.1 Date.prototype.constructor"},{"section":"x15.9.5.2","name":"15.9.5.2 Date.prototype.toString ( )"},{"section":"x15.9.5.3","name":"15.9.5.3 Date.prototype.toDateString ( )"},{"section":"x15.9.5.4","name":"15.9.5.4 Date.prototype.toTimeString ( )"},{"section":"x15.9.5.5","name":"15.9.5.5 Date.prototype.toLocaleString ( )"},{"section":"x15.9.5.6","name":"15.9.5.6 Date.prototype.toLocaleDateString ( )"},{"section":"x15.9.5.7","name":"15.9.5.7 Date.prototype.toLocaleTimeString ( )"},{"section":"x15.9.5.8","name":"15.9.5.8 Date.prototype.valueOf ( )"},{"section":"x15.9.5.9","name":"15.9.5.9 Date.prototype.getTime ( )"},{"section":"x15.9.5.10","name":"15.9.5.10 Date.prototype.getFullYear ( )"},{"section":"x15.9.5.11","name":"15.9.5.11 Date.prototype.getUTCFullYear ( )"},{"section":"x15.9.5.12","name":"15.9.5.12 Date.prototype.getMonth ( )"},{"section":"x15.9.5.13","name":"15.9.5.13 Date.prototype.getUTCMonth ( )"},{"section":"x15.9.5.14","name":"15.9.5.14 Date.prototype.getDate ( )"},{"section":"x15.9.5.15","name":"15.9.5.15 Date.prototype.getUTCDate ( )"},{"section":"x15.9.5.16","name":"15.9.5.16 Date.prototype.getDay ( )"},{"section":"x15.9.5.17","name":"15.9.5.17 Date.prototype.getUTCDay ( )"},{"section":"x15.9.5.18","name":"15.9.5.18 Date.prototype.getHours ( )"},{"section":"x15.9.5.19","name":"15.9.5.19 Date.prototype.getUTCHours ( )"},{"section":"x15.9.5.20","name":"15.9.5.20 Date.prototype.getMinutes ( )"},{"section":"x15.9.5.21","name":"15.9.5.21 Date.prototype.getUTCMinutes ( )"},{"section":"x15.9.5.22","name":"15.9.5.22 Date.prototype.getSeconds ( )"},{"section":"x15.9.5.23","name":"15.9.5.23 Date.prototype.getUTCSeconds ( )"},{"section":"x15.9.5.24","name":"15.9.5.24 Date.prototype.getMilliseconds ( )"},{"section":"x15.9.5.25","name":"15.9.5.25 Date.prototype.getUTCMilliseconds ( )"},{"section":"x15.9.5.26","name":"15.9.5.26 Date.prototype.getTimezoneOffset ( )"},{"section":"x15.9.5.27","name":"15.9.5.27 Date.prototype.setTime (time)"},{"section":"x15.9.5.28","name":"15.9.5.28 Date.prototype.setMilliseconds (ms)"},{"section":"x15.9.5.29","name":"15.9.5.29 Date.prototype.setUTCMilliseconds (ms)"},{"section":"x15.9.5.30","name":"15.9.5.30 Date.prototype.setSeconds (sec [, ms ] )"},{"section":"x15.9.5.31","name":"15.9.5.31 Date.prototype.setUTCSeconds (sec [, ms ] )"},{"section":"x15.9.5.32","name":"15.9.5.32 Date.prototype.setMinutes (min [, sec [, ms ] ] )"},{"section":"x15.9.5.33","name":"15.9.5.33 Date.prototype.setUTCMinutes (min [, sec [, ms ] ] )"},{"section":"x15.9.5.34","name":"15.9.5.34 Date.prototype.setHours (hour [, min [, sec [, ms ] ] ] )"},{"section":"x15.9.5.35","name":"15.9.5.35 Date.prototype.setUTCHours (hour [, min [, sec [, ms ] ] ] )"},{"section":"x15.9.5.36","name":"15.9.5.36 Date.prototype.setDate (date)"},{"section":"x15.9.5.37","name":"15.9.5.37 Date.prototype.setUTCDate (date)"},{"section":"x15.9.5.38","name":"15.9.5.38 Date.prototype.setMonth (month [, date ] )"},{"section":"x15.9.5.39","name":"15.9.5.39 Date.prototype.setUTCMonth (month [, date ] )"},{"section":"x15.9.5.40","name":"15.9.5.40 Date.prototype.setFullYear (year [, month [, date ] ] )"},{"section":"x15.9.5.41","name":"15.9.5.41 Date.prototype.setUTCFullYear (year [, month [, date ] ] )"},{"section":"x15.9.5.42","name":"15.9.5.42 Date.prototype.toUTCString ( )"},{"section":"x15.9.5.43","name":"15.9.5.43 Date.prototype.toISOString ( )"},{"section":"x15.9.5.44","name":"15.9.5.44 Date.prototype.toJSON ( key )"},{"section":"x15.9.6","name":"15.9.6 Properties of Date Instances"},{"section":"x15.10","name":"15.10 RegExp (Regular Expression) Objects"},{"section":"x15.10.1","name":"15.10.1 Patterns"},{"section":"x15.10.2","name":"15.10.2 Pattern Semantics"},{"section":"x15.10.2.1","name":"15.10.2.1 Notation"},{"section":"x15.10.2.2","name":"15.10.2.2 Pattern"},{"section":"x15.10.2.3","name":"15.10.2.3 Disjunction"},{"section":"x15.10.2.4","name":"15.10.2.4 Alternative"},{"section":"x15.10.2.5","name":"15.10.2.5 Term"},{"section":"x15.10.2.6","name":"15.10.2.6 Assertion"},{"section":"x15.10.2.7","name":"15.10.2.7 Quantifier"},{"section":"x15.10.2.8","name":"15.10.2.8 Atom"},{"section":"x15.10.2.9","name":"15.10.2.9 AtomEscape"},{"section":"x15.10.2.10","name":"15.10.2.10 CharacterEscape"},{"section":"x15.10.2.11","name":"15.10.2.11 DecimalEscape"},{"section":"x15.10.2.12","name":"15.10.2.12 CharacterClassEscape"},{"section":"x15.10.2.13","name":"15.10.2.13 CharacterClass"},{"section":"x15.10.2.14","name":"15.10.2.14 ClassRanges"},{"section":"x15.10.2.15","name":"15.10.2.15 NonemptyClassRanges"},{"section":"x15.10.2.16","name":"15.10.2.16 NonemptyClassRangesNoDash"},{"section":"x15.10.2.17","name":"15.10.2.17 ClassAtom"},{"section":"x15.10.2.18","name":"15.10.2.18 ClassAtomNoDash"},{"section":"x15.10.2.19","name":"15.10.2.19 ClassEscape"},{"section":"x15.10.3","name":"15.10.3 The RegExp Constructor Called as a Function"},{"section":"x15.10.3.1","name":"15.10.3.1 RegExp(pattern, flags)"},{"section":"x15.10.4","name":"15.10.4 The RegExp Constructor"},{"section":"x15.10.4.1","name":"15.10.4.1 new RegExp(pattern, flags)"},{"section":"x15.10.5","name":"15.10.5 Properties of the RegExp Constructor"},{"section":"x15.10.5.1","name":"15.10.5.1 RegExp.prototype"},{"section":"x15.10.6","name":"15.10.6 Properties of the RegExp Prototype Object"},{"section":"x15.10.6.1","name":"15.10.6.1 RegExp.prototype.constructor"},{"section":"x15.10.6.2","name":"15.10.6.2 RegExp.prototype.exec(string)"},{"section":"x15.10.6.3","name":"15.10.6.3 RegExp.prototype.test(string)"},{"section":"x15.10.6.4","name":"15.10.6.4 RegExp.prototype.toString()"},{"section":"x15.10.7","name":"15.10.7 Properties of RegExp Instances"},{"section":"x15.10.7.1","name":"15.10.7.1 source"},{"section":"x15.10.7.2","name":"15.10.7.2 global"},{"section":"x15.10.7.3","name":"15.10.7.3 ignoreCase"},{"section":"x15.10.7.4","name":"15.10.7.4 multiline"},{"section":"x15.10.7.5","name":"15.10.7.5 lastIndex"},{"section":"x15.11","name":"15.11 Error Objects"},{"section":"x15.11.1","name":"15.11.1 The Error Constructor Called as a Function"},{"section":"x15.11.1.1","name":"15.11.1.1 Error (message)"},{"section":"x15.11.2","name":"15.11.2 The Error Constructor"},{"section":"x15.11.2.1","name":"15.11.2.1 new Error (message)"},{"section":"x15.11.3","name":"15.11.3 Properties of the Error Constructor"},{"section":"x15.11.3.1","name":"15.11.3.1 Error.prototype"},{"section":"x15.11.4","name":"15.11.4 Properties of the Error Prototype Object"},{"section":"x15.11.4.1","name":"15.11.4.1 Error.prototype.constructor"},{"section":"x15.11.4.2","name":"15.11.4.2 Error.prototype.name"},{"section":"x15.11.4.3","name":"15.11.4.3 Error.prototype.message"},{"section":"x15.11.4.4","name":"15.11.4.4 Error.prototype.toString ( )"},{"section":"x15.11.5","name":"15.11.5 Properties of Error Instances"},{"section":"x15.11.6","name":"15.11.6 Native Error Types Used in This Standard"},{"section":"x15.11.6.1","name":"15.11.6.1 EvalError"},{"section":"x15.11.6.2","name":"15.11.6.2 RangeError"},{"section":"x15.11.6.3","name":"15.11.6.3 ReferenceError"},{"section":"x15.11.6.4","name":"15.11.6.4 SyntaxError"},{"section":"x15.11.6.5","name":"15.11.6.5 TypeError"},{"section":"x15.11.6.6","name":"15.11.6.6 URIError"},{"section":"x15.11.7","name":"15.11.7 NativeError Object Structure"},{"section":"x15.11.7.1","name":"15.11.7.1 NativeError Constructors Called as Functions"},{"section":"x15.11.7.2","name":"15.11.7.2 NativeError (message)"},{"section":"x15.11.7.3","name":"15.11.7.3 The NativeError Constructors"},{"section":"x15.11.7.4","name":"15.11.7.4 New NativeError (message)"},{"section":"x15.11.7.5","name":"15.11.7.5 Properties of the NativeError Constructors"},{"section":"x15.11.7.6","name":"15.11.7.6 NativeError.prototype"},{"section":"x15.11.7.7","name":"15.11.7.7 Properties of the NativeError Prototype Objects"},{"section":"x15.11.7.8","name":"15.11.7.8 NativeError.prototype.constructor"},{"section":"x15.11.7.9","name":"15.11.7.9 NativeError.prototype.name"},{"section":"x15.11.7.10","name":"15.11.7.10 NativeError.prototype.message"},{"section":"x15.11.7.11","name":"15.11.7.11 Properties of NativeError Instances"},{"section":"x15.12","name":"15.12 The JSON Object"},{"section":"x15.12.1","name":"15.12.1 The JSON Grammar  "},{"section":"x15.12.1.1","name":"15.12.1.1 The JSON Lexical Grammar"},{"section":"x15.12.1.2","name":"15.12.1.2 The JSON Syntactic Grammar"},{"section":"x15.12.2","name":"15.12.2 parse ( text [ , reviver ] )"},{"section":"x15.12.3","name":"15.12.3 stringify ( value [ , replacer [ , space ] ] )"},{"section":"x16","name":"16 Errors"},{"section":"A","name":"Annex A (informative) Grammar Summary"},{"section":"A.1","name":"A.1 Lexical Grammar"},{"section":"A.2","name":"A.2 Number Conversions"},{"section":"A.3","name":"A.3 Expressions"},{"section":"A.4","name":"A.4 Statements"},{"section":"A.5","name":"A.5 Functions and Programs"},{"section":"A.6","name":"A.6 Universal Resource Identifier Character Classes"},{"section":"A.7","name":"A.7 Regular Expressions"},{"section":"A.8","name":"A.8 JSON"},{"section":"A.8.1","name":"A.8.1 JSON Lexical Grammar"},{"section":"A.8.2","name":"A.8.2 JSON Syntactic Grammar"},{"section":"B","name":"Annex B (informative) Compatibility"},{"section":"B.1","name":"B.1 Additional Syntax"},{"section":"B.1.1","name":"B.1.1 Numeric Literals"},{"section":"B.1.2","name":"B.1.2 String Literals"},{"section":"B.2","name":"B.2 Additional Properties"},{"section":"B.2.1","name":"B.2.1 escape (string)"},{"section":"B.2.2","name":"B.2.2 unescape (string)"},{"section":"B.2.3","name":"B.2.3 String.prototype.substr (start, length)"},{"section":"B.2.4","name":"B.2.4 Date.prototype.getYear ( )"},{"section":"B.2.5","name":"B.2.5 Date.prototype.setYear (year)"},{"section":"B.2.6","name":"B.2.6 Date.prototype.toGMTString ( )"},{"section":"C","name":"Annex C (informative) The Strict Mode of ECMAScript"},{"section":"D","name":"Annex D (informative) Corrections and Clarifications in the 5th Edition with Possible 3rd Edition Compatibility Impact"},{"section":"E","name":"Annex E (informative) Additions and Changes in the 5th Edition that Introduce Incompatibilities with the 3rd Edition"},{"section":"bibliography","name":"Bibliography"}];
 
@@ -7171,21 +6024,18 @@ var template = '[{display_name}]({link}) '           +
 		'has {reputation} reputation, '              +
 		'earned {reputation_change_day} rep today, ' +
 		'asked {question_count} questions, '         +
-		'gave {answer_count} answers.';
-
-var extended_template = 'avg. rep/post: {avg_rep_post}. ' +
+		'gave {answer_count} answers. ' +
+        'avg. rep/post: {avg_rep_post}. ' +
 		'Badges: {gold}g {silver}s {bronze}b ';
 
 function stat ( msg, cb ) {
-	var args = msg.parse(),
-		id = args[ 0 ],
-		extended = ( args[1] === 'extended' );
+	var id = msg.toString();
 
 	if ( !id ) {
 		id = msg.get( 'user_id' );
 	}
 	else if ( !/^\d+$/.test(id) ) {
-		id = msg.findUserid( extended ? id : args.slice().join(' ') );
+		id = msg.findUserid( id );
 	}
 
 	if ( id < 0 ) {
@@ -7218,7 +6068,7 @@ function stat ( msg, cb ) {
 			res = 'User ' + id + ' not found';
 		}
 		else {
-			res = handle_user_object( user, extended );
+			res = handleUserObject( user );
 		}
 
 		finish( res );
@@ -7234,45 +6084,36 @@ function stat ( msg, cb ) {
 	}
 }
 
-function handle_user_object ( user, extended ) {
-	user = normalize_stats( user );
-	var res = template.supplant( user );
-
-	if ( extended ) {
-		res += extended_template.supplant( calc_extended_stats(user) );
-	}
+function handleUserObject ( user ) {
+	var res = template.supplant( normalizeStats(user) );
 
 	bot.log( res, '/stat templated' );
 	return res;
 }
 
-function normalize_stats ( stats ) {
+function normalizeStats ( stats ) {
 	stats = Object.merge({
-			question_count        : 0,
-			answer_count          : 0,
-			reputation_change_day : 0
-		}, stats );
+		question_count        : 0,
+		answer_count          : 0,
+		reputation_change_day : 0
+	}, stats );
 
-	return stats;
-}
+    stats = Object.merge( stats.badge_counts, stats );
 
-function calc_extended_stats ( stats ) {
-	stats = Object.merge( stats.badge_counts, stats );
-
-	stats.avg_rep_post = (
-			stats.reputation / ( stats.question_count + stats.answer_count )
-		).maxDecimal( 2 );
+    stats.avg_rep_post = (
+		stats.reputation / ( stats.question_count + stats.answer_count )
+	).maxDecimal( 2 );
 
 	//1 / 0 === Infinity
 	if ( stats.avg_rep_post === Infinity ) {
 		stats.avg_rep_post = 'T͎͍̘͙̖̤̉̌̇̅ͯ͋͢͜͝H̖͙̗̗̺͚̱͕̒́͟E̫̺̯͖͎̗̒͑̅̈ ̈ͮ̽ͯ̆̋́͏͙͓͓͇̹<̩̟̳̫̪̇ͩ̑̆͗̽̇͆́ͅC̬͎ͪͩ̓̑͊ͮͪ̄̚̕Ě̯̰̤̗̜̗͓͛͝N̶̴̞͇̟̲̪̅̓ͯͅT͍̯̰͓̬͚̅͆̄E̠͇͇̬̬͕͖ͨ̔̓͞R͚̠̻̲̗̹̀>̇̏ͣ҉̳̖̟̫͕ ̧̛͈͙͇͂̓̚͡C͈̞̻̩̯̠̻ͥ̆͐̄ͦ́̀͟A̛̪̫͙̺̱̥̞̙ͦͧ̽͛̈́ͯ̅̍N̦̭͕̹̤͓͙̲̑͋̾͊ͣŅ̜̝͌͟O̡̝͍͚̲̝ͣ̔́͝Ť͈͢ ̪̘̳͔̂̒̋ͭ͆̽͠H̢͈̤͚̬̪̭͗ͧͬ̈́̈̀͌͒͡Ơ̮͍͇̝̰͍͚͖̿ͮ̀̍́L͐̆ͨ̏̎͡҉̧̱̯̤̹͓̗̻̭ͅḐ̲̰͙͑̂̒̐́̊';
 	}
 
-	bot.log( stats, '/stat extended' );
+    //TODO: find out what people want out of Q/A ratio, and do it.
+
 	return stats;
 }
-
-bot.addCommand({
+var cmd = {
 	name : 'stat',
 	fun : stat,
 	permissions : {
@@ -7280,9 +6121,14 @@ bot.addCommand({
 	},
 
 	description : 'Gives useless stats on a user. ' +
-		'`/stat usrid|usrname [extended]`',
+		'`/stat [usrid|usrname]`',
 	async : true
-});
+};
+bot.addCommand( cmd );
+
+// alias for stupid rlemon
+var statsCmd = Object.merge( cmd, { name : 'stats'} );
+bot.addCommand(statsCmd);
 
 }());
 
@@ -7364,7 +6210,7 @@ function substitute ( msg ) {
 }
 
 function get_matching_message ( re, onlyBefore ) {
-	var messages = [].slice.call(
+	var messages = Array.from(
 		document.getElementsByClassName('content') ).reverse();
 	return messages.first( matches );
 
@@ -7450,56 +6296,6 @@ bot.addCommand( bot.CommunityCommand({
 }));
 
 })();
-
-;
-(function () {
-
-function google ( args, cb ) {
-		console.log(args.toString());
-IO.jsonp.time( args.toString(), done );
-
-	function done ( resp ) {
-		console.log(resp);
-		args.send(calcTime(resp['data']['request'][0]['query'],resp['data']['time_zone'][0]['utcOffset']));
-	}
-	
-	}
-	
-	
-	// function to calculate local time
-// in a different city
-// given the city's UTC offset
-function calcTime(city, offset) {
-
-    // create Date object for current location
-    d = new Date();
-    
-    // convert to msec
-    // add local time zone offset 
-    // get UTC time in msec
-    utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-    
-    // create new Date object for different city
-    // using supplied offset
-    nd = new Date(utc + (3600000*offset));
-    
-    // return time as a string
-    return "The local time in " + city + " is " + nd.toLocaleString();
-
-}
-
-
-
-bot.addCommand({
-	name : 'time',
-	fun  : google,
-	permissions : {
-		del : 'NONE'
-	},
-	description : 'Gets the current time in wherever. Acceptable formats are:- City Name; City Name, State (US only); City Name, State, Country; City Name, Country `/time request`',
-	async : true
-});
-}());
 
 ;
 (function () {
@@ -7709,21 +6505,37 @@ bot.addCommand({
 ;
 (function () {
 var undo = {
-	last_id : null,
+	ids : [],
 
 	command : function ( args, cb ) {
-		var id = Number( args.parse()[0] );
-		bot.log( id, '/undo input' );
+		bot.log( args, '/undo input' );
 
-		if ( !id ) {
-			id = this.last_id;
+		// /undo id0 id1 id2
+		if ( args.indexOf(' ') > -1 ) {
+			this.removeMultiple( args.split(' '), finish );
+			return;
 		}
 
-		if ( !id ) {
-			finish( 'I\'ve yet to say a word.' );
+		//yucky
+		if ( args[0] === '~' ) {
+			this.byLookback( args.slice(1), finish );
+		}
+		else if ( args[0] === '*' || args[0] === 'x' ) {
+			this.byPrevious( args.slice(1), finish );
+		}
+		else if ( /^:?\d+$/.test(args) ) {
+			this.remove( args.replace(/^:/, ''), finish );
+		}
+		else if ( !args.content ) {
+			if ( this.ids.length ) {
+				this.remove( this.ids[this.ids.length-1], finish );
+			}
+			else {
+				finish( 'I haven\'t said a thing!' );
+			}
 		}
 		else {
-			this.remove( id, finish );
+			finish( 'I\'m not sure how to handle that, see `/help undo`' );
 		}
 
 		function finish ( ans ) {
@@ -7736,7 +6548,44 @@ var undo = {
 		}
 	},
 
+	removeMultiple : function ( ids, cb ) {
+		ids.forEach(function ( id ) {
+			this.remove( id, cb );
+		}, this );
+	},
+
+	byLookback : function ( input, cb ) {
+		var amount = Number( input.replace('~', '') );
+
+		bot.log( input, amount, this.ids.length - amount, '/undo byLookback' );
+		if ( !amount || amount > this.ids.length ) {
+			cb( 'I can\'t quite see that far back without my glasses' );
+			return;
+		}
+
+		this.remove( this.ids[this.ids.length - amount], cb );
+	},
+
+	byPrevious : function ( input, cb ) {
+		var amount = Number( input );
+
+		if ( !amount ) {
+			cb( 'Yeah, no' );
+			return;
+		}
+
+		return this.removeMultiple( this.ids.slice(-input), cb );
+	},
+
 	remove : function ( id, cb ) {
+		console.log( id, '/undo remove' );
+
+		//yes, this is quite terrible.
+		var index = this.ids.indexOf(id);
+		if (index > -1) {
+			this.ids.splice(index, 1);
+		}
+
 		IO.xhr({
 			url   : '/messages/' + id + '/delete',
 			data   : fkey(),
@@ -7745,6 +6594,11 @@ var undo = {
 		});
 
 		function finish ( resp, xhr ) {
+			if ( xhr.status === 409 ) {
+				bot.log( xhr, '/undo remove finish 409' );
+				undo.retry( id, cb, resp );
+				return;
+			}
 			var msg;
 
 			if ( resp === '"ok"' ) {
@@ -7765,9 +6619,21 @@ var undo = {
 			cb( msg );
 		}
 	},
+	retry : function ( id, cb, resp ) {
+		//the response will be something like:
+		// You can perform this action again in 4 seconds
+		var match = /(\d+) seconds\s*$/i.exec( resp ),
+			secs  = 4;
+
+		if ( match && match[1] ) {
+			secs = Number( match[1] );
+		}
+
+		setTimeout( this.remove.bind(this, id, cb), secs * 1000 );
+	},
 
 	update_id : function ( xhr ) {
-		this.last_id = JSON.parse( xhr.responseText ).id;
+		this.ids.push( JSON.parse(xhr.responseText).id );
 	}
 };
 
@@ -7780,12 +6646,196 @@ bot.addCommand({
 		del : 'NONE',
 		use : 'OWNER'
 	},
-	description : 'Undo (delete) specified or last message. `/undo [msgid]`'
+	description : 'Undo (delete) specified or last message. ' +
+		'`/undo [msgid0, msgid1, ...]` (omit for last message); ' +
+		'`/undo xN` for last N; ' +
+		'`/undo ~N` for the Nth message from the end'
 });
 
 }());
 
 ;
+(function () {
+	"use strict";
+	var unonebox = {
+		enablers: ['yes','on','true','start','1','enable'], // because people are bad at reading instructions
+		disablers: ['no','off','false','stop','0','disable'],// accept a wide range of values for the command
+		command: function (args) {
+			var state = args.toLowerCase();
+			if (this.enablers.indexOf(state) !== -1) {
+				this.enable();
+				args.reply(' un onebox enabled ');
+			} else if (this.disablers.indexOf(state) !== -1) {
+				this.disable();
+				args.reply(' un onebox disabled ');
+			} else {
+				args.reply(' That didn\'t make much sense. Please use `on` or `off` to toggle the command ');
+			}
+		},
+		enable: function () {
+			IO.register('input', this.unbox);
+			bot.memory.set('unonebox-state', 'enabled');
+		},
+		disable: function () {
+			IO.unregister('input', this.unbox);
+			bot.memory.set('unonebox-state', 'disabled');
+		},
+		unbox: function (msgObj) {
+			if (msgObj.user_id === bot.adapter.user_id) {
+				var frag = document.createElement('div');
+				frag.innerHTML = msgObj.content;
+				var link = frag.querySelector('.onebox a');
+				if (link) {
+					setTimeout(function () {
+						IO.xhr({
+							url: '/messages/' + msgObj.message_id,
+							data: fkey({
+								text: link.href + ' ... '
+							}),
+							method: 'POST',
+							complete: function (resp, xhr) {
+								// TODO 
+								// error checking
+							}
+						});
+					}, 90 * 1000);
+				}
+			}
+		}
+	};
+	var state = bot.memory.get('unbox-state');
+	if (state && state === 'enabled') {
+		unonebox.enable();
+	}
+	bot.addCommand({
+		fun: unonebox.command.bind(unonebox),
+		name: 'unonebox',
+		permissions: {
+			del: 'NONE'
+		},
+		description: 'Enable or Disable the unonebox listener' +
+			' `/unonebox on|off`'
+	});
+}());
+;
+(function () {
+
+var cache = {};
+
+function urban ( args, cb ) {
+	if ( cache[args] ) {
+		return finish( cache[args] );
+	}
+
+	var parts = args.parse(),
+		query, resultIndex;
+
+	if ( !parts.length ) {
+		return 'Y U NO PROVIDE ARGUMENTS!?';
+	}
+
+	// /urban query in several words
+	if ( isNaN(parts[1]) ) {
+		bot.log( '/urban input isNaN' );
+		query = args.toString();
+		resultIndex = 0;
+	}
+	// /urban query index
+	else {
+		bot.log( '/urban input isn\'t NaN' );
+		query = parts[ 0 ];
+		resultIndex = Number( parts[1] );
+	}
+
+	bot.log( query, resultIndex, '/urban input' );
+
+	IO.jsonp({
+		url : 'http://api.urbandictionary.com/v0/define',
+		data : {
+			term : query
+		},
+		jsonpName : 'callback',
+		fun : complete
+	});
+
+	function complete ( resp ) {
+		var msg;
+
+		if ( resp.result_type === 'no_results' ) {
+			msg = 'No definition found for ' + query;
+		}
+		else if ( resultIndex > resp.list.length ) {
+			msg = 'Nothing in that index. The last one is:\n' +
+				formatTop( resp.list.pop() );
+		}
+		else {
+			msg = formatTop( resp.list[resultIndex] );
+		}
+		cache[ args ] = msg;
+
+		finish( msg );
+	}
+
+	function finish ( def ) {
+		if ( cb && cb.call ) {
+			cb( def );
+		}
+		else {
+			args.reply( def );
+		}
+	}
+
+	function formatTop ( top ) {
+		//replace [tag] in definition with links
+		var def = top.definition.replace( /\[([^\]]+)\]/g, formatTag );
+
+		return args.link( top.word, top.permalink ) + ' ' + def;
+	}
+	function formatTag ( $0, $1 ) {
+		var href =
+			'http://urbandictionary.com/define.php?term=' +
+			encodeURIComponent( $1 );
+
+		return args.link( $0, href );
+	}
+}
+
+bot.addCommand({
+	name : 'urban',
+	fun : urban,
+
+	permissions : { del : 'NONE', use : 'ALL' },
+
+	description : 'Fetches UrbanDictionary definition. ' +
+		'`/urban query [resultIndex=0]`',
+	async : true
+});
+
+})();
+
+;
+bot.addCommand({
+	name : 'user',
+	fun : function ( args ) {
+		var props = args.parse(),
+			usrid = props[ 0 ] || args.get( 'user_id' ),
+			id = usrid;
+
+		//check for searching by username
+		if ( !(/^\d+$/.test(usrid)) ) {
+			id = args.findUserid( usrid );
+
+			if ( id < 0 ) {
+				return 'Can\'t find user ' + usrid + ' in this chatroom.';
+			}
+		}
+
+		args.directreply( 'http://stackoverflow.com/users/' + id );
+	},
+	permissions : { del : 'NONE', use : 'ALL' },
+	description : 'Fetches user-link for specified user. ' +
+		'`/user usr_id|usr_name`',
+});
 
 ;
 IO.register( 'input', function ( msgObj ) {
@@ -7830,7 +6880,7 @@ undecided=["SSdtIG5vdCBzdXJl", "RVJST1IgQ0FMQ1VMQVRJTkcgUkVTVUxU","SSBrbm93IGp1c
 sameness=["VGhhdCdzIG5vdCByZWFsbHkgYSBjaG9pY2UsIG5vdyBpcyBpdD8=","U291bmRzIGxpa2UgeW91IGhhdmUgYWxyZWFkeSBkZWNpZGVk","Q2hlYXRlciBjaGVhdGVyIHlvdXIgaG91c2UgaXMgYSBoZWF0ZXI="].map(atob);
 
 //now for the juicy part
-answers=["QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QnV0IG9mIGNvdXJzZQ==","QnV0IG9mIGNvdXJzZQ==","QnV0IG9mIGNvdXJzZQ==","QnkgYWxsIG1lYW5z","QnkgYWxsIG1lYW5z","QnkgYWxsIG1lYW5z","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5","Q2VydGFpbmx5","Q2VydGFpbmx5","RGVmaW5pdGVseQ==","RGVmaW5pdGVseQ==","RGVmaW5pdGVseQ==","RG91YnRmdWxseQ==","RG91YnRmdWxseQ==","RG91YnRmdWxseQ==","SSBjYW4gbmVpdGhlciBjb25maXJtIG5vciBkZW55","SSBleHBlY3Qgc28=","SSBleHBlY3Qgc28=","SSBleHBlY3Qgc28=","SSdtIG5vdCBzbyBzdXJlIGFueW1vcmUuIEl0IGNhbiBnbyBlaXRoZXIgd2F5","SW1wb3NzaWJsZQ==","SW1wb3NzaWJsZQ==","SW1wb3NzaWJsZQ==","SW5kZWVk","SW5kZWVk","SW5kZWVk","SW5kdWJpdGFibHk=","SW5kdWJpdGFibHk=","SW5kdWJpdGFibHk=","Tm8gd2F5","Tm8gd2F5","Tm8gd2F5","Tm8=","Tm8=","Tm8=","Tm8=","Tm9wZQ==","Tm9wZQ==","Tm9wZQ==","Tm90IGEgY2hhbmNl","Tm90IGEgY2hhbmNl","Tm90IGEgY2hhbmNl","Tm90IGF0IGFsbA==","Tm90IGF0IGFsbA==","Tm90IGF0IGFsbA==","TnVoLXVo","TnVoLXVo","TnVoLXVo","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIQ==","T2YgY291cnNlIQ==","T2YgY291cnNlIQ==","UHJvYmFibHk=","UHJvYmFibHk=","UHJvYmFibHk=","WWVzIQ==","WWVzIQ==","WWVzIQ==","WWVzIQ==","WWVzLCBhYnNvbHV0ZWx5","WWVzLCBhYnNvbHV0ZWx5","WWVzLCBhYnNvbHV0ZWx5"].map(atob);
+answers=["QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWJzb2x1dGVseSBub3Q=","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIG5v","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QWxsIHNpZ25zIHBvaW50IHRvIHllcw==","QnV0IG9mIGNvdXJzZQ==","QnV0IG9mIGNvdXJzZQ==","QnV0IG9mIGNvdXJzZQ==","QnkgYWxsIG1lYW5z","QnkgYWxsIG1lYW5z","QnkgYWxsIG1lYW5z","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5IG5vdA==","Q2VydGFpbmx5","Q2VydGFpbmx5","Q2VydGFpbmx5","RGVmaW5pdGVseQ==","RGVmaW5pdGVseQ==","RGVmaW5pdGVseQ==","RG91YnRmdWxseQ==","RG91YnRmdWxseQ==","RG91YnRmdWxseQ==","RnJhbmtseSBteSBkZWFyLCBJIGRvbid0IGdpdmUgYSBkZWFu", "RnJhbmtseSBteSBkZWFyLCBJIGRvbid0IGdpdmUgYSBkZWFu", "SSBjYW4gbmVpdGhlciBjb25maXJtIG5vciBkZW55","SSBleHBlY3Qgc28=","SSBleHBlY3Qgc28=","SSBleHBlY3Qgc28=","SSdtIG5vdCBzbyBzdXJlIGFueW1vcmUuIEl0IGNhbiBnbyBlaXRoZXIgd2F5","SW1wb3NzaWJsZQ==","SW1wb3NzaWJsZQ==","SW1wb3NzaWJsZQ==","SW5kZWVk","SW5kZWVk","SW5kZWVk","SW5kdWJpdGFibHk=","SW5kdWJpdGFibHk=","SW5kdWJpdGFibHk=","Tm8gd2F5","Tm8gd2F5","Tm8gd2F5","Tm8=","Tm8=","Tm8=","Tm8=","Tm9wZQ==","Tm9wZQ==","Tm9wZQ==","Tm90IGEgY2hhbmNl","Tm90IGEgY2hhbmNl","Tm90IGEgY2hhbmNl","Tm90IGF0IGFsbA==","Tm90IGF0IGFsbA==","Tm90IGF0IGFsbA==","TnVoLXVo","TnVoLXVo","TnVoLXVo","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIG5vdA==","T2YgY291cnNlIQ==","T2YgY291cnNlIQ==","T2YgY291cnNlIQ==","UHJvYmFibHk=","UHJvYmFibHk=","UHJvYmFibHk=","WWVzIQ==","WWVzIQ==","WWVzIQ==","WWVzIQ==","WWVzLCBhYnNvbHV0ZWx5","WWVzLCBhYnNvbHV0ZWx5","WWVzLCBhYnNvbHV0ZWx5"].map(atob)
 //can you feel the nectar?
 
 
@@ -7928,8 +6978,6 @@ bot.listen(questionRe, function questionListener () {
 });
 
 }());
-
-;
 
 ;
 (function () {
@@ -8073,84 +7121,35 @@ bot.addCommand({
 }());
 
 ;
-// (function () {
-// "use strict";
-// //welcomes new users with a link to the room rules
+(function () {
+"use strict";
 
-// var seen = bot.memory.get( 'users' );
+var message = "Welcome to the JavaScript chat! Please review the " +
+		bot.adapter.link(
+			"room pseudo-rules",
+			"http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
+	"Please don't ask if you can ask or if anyone's around; just ask " +
+	"your question, and if anyone's free and interested they'll help.";
 
-// var message = "Welcome to the JavaScript chat! Please review the " +
-		// bot.adapter.link(
-			// "room pseudo-rules",
-			// "http://rlemon.github.com/so-chat-javascript-rules/" ) + ". " +
-	// "Please don't ask if you can ask or if anyone's around; just ask " +
-	// "your question, and if anyone's free and interested they'll help.";
+function welcome ( name ) {
+	return bot.adapter.reply( name ) + " " + message; ;
+}
 
-// function welcome ( name, room ) {
-	// bot.adapter.out.add(
-		// bot.adapter.reply( name ) + " " + message, room );
-// }
+bot.addCommand({
+	name : 'welcome',
+	fun : function ( args ) {
+		if (!args.length) {
+			return message;
+		}
 
-// IO.register( 'userregister', function ( user, room ) {
-	// var semiLegitUser = bot.isOwner( user.id ) ||
-		// user.reputation > 1000 || user.reputation < 20;
-
-	// if (
-		// Number( room ) !== 17 || semiLegitUser  || seen[ user.id ]
-	// ) {
-		// if ( semiLegitUser ) {
-			// finish( true );
-		// }
-		// return;
-	// }
-
-	// IO.xhr({
-		// method : 'GET',
-		// url : '/users/' + user.id,
-
-		// complete : complete
-	// });
-
-	// function complete ( resp ) {
-		// //I'm parsing html with regexps. hopefully Cthulu won't eat me.
-		// // <a href="/transcript/17">7</a>
-		// // <a href="/transcript/17">47.1k</a>
-		// var chatMessages = /transcript\/17(?:'|")>([\d\.]+)(k?)/.exec( resp );
-
-		// if ( !chatMessages || (
-			// chatMessages[ 2 ] || parseFloat( chatMessages[1] ) < 2
-		// )) {
-			// welcome( user.name, room );
-		// }
-		// finish();
-	// }
-
-	// function finish ( unsee ) {
-		// if ( unsee ) {
-			// delete seen[ user.id ];
-		// }
-		// else {
-			// seen[ user.id ] = true;
-		// }
-		// bot.memory.save( 'users' );
-	// }
-// });
-
-// bot.addCommand({
-	// name : 'welcome',
-	// fun : function ( args ) {
-		// if (!args.length) {
-			// return message;
-		// }
-
-		// welcome( args, args.get('roomid') );
-	// },
-	// permission : {
-		// del : 'NONE'
-	// },
-	// description : 'Welcomes a user. `/welcome user`'
-// });
-// }());
+		return args.send( welcome(args) );
+	},
+	permission : {
+		del : 'NONE'
+	},
+	description : 'Welcomes a user. `/welcome user`'
+});
+}());
 
 ;
 (function () {
@@ -8158,7 +7157,7 @@ bot.addCommand({
 
 function command ( args, cb ) {
 	IO.jsonp({
-		url : 'http://en.wiktionary.org/w/api.php',
+		url : 'http://en.wikipedia.org/w/api.php',
 		jsonpName : 'callback',
 		data : {
 			action : 'opensearch',
@@ -8217,8 +7216,6 @@ bot.addCommand({
 })();
 
 ;
-
-;
 (function() {
 //Gets or sets a XKCD comic-type thing
 //just kidding! we can't set one. I'm just used to crappy javadoc style.
@@ -8229,16 +7226,21 @@ function getXKCD( args, cb ) {
 		linkBase = 'http://xkcd.com/';
 
 	//they want a specifix xkcd
-	if ( /\d{1,4}/.test(prop) ) {
+	if ( /^\d+$/.test(prop) ) {
+        bot.log( '/xkcd specific', prop );
 		finish( linkBase + prop );
 		return;
 	}
-	//we have no idea what they want. lazy arrogant bastards.
+	//they want to search for a certain comic
 	else if ( prop && prop !== 'new' ) {
-		finish( 'Clearly, you\'re not geeky enough for XKCD.' );
+        bot.log( '/xkcd search', args.toString() );
+		IO.jsonp.google(
+            args.toString() + ' site:xkcd.com -forums.xkcd -m.xkcd -fora.xkcd',
+            finishGoogleQuery );
 		return;
 	}
 
+    bot.log( '/xkcd random/latest', prop );
 	//they want a random XKCD, or the latest
 	IO.jsonp({
 		url : 'http://dynamic.xkcd.com/api-0/jsonp/comic',
@@ -8256,6 +7258,28 @@ function getXKCD( args, cb ) {
 			finish( linkBase + maxID );
 		}
 	}
+    function finishGoogleQuery ( resp ) {
+        if ( resp.responseStatus !== 200 ) {
+			finish( 'Something went on fire; status ' + resp.responseStatus );
+			return;
+		}
+
+        var results = resp.responseData.results;
+        if ( !results.length ) {
+            finish( 'Seems like you hallucinated this comic' );
+            return;
+        }
+
+		var result = results[ 0 ],
+            answer = result.url,
+            matches = /xkcd.com\/(\d+)/.exec( answer );
+
+        if ( !matches ) {
+            answer = 'Search didn\'t yield a comic; got ' + result.unescapedUrl;
+        }
+
+        finish( answer );
+    }
 
 	function finish( res ) {
 		bot.log( res, '/xkcd finish' );
@@ -8279,6 +7303,7 @@ bot.addCommand({
 		'`new` for latest, or a number for a specific one.',
 	async : true
 });
+
 })();
 
 ;
@@ -8336,3 +7361,132 @@ bot.addCommand({
 	async : true
 });
 }());
+
+;
+;(function(/* <[^>]> the b̗o̴̻̰̼͙̭̹̩i̛̫͍̻̗̻͈͉d̗̺̮̺͇̜ who s̯̯̜͙̪e̦͖̮͇͕͓e͙̱͚̯̫s̠̮̬͈͔̠̀ ̬̰̼͞a̶̼̩̻̘̦̟͈l̷͉̙͚̰̬̥l͞....*/) {// zIRAK IS gOING TOkILL ME KEHEHEHEHEH
+	var zalgo = function ( args ) {var ZALGO=function(ZA_LGO) {				return Math.floor(Math.random() * ZA_LGO);
+}/*<([a-z]+) *[^/]*?>*/
+		var NO_ZALGO_MESSAGE = args.split('');
+		var _var_;var _var;var var_; // It's a `var`ty in here!
+		var ZALGO_UP,ZALGO_DOWN,ZALGO_LEFT,ZALGO_RIGHT,ZALGO_MID;
+		var NOHOPEONLYZALGO = function() {return NOHOPEONLYZALGO()};;;;;;;;;;/*;;;;*/;;;;;
+		// H̸̡̪̯ͨ͊̽̅̾̎Ȩ̬̩̾͛ͪ̈́̀́͘ ̶̧̨̱̹̭̯ͧ̾ͬC̷̙̲̝͖ͭ̏ͥͮ͟Oͮ͏̮̪̝͍M̲̖͊̒ͪͩͬ̚̚͜Ȇ̴̟̟͙̞ͩ͌͝S̨̥̫͎̭ͯ̿̔̀ͅ
+		var ZALGO_LEVEL = [0,1,2].random();
+	var zalgo_up = [
+		'\u030d','\u030e','\u0304','\u0305',
+		'\u033f','\u0311','\u0306','\u0310',
+		'\u0352','\u0357','\u0351','\u0307',
+		'\u0308','\u030a','\u0342','\u0343',
+		'\u0344','\u034a','\u034b','\u034c',
+		'\u0303','\u0302','\u030c','\u0350',
+		'\u0300','\u0301','\u030b','\u030f',
+		'\u0312','\u0313','\u0314','\u033d',
+		'\u0309','\u0363','\u0364','\u0365',
+		'\u0366','\u0367','\u0368','\u0369',
+		'\u036a','\u036b','\u036c','\u036d',
+		'\u036e','\u036f','\u033e','\u035b',
+		'\u0346','\u031a'
+	];var zalgo_down = [
+		'\u0316','\u0317','\u0318','\u0319',
+		'\u031c','\u031d','\u031e','\u031f',
+		'\u0320','\u0324','\u0325','\u0326',
+		'\u0329','\u032a','\u032b','\u032c',
+		'\u032d','\u032e','\u032f','\u0330',
+		'\u0331','\u0332','\u0333','\u0339',
+		'\u033a','\u033b','\u033c','\u0345',
+		'\u0347','\u0348','\u0349','\u034d',
+		'\u034e','\u0353','\u0354','\u0355',
+		'\u0356','\u0359','\u035a','\u0323'
+	];var zalgo_mid = [
+		'\u0315','\u031b','\u0340','\u0341',
+		'\u0358','\u0321','\u0322','\u0327',
+		'\u0328','\u0334','\u0335','\u0336',
+		'\u034f','\u035c','\u035d','\u035e',
+		'\u035f','\u0360','\u0362','\u0338',
+		'\u0337','\u0361','\u0489'
+	];
+		var ZALGO_RESPONSE = /*Z̶̿̄ͮ̅̎̽Ą͖̺͇̫̮̯̓͌̒̓ͬL͚ͩ́͞G͍̻ͣ̋̾ͥͦ̍ͦO̭̭̪͔̣̒͒̏̔̋̔̚ ̙̻̖̱̈́̍ͫ̓̄̃͞I͉̻̽ͧͣͅS̶̺̦͖ͤ͗͆̊͛̓ ͩ̎̂͋̅͆̚͝C̄̀ͥ͋̔҉̞̥Ȍ̠̤̳͉̺͒̽̓̄̓͝ͅM̓͑̾̐I͎͉̥̤̱͓ͦ̑̋̓͆̽N̙̥͖̯͔̯G̲̹͓̣͙̾̑͊̆ͭ̀̌*/'',PENANCE=0,SUFFERING='A̪̗̐̿̄̔̉̏̾L̹͓̲̈́ͮL̜̼͓͉̞̘̩̇̊';
+		/*
+		if (!center.hold) {
+			while(1) {
+				; ;console.log('Ź̙̬͙̤͙̞͔ͦͪͭ͗̒ͅA̻̟̗̩͑ͦ̔͋̔̑̒L͇͔͑ͥͭ̓͊͋ͤG̩̳ͫ̓̍̎̏ͥ̏O̘̰̬͖̥̳̯͗̉̓̂ͩ͋'); ;
+			}*/var ZALGO_PENANCE = NO_ZALGO_MESSAGE.length;/*
+		}
+		*/if(ZALGO_LEVEL==1) {ZALGO_UP=ZALGO(16)/2+1;ZALGO_DOWN=ZALGO(16)/2+1;ZALGO_MID=ZALGO(6)/2};
+var TONY;
+TONY;
+/*-*/
+TONY	=	  'T̷̂͒̃̽H̸͒̿̒̚̕͜E͋ͥ̋̈̉̏̏̔̔͞ ̏ͥ̊͠P̷̑̌̀O̵̔̑̇̐͌̓̀̚Ǹ͌̍̾̈҉Y͛̈́̉҉͘'
+		for(
+			var PENANCE = 0;
+				/*Q*/PENANCE<ZALGO_PENANCE;/*<([a-z]+) *[^/]*?>*/
+					PENANCE++
+						) {
+			ZALGO_RESPONSE += NO_ZALGO_MESSAGE[PENANCE];
+		SUFFERING++;
+if (!ZALGO_LEVEL) {
+			ZALGO_UP   =ZALGO(8);
+			ZALGO_DOWN	=  ZALGO(8);/*\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/*/
+			ZALGO_MID	 =	 ZALGO(6);////////////////////////////////////////////////////////////////////////////////////
+		}if(ZALGO_LEVEL==1) {ZALGO_UP=ZALGO(16)/2+1;ZALGO_DOWN=ZALGO(16)/2+1;/*ZALGO_MID=ZALGO(123)/9999*/ZALGO_MID=ZALGO(6)/2};
+	if(ZALGO_LEVEL==2) {ZALGO_UP=ZALGO(64)/4+3;/*var createDialog = function(text , title) {
+var dialog =  "<div id=dialog <h1>" + text + "</h1></div>";
+$('body').append(dialog);
+$('#dialog').prop('title' , title);
+$('#dialog').dialog();
+}*//**/ZALGO_DOWN=ZALGO(64)/4+3;/**/ZALGO_MID=ZALGO(16)/4+1};
+ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;ZALGO;
+						for(var j=0; j<ZALGO_UP; j++)
+							ZALGO_RESPONSE /*<([a-z]+) *[^/]*?>*/+= zalgo_up.random();
+								for(var j=0; j<ZALGO_MID; j++)
+									/* o̦̪̮̦̗̘̬͇͗̈ͩ͂̐͊̌ͩ̈t̖̩̹̺̯͖̬͛ͮͮͫ.̮̦͙̺̖͈͇̾ͬ͌ͯ́̎ͥ͋a͎͎̬̪̗͕̱͌́ͅd̼̞͎̜ͯ̈͌̚d̹͙̲̺͖̠̎̊ͮ̈́̈ͪͧͥ̄C͕̝̲͖̱̑ȏ̹͎̣̲͕̳̥̤̙̓̂m̙̯ͮ̔ͪ̃̏̏m̯͓̙̞̖ͫͩ̾ͦͅa̪̠͉͖͉̟̙͓̩̅̇n̰̗͋ͩ̇̄ͣͩ̚d͉ͥͧ̇́(͕͕̺̝̺̩͈͇͌͆̿͆{͙͓ͯ̆̏͑ͯ	̲̬̺̭̜ͫͭ̎ͮn͚͍̹̘͎̝̥͐̅̉ͥ̀̑̐̉ä̳̖͇̖̰̪́ͨ͗ͪͧ̔̅m͈̖̲̋͋e͉͇̭̭̱̅̈ ̥͎̟͒ͤͤ͊̀̿:̘̻̘̭̓̽̾̍̊ ̬͔͎͐̉̔ͩ̋̽͋'͈̞̻̫̪̼͎͊̽̇̍̍ͭͪͥl͖͉̿̈̿ͩ̚i͉͉̤̝̓͊ͦ̈́́̒̃n̰̤̣͓̹͖ͮ̈́k̺̻͕͍͙͇̒̏̂̓̈́̒'͚̱̟̺̺̦̒̈́̈̇ͅ,̝̼̮̪̖̪̜̑̅̾	͕͙̬̱͍̜̂ͥͪ͐̎ͮ̅͂̚f̞̲̺͔̭͇͇ͫ͐͛ͪ̾ͮ̎u̦̤̝̳̍ͩ̓̐ͦ̃ͪn̗̱͖͙̙̱ͧ̑̓̈ͣ̔͛͆ ̝̥̼̭̭̠͇̉:͈̥̟̺̂̄̿̄ͣ͌ ͕̆͒̔ͦͯ̿ͨͨs̯̠͎͈̻̘͉͑̈̔̑ͥͯ͗͂ͅe̬̟͉̬̞̍̒͋̀ͩ̔͗͐n̮̼̠̓̂̅ͭ̌͐ḓ̰̦̭͔̾̓ͨ̍Ḽ̪̯͍̪͐ͭ͑̂i̞̮͆̋ͥ͆ͣn͚̟͇ͩͤͩ̔k̖̤̥ͪ̐ͤͅ,̲̯͎̼̖̠̹̄ͮͦ̈́̆̍̿ͯ̃	̥̖̩̘͎͂͐̋̉̊p͇̦̯͕̂ͩ̎͆e̜͋̈́̀̉͊͆̋ͧr̞̃͊ͭ̎͊͋ͭ̈́̊m̖͇̠̝̬͖̩̅ͣ̎ͪ̈́ͥ̍ḭ̝̯͚͓̲̎̐͒ͭ̋͗̐̒ͤs̠̬͕̬̺̰ͥ̄̈̊ͬ̑̓s̝͚̝͖ͯ̽̅ͨ̾͐í̭̬͖̮͚̀͊ͬͨ̾͌ͧ̚o̲͕̟͔̗̊̿͆͂̂͆̂̌̄n̤̬̏̇ͦͅŝ̻͈̖͚ ̭̝́ͨ͂ͫͬ̎̀̚:̜̠̰ͣͮ͌͑̐̎̑ ̥̭̈́ͨͨ͌ͩ̆{͉̻̤̺͊̀̋ͭͨ͛ͅ	̠̘̯̩̀̅͌̄͛͌	͎̬̞͇̜̻͚͗͗ͧ̑̎ͅď̦̪̫ͦ͂ė͙ͤͣ͛̉̑̅̒̚l̹̩̟̬̤̞͚ͫ̈̓̒̀ ̟̖̰̣̳̂ͦ̏̄ͤ̊̒̚:͎͉̅ ̠̘̣̪̫̗ͦ͛̀̓̂ͭͭ'͕̻̗̦ͯ͗ͯ̓ͭ͗͛Ṉ̩̖̗̯̀̒ͧ̓ͮͨ̏̚O̼̘̟̩͙ͤͦ̈́̓ͩN̝̲͎̖͔͖ͥ̏͋ͯ̈̂̋̓̆ͅE͔͎̟͚͓̺͚ͨ͒ͥ̈́'̥̼̠̲̳͖̼͗ͥ͑	͈͕ͪ̊̿̍ͯͮ̃̊}͕͉̝̜̦͖̰̻̜̓͛̀ */
+								ZALGO_RESPONSE += zalgo_mid.random();
+							for(var j=0; j<ZALGO_DOWN; j++)
+						ZALGO_RESPONSE += zalgo_down.random();
+					/*
+					J̨͜͡S ̕҉ŗo̧͟͢o͝m ͡é͢ń͝c̨̕ǫu̴͠
+					r͏͢a͡g͟͝es̨̨͡ ̷p̷̷͏e͘҉ǫ̷̀p̴ļ̸é͞ ͝t͢o̵͝ ̛͘͞c̷̀͘o͢͏̀m̷̀e̶ ͜ą́ǹ̨d͏ ̵̧͞a͘͠͠s͢͠͡k ̴q͞u̶̡͠ę̸͞s͠͡҉t̸į̵o̢ns͘ ̶t̵h̵̨̀à͢t̴ ̵͏a͘r̷e̛͝ ̵͟t͞o̧͝o͠ ͢s̸͢m̴a̷͝ll̴̴/̡bą͟͝d́l̶̨y͏ ́pu͘͝t̸͏͢ ͏̧f͏or͏ ̧m͠͏aį͢ņ͝.̴̶͝
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏rá̴g̷è͠s̢͢ ͟͟p̀͠e̴͞
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏rá̴g̷è͠s̢͢ ͟͟p̀͠e̴͞O
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏rá̴g̷è͠s̢͢ ͟͟p̀͠e̴͞0P
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏rá̴g̷è͠s̢͢ ͟͟p̀͠e̴͞PLE
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏rá̴g̷è͠s̢͢ ͟͟p̀͠e̴͞
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏
+̛́T̸h́͠͞e ̷̕r͏̴͜oo͜m̕ ̀͘e̵͏̴n͟͟҉c͜͜o͠҉҉u͏rá̴g̷è͠s̢͢ ͟͟p̀͠e̴͞B̥̺̣̯̹̐̍͒̓ͥ̾e̹̳n͙̜j̼ͯͩ̄͑͆a͎̼̯̥̣m̖͓̖̀̋́ͮͦ̂i̪̥͉̬ͭ̔͌̓̐̿̋n̻̥̜͍͛̒ͨ̄̀ ̦͔͈͕̘̫G̝̞͓͙̖ͨͫͅr̘͛̓͗̅̈́̓̃u̐ͮ̐̒ẽ̝̩͇͚͎͐ṅ̥̮͓̩̰ͯ̆̽͒b͔̟͓ã̐̀̀̚uͣ̐̌͒̚ṁ͕͆̈̏ ̺̄͒̑̄͒̍H̫̐̃Ã͓L̞͍ͩ͒ͦ́P̳̖̺͍ͤͨ
+					 */
+		}
+		return ZALGO_RESPONSE || /<([a-z]+) *[^\/]*?>/;
+
+
+
+
+//////nnnooooooooo//oooooo/ooo////o
+
+
+
+	};
+
+	bot.addCommand(/*
+											d̟̬̮o͎̪̻̘̘̫n̕'͙̬̜͍̜t̹̳̰̗̝̰͜ ̢̠̰̘͚͔l̩e҉̘̼̙ͅa̗̣̩v̞̝͍͝e͎͚̹͕͕̠͠ m̰̱͔̭̣͔e̶̻̱̭̜̗̙
+											*/
+
+
+{
+		name : 'zalgo',
+		/*ZALGO*/
+			fun : zalgo,
+				permissions : {
+					del : 'NONE'/*ṇ̯̝̀v̝̘̦̺o͍̦̤͝k͎̺͕͇̗̼e̤̱ ̙̼͚ț̵̫̥̘̟͖h͕̯e̢ hi͚̣̲̘͇̻̗͘v̟e̺͉̙̰-̲m̛͈̩̝i̪̬̤n̼̣̼͈̟d̘̯̮̲̲̟ ͓̗r̨̬̜̘͕ͅͅe̹͓̱̯͓p̬̠r̠̪͉ḙ̱̭̻̗͔́ś̗̤̰͕̫̥è̖̫̹͙n̯̞̯̣̘̖t̷͓͕͖͖̰in̲̤̥͕͉̘͝g̹̜̭̩̯̯̝ ̰͎c͓͕̞͕̯h̩a̟̘͇̮̺̭̦o̭̣̺͠s̻ͅ.̱͙̥̭̙
+̧͖̠̙I҉͕̗̝̝n̘̹v̞̣̝͔͍ọ̦̳̯͞k͖̫i͔n͇̟g̡͓ ̹̩the ͚̺͚̫̦f͕͕͔̜̼̞̀e̠͔̖̜͓̭̥e͏͙͈̦lin͎͉̭̮̫̹̝g͍̹͖ ̦͈̬̼̠͖óf̳̣̼͜ͅ ̨͎̼͇ͅc̦͞h̞̘̠̹̹̤ͅa̢̯o̫̱̼͉s̩͙͔͇̳̬̦.͏̞̫͇
+̱͕̯̝̺̜W̢̘̹i͞t̬͔̬h̹̞̗̞ ͓͍̬́o̮͇͎̬u̲t̲͉̞̹̖̯̘ ̮̠͇o̘̪͙͜r̷̞̱͔d͍͢e҉̠͚r̫͙ͅ.̴̣
+Th͎̯̠͚̥e̜̞͇͔̣ ̼̰͚̱̜̬͡ͅN̢̳̞͔e̴̩̠̖͎̤̬z̧̺̘͎̮̣ṕ͍̳̼̥͍e̝̟̻̳͕̱͍r̢̞̝̲̻d̶̫͉̮̙̯͔i̵̼͎̰̘̙̰*/
+						},
+							description : 'H̸̡̪̯ͨ͊̽̅̾̎Ȩ̬̩̾͛ͪ̈́̀́͘ ̶̧̨̱̹̭̯ͧ̾ͬC̷̙̲̝͖ͭ̏ͥͮ͟Oͮ͏̮̪̝͍M̲̖͊̒ͪͩͬ̚̚͜Ȇ̴̟̟͙̞ͩ͌͝S̨̥̫͎̭ͯ̿̔̀ͅ http://stackoverflow.com/a/1732454/1216976'
+						}
+					)
+		;
+		}
+		)
+		(
+		)
+		;//t͕̥́h̡̠͔͕̳̳e҉̱͓̱̦è̟n̢̗͖̜̳d̺̖

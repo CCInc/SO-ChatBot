@@ -15,8 +15,9 @@ var commands = {
 			return args + ': ' + desc;
 		}
 
-		return 'https://github.com/Zirak/SO-ChatBot/wiki/' +
-			'Interacting-with-the-bot';
+		return 'Information on interacting with me can be found at ' +
+			'[this page](https://github.com/Zirak/SO-ChatBot/' +
+			'wiki/Interacting-with-the-bot)';
 	},
 
 	listen : function ( msg ) {
@@ -27,6 +28,8 @@ var commands = {
 	},
 
 	eval : function ( msg, cb ) {
+		cb = cb || msg.directreply.bind( msg );
+
 		return bot.eval( msg, cb );
 	},
 	coffee : function ( msg, cb ) {
@@ -35,25 +38,9 @@ var commands = {
 		return commands.eval( arg, cb );
 	},
 
-	live : function () {
-		if ( !bot.stopped ) {
-			return 'I\'m not dead! Honest!';
-		}
-		bot.continue();
-		return 'And on this day, you shall paint eggs for a giant bunny.';
-	},
-
-	die : function () {
-		if ( bot.stopped ) {
-			return 'Kill me once, shame on you, kill me twice...';
-		}
-		bot.stop();
-		return 'You killed me!';
-	},
-
 	refresh : function() {
 		window.location.reload();
-    },
+	},
 
 	forget : function ( args ) {
 		var name = args.toLowerCase(),
@@ -71,76 +58,6 @@ var commands = {
 		return 'Command ' + name + ' forgotten.';
 	},
 
-	ban : function ( args ) {
-		var ret = [];
-		if ( args.content ) {
-			args.parse().forEach( ban );
-		}
-		else {
-			ret = Object.keys( bot.banlist ).filter( Number ).map( format );
-		}
-
-		return ret.join( ' ' ) || 'Nothing to show/do.';
-
-		function ban ( usrid ) {
-			var id = Number( usrid ),
-				msg;
-			if ( isNaN(id) ) {
-				id = args.findUserid( usrid.replace(/^@/, '') );
-			}
-
-			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.';
-			}
-			else if ( bot.isOwner(id) ) {
-				msg = 'Cannot mindjail owner {0}.';
-			}
-			else if ( bot.banlist.contains(id) ) {
-				msg = 'User {0} already in mindjail.';
-			}
-			else {
-				bot.banlist.add( id );
-				msg = 'User {0} added to mindjail.';
-			}
-
-			ret.push( msg.supplant(usrid) );
-		}
-
-		function format ( id ) {
-			var user = bot.users[ id ],
-				name = user ? user.name : '?';
-
-			return '{0} ({1})'.supplant( id, name );
-		}
-	},
-
-	unban : function ( args ) {
-		var ret = [];
-		args.parse().forEach( unban );
-
-		return ret.join( ' ' );
-
-		function unban ( usrid ) {
-			var id = Number( usrid ),
-				msg;
-			if ( isNaN(id) ) {
-				id = args.findUserid( usrid.replace(/^@/, '') );
-			}
-
-			if ( id < 0 ) {
-				msg = 'Cannot find user {0}.';
-			}
-			else if ( !bot.banlist.contains(id) ) {
-				msg = 'User {0} isn\'t in mindjail.';
-			}
-			else {
-				bot.banlist.remove( id );
-				msg = 'User {0} freed from mindjail!';
-			}
-
-			ret.push( msg.supplant(usrid) );
-		}
-	},
 	
 	// stfu : function (args) {
 		// if (bot.stopped)
@@ -360,24 +277,13 @@ var partition = function ( list, maxSize ) {
 
 return function ( args ) {
 	var commands = Object.keys( bot.commands ),
+		user_name = args.get( 'user_name' ),
+		// 500 is the max, -2 for @ and space.
+		maxSize = 498 - user_name.length,
 		//TODO: only call this when commands were learned/forgotten since last
-		partitioned = partition( commands ),
+		partitioned = partition( commands, maxSize );
 
-		valid = /^(\d+|$)/.test( args.content ),
-		page = Number( args.content ) || 0;
-
-	if ( page >= partitioned.length || !valid ) {
-		return args.codify( [
-			'StackOverflow: Could not access page.',
-			'IndexError: index out of range',
-			'java.lang.IndexOutOfBoundsException',
-			'IndexOutOfRangeException'
-		].random() );
-	}
-
-	var ret = partitioned[ page ].join( ', ' );
-
-	return ret + ' (page {0}/{1})'.supplant( page, partitioned.length-1 );
+	return partitioned.invoke( 'join', ', ' ).join( '\n' );
 };
 })();
 
@@ -711,6 +617,7 @@ var descriptions = {
 		' `/help [cmdName]`',
 	info : 'Grabs some stats on my current instance or a command.' +
 		' `/info [cmdName]`',
+	listcommands : 'Lists commands. `/listcommands`',
 	jquery : 'Fetches documentation link from jQuery API. `/jquery what`',
 	listcommands : 'Lists commands. `/listcommands [page=0]`',
 	listen : 'Forwards the message to my ears (as if called without the /)',
@@ -722,6 +629,7 @@ var descriptions = {
 	refresh : 'Reloads the browser window I live in',
 	regex : 'Executes a regex against text input. `/regex text regex [flags]`',
 	tell : 'Redirect command result to user/message.' +
+		' /tell `msg_id|usr_name cmdName [cmdArgs]`'
 		' /tell `msg_id|usr_name cmdName [cmdArgs]`',
 	unban : 'Removes a user from my mindjail. `/unban usr_id|usr_name`',
 	urban : 'Fetches UrbanDictionary definition. `/urban something`',
@@ -742,7 +650,7 @@ var communal = {
 Object.iterate( commands, function ( cmdName, fun ) {
 	var cmd = {
 		name : cmdName,
-		fun  : fun,
+		fun	 : fun,
 		permissions : {
 			del : 'NONE',
 			use : privilegedCommands[ cmdName ] ? 'OWNER' : 'ALL'

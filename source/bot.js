@@ -40,8 +40,9 @@ var bot = window.bot = {
 		try {
 			//it wants to execute some code
 			if ( /^c?>/.test(msg) ) {
-				this.eval( msg );
+				this.eval( msg.toString(), msg.directreply.bind(msg) );
 			}
+			//or maybe some other action.
 			else {
 				this.invokeAction( msg );
 			}
@@ -59,7 +60,7 @@ var bot = window.bot = {
 
 			msg.directreply( err );
 			//make sure we have it somewhere
-			console.dir( e );
+			console.error( e.stack );
 		}
 		finally {
 			this.info.invoked += 1;
@@ -96,11 +97,11 @@ var bot = window.bot = {
 		//man, I can't believe it worked...room full of nachos for me
 		var errMsg = 'That didn\'t make much sense.';
 		if ( guesses && guesses.length ) {
-			errMsg += ' Maybe you meant: ' + cmd.guesses.join( ', ' );
+			errMsg += ' Maybe you meant: ' + guesses.join( ', ' );
 		}
 		//mmmm....nachos
 		else {
-			errMsg += ' Use the help command to learn more.';
+			errMsg += ' Use the `!!/help` command to learn more.';
 		}
 		//wait a minute, these aren't nachos. these are bear cubs.
 		return errMsg;
@@ -135,7 +136,13 @@ var bot = window.bot = {
 	prepareMessage : function ( msgObj ) {
 		msgObj = this.adapter.transform( msgObj );
 
-		var msg = IO.decodehtmlEntities( msgObj.content );
+		//decode markdown and html entities.
+		var msg = IO.htmlToMarkdown( msgObj.content ); //#150
+		msg = IO.decodehtmlEntities( msg );
+
+		//fixes issues #87 and #90 globally
+		msg = msg.replace( /\u200b|\u200c/g, '' );
+
 		return this.Message(
 			msg.slice( this.invocationPattern.length ).trim(),
 			msgObj );
@@ -246,7 +253,17 @@ var bot = window.bot = {
 	},
 	continue : function () {
 		this.stopped = false;
-	}
+	},
+
+    devMode : false,
+    activateDevMode : function ( pattern ) {
+        this.devMode = true;
+        this.invocationPattern = pattern || 'beer!';
+        IO.events.userjoin.length = 0;
+        this.validateMessage = function ( msgObj ) {
+            return msgObj.content.trim().startsWith( this.invocationPattern );
+        };
+    }
 };
 
 //a place to hang your coat and remember the past. provides an abstraction over
@@ -309,11 +326,12 @@ bot.banlist.contains = function ( id ) {
 };
 bot.banlist.add = function ( id ) {
 	this[ id ] = { told : false };
-	this.save();
+	bot.memory.save( 'ban' );
 };
 bot.banlist.remove = function ( id ) {
 	if ( this.contains(id) ) {
 		delete this[ id ];
+		bot.memory.save( 'ban' );
 	}
 };
 
@@ -356,6 +374,7 @@ bot.Command = function ( cmd ) {
 	cmd.del = function () {
 		bot.info.forgotten += 1;
 		delete bot.commands[ cmd.name ];
+		bot.commandDictionary.trie.del(cmd.name);
 	};
 
 	return cmd;
@@ -545,6 +564,7 @@ bot.beatInterval = 5000; //once every 5 seconds is Good Enough ™
 //#build eval.js
 
 //#build parseCommandArgs.js
+//#build parseMacro.js
 //#build suggestionDict.js
 
 //#build commands.js
